@@ -1,0 +1,107 @@
+@font-face{
+	font-family: "pixel";
+	src: url('./pixel.ttf');
+}
+@font-face{
+	font-family: "big_pixel";
+	src: url('./big_pixel.ttf');
+}
+body {
+	position: relative;
+	margin: 0;
+	color: #000000;
+	background-image: url("./img/planks_birch.png");
+	background-size: 4em;
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;/*One or the other will work, hopefully.*/
+	font-family: pixel;
+	overflow: hidden;
+}
+
+input[type=text], input[type=email], input[type=password] {
+	all: unset;
+	background-color: #f0f0f0;
+	color: #000000;
+	border-style: solid;
+	border-width: 1px;
+	border-radius: 0.125em;
+	padding: 0.25em;
+	cursor: text;
+}
+input[type=submit] {
+	all: unset;
+	cursor: pointer;
+	background-color: #808080;
+	padding: 0.5em;
+	margin: 0.125em 0.125em 0.125em 0em;
+}
+.cp>* {
+	margin: 5px;
+}
+.cp {
+	width: 50%;
+	float: left;
+	padding: 10% 0;
+}
+.loginform {
+	margin:60px;
+	background-color: #d6c890;
+	padding: 1em;
+}
+label {
+	font-size: 1.5rem;
+}
+.errormsg {
+	position: absolute;
+	width: 50%;
+	height: 2rem;
+	padding: 1rem 0;
+	left: 25%;
+	top: 2rem;
+	background-color: #ff8080;
+	border-radius: 1rem;
+	font-size: 1.5rem;
+	text-align: center;
+}
+small {
+	font-size: 0.75em;
+}
+#login {
+	height: 15em;
+	width: 40em;
+	background-color: #808080;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+	text-align: center;
+	padding-top: 5em;
+}
+#form {
+	height: 16em;
+	width: 26em;
+	background-color: #808080;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+	padding: 2em;
+}
+.banner {
+	visibility: hidden;
+	background-color: blue;
+	width: 50%;
+	position: relative;
+	margin: 1rem auto 0;
+	padding: 1em;
+	text-align: center;
+	background-image: url("./img/stone.png");
+	background-size: auto 100%;
+	animation: bannerfade 10s;
+	animation-timing-function: linear;
+}
+@keyframes bannerfade{
+	0% {visibility: visible; opacity: 1}
+	90% {visibility: visible; opacity: 1}
+	100% {visibility: visible; opacity: 0}
+}

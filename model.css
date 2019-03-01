@@ -1,0 +1,405 @@
+.space {
+	padding: 4.3rem 1.9rem 4.1rem;
+	width: 0px;
+	height: 0px;
+	perspective: none;
+}
+.model {
+	transform-style: preserve-3d;
+	transform: rotateX(-35.264deg) rotateY(45deg);
+	width: 0px;
+	height: 0px;
+}
+.model div {
+	transform-style: preserve-3d;
+	width: 0px;
+	height: 0px;
+	position: absolute;
+	top:50%;
+	left:50%;
+	background-image: url('./img/steve.png');
+	background-size: 16rem;
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;/*One or the other will work, hopefully.*/
+}
+.model .outer {
+	transform: scale3d(1.125,1.125,1.125);
+}
+/*.face.front {
+	background-color: red;
+}
+.face.back {
+	background-color: cyan;
+}
+.face.top {
+	background-color: blue;
+}
+.face.bottom {
+	background-color: yellow;
+}
+.face.left {
+	background-color: magenta;
+}
+.face.right {
+	background-color: green;
+}*/
+.face.back, .face.right, .face.bottom {
+	visibility: hidden;
+}
+.model-head.outer .face.back, .model-head.outer .face.right, .model-head.outer .face.bottom {
+	visibility: visible;
+}
+.model .model-head .face.front {
+	height: 2rem;
+	width: 2rem;
+	transform: translate(-50%,-50%) translate3d(0rem,0rem,1rem);
+	background-position: -2rem -2rem;
+}
+.model .model-head .face.back {
+	height: 2rem;
+	width: 2rem;
+	transform: translate(-50%,-50%) translate3d(0rem,0rem,-1rem);
+	background-position: -6rem -2rem;
+}
+.model .model-head .face.top {
+	height: 2rem;
+	width: 2rem;
+	transform: translate(-50%,-50%) rotateX(90deg) translate3d(0rem,0rem,1rem);
+	background-position: -2rem 0rem;
+}
+.model .model-head .face.bottom {
+	height: 2rem;
+	width: 2rem;
+	transform: translate(-50%,-50%) rotateX(90deg) translate3d(0rem,0rem,-1rem);
+	background-position: -4rem 0rem;
+}
+.model .model-head .face.left {
+	height: 2rem;
+	width: 2rem;
+	transform: translate(-50%,-50%) rotateY(-90deg) translate3d(0rem,0rem,1rem);
+	background-position: 0rem -2rem;
+}
+.model .model-head .face.right {
+	height: 2rem;
+	width: 2rem;
+	transform: translate(-50%,-50%) rotateY(-90deg) translate3d(0rem,0rem,-1rem);
+	background-position: -4rem -2rem;
+}
+.model .model-head.outer .face.front {
+	background-position: -10rem -2rem;
+}
+.model .model-head.outer .face.back {
+	background-position: -14rem -2rem;
+}
+.model .model-head.outer .face.top {
+	background-position: -10rem -0rem;
+}
+.model .model-head.outer .face.bottom {
+	background-position: -12rem -0rem;
+}
+.model .model-head.outer .face.left {
+	background-position: -8rem -2rem;
+}
+.model .model-head.outer .face.right {
+	background-position: -12rem -2rem;
+}
+.model .model-head {
+	transform: translate3d(0rem,-3rem,0rem);
+	position: relative;
+}
+.model .model-head.outer {
+	transform: translate3d(0rem,-3rem,0rem) scale3d(1.125,1.125,1.125);
+}
+.model .model-body .face.front {
+	height: 3rem;
+	width: 2rem;
+	transform: translate(-50%,-50%) translate3d(0rem,0rem,0.5rem);
+	background-position: -5rem -5rem;
+}
+.model .model-body .face.back {
+	height: 3rem;
+	width: 2rem;
+	transform: translate(-50%,-50%) translate3d(0rem,0rem,-0.5rem);
+	background-position: -8rem -5rem;
+}
+.model .model-body .face.top {
+	height: 1rem;
+	width: 2rem;
+	transform: translate(-50%,-50%) rotateX(90deg) translate3d(0rem,0rem,1.5rem);
+	background-position: -5rem -4rem;
+}
+.model .model-body .face.bottom {
+	height: 1rem;
+	width: 2rem;
+	transform: translate(-50%,-50%) rotateX(90deg) translate3d(0rem,0rem,-1.5rem);
+	background-position: -7rem -4rem;
+}
+.model .model-body .face.left {
+	height: 3rem;
+	width: 1rem;
+	transform: translate(-50%,-50%) rotateY(-90deg) translate3d(0rem,0rem,1rem);
+	background-position: -4rem -5rem;
+}
+.model .model-body .face.right {
+	height: 3rem;
+	width: 1rem;
+	transform: translate(-50%,-50%) rotateY(-90deg) translate3d(0rem,0rem,-1rem);
+	background-position: -7rem -5rem;
+}
+.model .model-body.outer .face.front {
+	background-position: -5rem -9rem;
+}
+.model .model-body.outer .face.back {
+	background-position: -8rem -9rem;
+}
+.model .model-body.outer .face.top {
+	background-position: -5rem -8rem;
+}
+.model .model-body.outer .face.bottom {
+	background-position: -7rem -8rem;
+}
+.model .model-body.outer .face.left {
+	background-position: -4rem -9rem;
+}
+.model .model-body.outer .face.right {
+	background-position: -7rem -9rem;
+}
+.model .model-body {
+	transform: translate3d(0rem,-0.5rem,0rem);
+	position: relative;
+}
+.model .model-body.outer {
+	transform: translate3d(0rem,-0.5rem,0rem) scale3d(1.125,1.125,1.125);
+}
+.model .model-arm .face.front {
+	height: 3rem;
+	width: 1rem;
+	transform: translate(-50%,-50%) translate3d(0rem,0rem,0.5rem);
+}
+.model .model-arm .face.back {
+	height: 3rem;
+	width: 1rem;
+	transform: translate(-50%,-50%) translate3d(0rem,0rem,-0.5rem);
+}
+.model .model-arm .face.top {
+	height: 1rem;
+	width: 1rem;
+	transform: translate(-50%,-50%) rotateX(90deg) translate3d(0rem,0rem,1.5rem);
+}
+.model .model-arm .face.bottom {
+	height: 1rem;
+	width: 1rem;
+	transform: translate(-50%,-50%) rotateX(90deg) translate3d(0rem,0rem,-1.5rem);
+}
+.model .model-arm .face.left {
+	height: 3rem;
+	width: 1rem;
+	transform: translate(-50%,-50%) rotateY(-90deg) translate3d(0rem,0rem,0.5rem);
+}
+.model .model-arm .face.right {
+	height: 3rem;
+	width: 1rem;
+	transform: translate(-50%,-50%) rotateY(-90deg) translate3d(0rem,0rem,-0.5rem);
+}
+.model .model-arm.left .face.front {
+	background-position: -11rem -5rem;
+}
+.model .model-arm.left .face.back {
+	background-position: -13rem -5rem;
+}
+.model .model-arm.left .face.top {
+	background-position: -11rem -4rem;
+}
+.model .model-arm.left .face.bottom {
+	background-position: -12rem -4rem;
+}
+.model .model-arm.left .face.left {
+	background-position: -10rem -5rem;
+}
+.model .model-arm.left .face.right {
+	background-position: -12rem -5rem;
+}
+.model .model-arm.right .face.front {
+	background-position: -9rem -13rem;
+}
+.model .model-arm.right .face.back {
+	background-position: -11rem -13rem;
+}
+.model .model-arm.right .face.top {
+	background-position: -9rem -12rem;
+}
+.model .model-arm.right .face.bottom {
+	background-position: -10rem -12rem;
+}
+.model .model-arm.right .face.left {
+	background-position: -8rem -13rem;
+}
+.model .model-arm.right .face.right {
+	background-position: -10rem -13rem;
+}
+.model .model-arm.left.outer .face.front {
+	background-position: -11rem -9rem;
+}
+.model .model-arm.left.outer .face.back {
+	background-position: -13rem -9rem;
+}
+.model .model-arm.left.outer .face.top {
+	background-position: -11rem -8rem;
+}
+.model .model-arm.left.outer .face.bottom {
+	background-position: -12rem -8rem;
+}
+.model .model-arm.left.outer .face.left {
+	background-position: -10rem -9rem;
+}
+.model .model-arm.left.outer .face.right {
+	background-position: -12rem -9rem;
+}
+.model .model-arm.right.outer .face.front {
+	background-position: -13rem -13rem;
+}
+.model .model-arm.right.outer .face.back {
+	background-position: -15rem -13rem;
+}
+.model .model-arm.right.outer .face.top {
+	background-position: -13rem -12rem;
+}
+.model .model-arm.right.outer .face.bottom {
+	background-position: -14rem -12rem;
+}
+.model .model-arm.right.outer .face.left {
+	background-position: -12rem -13rem;
+}
+.model .model-arm.right.outer .face.right {
+	background-position: -14rem -13rem;
+}
+.model .model-arm.left {
+	transform: translate3d(-1.5rem,-0.5rem,0rem);
+	position: relative;
+}
+.model .model-arm.right {
+	transform: translate3d(1.5rem,-0.5rem,0rem);
+	position: relative;
+}
+.model .model-arm.left.outer {
+	transform: translate3d(-1.5rem,-0.5rem,0rem) scale3d(1.125,1.125,1.125);
+}
+.model .model-arm.right.outer {
+	transform: translate3d(1.5rem,-0.5rem,0rem) scale3d(1.125,1.125,1.125);
+}
+.model .model-leg .face.front {
+	height: 3rem;
+	width: 1rem;
+	transform: translate(-50%,-50%) translate3d(0rem,0rem,0.5rem);
+}
+.model .model-leg .face.back {
+	height: 3rem;
+	width: 1rem;
+	transform: translate(-50%,-50%) translate3d(0rem,0rem,-0.5rem);
+}
+.model .model-leg .face.top {
+	height: 1rem;
+	width: 1rem;
+	transform: translate(-50%,-50%) rotateX(90deg) translate3d(0rem,0rem,1.5rem);
+}
+.model .model-leg .face.bottom {
+	height: 1rem;
+	width: 1rem;
+	transform: translate(-50%,-50%) rotateX(90deg) translate3d(0rem,0rem,-1.5rem);
+}
+.model .model-leg .face.left {
+	height: 3rem;
+	width: 1rem;
+	transform: translate(-50%,-50%) rotateY(-90deg) translate3d(0rem,0rem,0.5rem);
+}
+.model .model-leg .face.right {
+	height: 3rem;
+	width: 1rem;
+	transform: translate(-50%,-50%) rotateY(-90deg) translate3d(0rem,0rem,-0.5rem);
+}
+.model .model-leg.left .face.front {
+	background-position: -1rem -5rem;
+}
+.model .model-leg.left .face.back {
+	background-position: -3rem -5rem;
+}
+.model .model-leg.left .face.top {
+	background-position: -1rem -4rem;
+}
+.model .model-leg.left .face.bottom {
+	background-position: -2rem -4rem;
+}
+.model .model-leg.left .face.left {
+	background-position: -0rem -5rem;
+}
+.model .model-leg.left .face.right {
+	background-position: -2rem -5rem;
+}
+.model .model-leg.right .face.front {
+	background-position: -5rem -13rem;
+}
+.model .model-leg.right .face.back {
+	background-position: -7rem -13rem;
+}
+.model .model-leg.right .face.top {
+	background-position: -5rem -12rem;
+}
+.model .model-leg.right .face.bottom {
+	background-position: -6rem -12rem;
+}
+.model .model-leg.right .face.left {
+	background-position: -4rem -13rem;
+}
+.model .model-leg.right .face.right {
+	background-position: -6rem -13rem;
+}
+.model .model-leg.left.outer .face.front {
+	background-position: -1rem -9rem;
+}
+.model .model-leg.left.outer .face.back {
+	background-position: -3rem -9rem;
+}
+.model .model-leg.left.outer .face.top {
+	background-position: -1rem -8rem;
+}
+.model .model-leg.left.outer .face.bottom {
+	background-position: -2rem -8rem;
+}
+.model .model-leg.left.outer .face.left {
+	background-position: -0rem -9rem;
+}
+.model .model-leg.left.outer .face.right {
+	background-position: -2rem -9rem;
+}
+.model .model-leg.right.outer .face.front {
+	background-position: -1rem -13rem;
+}
+.model .model-leg.right.outer .face.back {
+	background-position: -3rem -13rem;
+}
+.model .model-leg.right.outer .face.top {
+	background-position: -1rem -12rem;
+}
+.model .model-leg.right.outer .face.bottom {
+	background-position: -2rem -12rem;
+}
+.model .model-leg.right.outer .face.left {
+	background-position: -0rem -13rem;
+}
+.model .model-leg.right.outer .face.right {
+	background-position: -2rem -13rem;
+}
+.model .model-leg.left {
+	transform: translate3d(-0.5rem,2.5rem,0rem);
+	position: relative;
+}
+.model .model-leg.right {
+	transform: translate3d(0.5rem,2.5rem,0rem);
+	position: relative;
+}
+.model .model-leg.left.outer {
+	transform: translate3d(-0.5rem,2.5rem,0rem) scale3d(1.125,1.125,1.125);
+}
+.model .model-leg.right.outer {
+	transform: translate3d(0.5rem,2.5rem,0rem) scale3d(1.125,1.125,1.125);
+}

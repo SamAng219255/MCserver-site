@@ -1,0 +1,8 @@
+map/db.php
+map/dats/*
+map/img/tile.*
+map/img/excluded/*
+map/img/full.png
+map/tileIds.json
+map/upload.sh
+db.php

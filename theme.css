@@ -1,0 +1,361 @@
+@font-face{
+	font-family: "pixel";
+	src: url('pixel.ttf');
+}
+@font-face{
+	font-family: "big_pixel";
+	src: url('big_pixel.ttf');
+}
+body {
+	position: relative;
+	margin: 0;
+	color: #40f0c0;
+	background-color: #000000;
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;/*One or the other will work, hopefully.*/
+	font-family: pixel;
+	overflow: hidden;
+}
+::selection {
+	background-color: #219255;
+}
+input[type=hidden] {
+	display: none;
+}
+#wrapper {
+	height: 100%;
+	position: relative;
+	overflow-y: auto;
+	overflow-x: hidden;
+	perspective: 1000000rem;
+	padding: 0 0 1rem;
+}
+#navigation {
+	width: 100%;
+	height: 6rem;
+	background-color: #808080;
+}
+#text, #postoptions, #settings, #people, #body, #nations {
+	margin: 1rem auto 1rem;
+	padding: 1rem 0;
+	width: 90%;
+	background-image: url("./img/planks_birch.png");
+	background-size: 4em;
+	min-height: 50%;
+	color: #000000;
+}
+#settingscontainer {
+	margin: 0 1rem;
+}
+#settings input {
+	margin-top: 1rem;
+	font-size: 1rem;
+}
+.card {
+	margin: 1rem;
+	border-radius: 1rem;
+	background-color: #40f0c0;
+	position: relative;
+	color: #202020;
+}
+.card table {
+	width: 100%;
+}
+.card table tr:nth-child(1)>td:nth-child(1) {
+	width: 3.8rem;
+}
+table {
+	color: inherit;
+}
+.card ul {
+	columns: 2;
+	-webkit-columns: 2;
+	-moz-columns: 2;
+	list-style-type: none;
+}
+.card .postmeta {
+	position: relative;
+	top: 0;
+	border-style: none none solid;
+	text-align: center;
+	overflow: auto;
+	padding: 1rem;
+	height: 0.5rem;
+}
+.card .h {
+	display: inline-block;
+	font-size: 1.5rem;
+	font-weight: bold;
+	position: absolute;
+	bottom: 0;
+	left: 1rem;
+}
+.card .topic {
+	display: inline-block;
+	position: absolute;
+	left: 50%;
+	transform: translate(-25%,0);
+	bottom: 0;
+}
+.card .time {
+	display: inline-block;
+	position: absolute;
+	bottom: 0;
+	right: 1rem;
+}
+.card .stuffing{
+	white-space: pre-wrap;
+	padding: 1rem 1.5rem 1rem 1rem;
+}
+.card .stuffing.long:not(.extended) {
+	overflow: hidden;
+	height: 9.75em;
+}
+.card .show {
+	margin-left: 1rem;
+	opacity: 0.5;
+	cursor: pointer;
+	display: inline-block;
+}
+.card textarea {
+	all: unset;
+	border-width: 1px;
+	border-radius: 0.25rem;
+	padding: 0.25rem;
+	width: 100%;
+	height: 9rem;
+	margin: 1px;
+}
+.card textarea:focus {
+	border-style: solid;
+	margin: 0px;
+}
+.card select {
+	all: unset;
+}
+.card .footer {
+	margin-top: -1.5rem;
+	padding: 1rem 1.5rem 1rem 1rem;
+	height: 1rem;
+}
+.card .footer>* {
+	display: inline-block;
+}
+.card .footer .edit, .card .footer .delete {
+	float: right;
+	visibility: hidden;
+	color: inherit;
+	text-decoration: none;
+	cursor: pointer;
+}
+.card .footer .delete {
+	margin-left: 0.5rem;
+}
+.card:hover .footer .edit, .card:hover .footer .delete {
+	visibility: visible;
+}
+input[type=submit], input[type=button] {
+	all: unset;
+	padding: 0.5em;
+	font-size: 1.25em;
+	background-image: url("./img/stone.png");
+	background-size: 4em;
+	color: #000000;
+	cursor: pointer;
+}
+#stars1 {
+	background-image: url("./img/stars.png");
+	background-size: 768px;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0px;
+	left: 0px;
+	z-index: -1;
+	-webkit-transform: translateZ(-1000000rem) scale(2);
+	transform: translateZ(-1000000rem) scale(2);
+}
+#stars2 {
+	background-image: url("./img/stars.png");
+	background-size: 512px;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0px;
+	left: 0px;
+	z-index: -2;
+	-webkit-transform: translateZ(-2000000rem) scale(3);
+	transform: translateZ(-2000000rem) scale(3);
+}
+#stars3 {
+	background-image: url("./img/stars.png");
+	background-size: 256px;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0px;
+	left: 0px;
+	z-index: -3;
+	-webkit-transform: translateZ(-3000000rem) scale(4);
+	transform: translateZ(-3000000rem) scale(4);
+}
+#pages {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	height: 6rem;
+}
+#pages>a, #pages>span {
+	display: inline-block;
+	position: relative;
+	font-size: 1.5rem;
+	height: 2rem;
+	padding: 2rem 1rem;
+	color: #000000;
+	text-decoration: none;
+	cursor: pointer;
+}
+#pages>a:nth-child(1), #pages>span:nth-child(1) {
+	background-image: url("./img/title.png");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: auto 4rem;
+	image-rendering: initial;
+	color: rgba(0,0,0,0);
+	width: 10rem;
+	padding-left: 2rem;
+}
+#pages>a:hover, #pages>span:hover {
+	background-color: rgba(255,255,255,0.25);
+}
+#pages>a>.dropdown, #pages>span>.dropdown {
+	top: 100%;
+	font-size: 1rem;
+	color: #40f0c0;
+}
+#sort {
+	width: 100%;
+	height: 1.5rem;
+	background-color: #a0a0a0;
+}
+#sort>a, #sort>span {
+	display: inline-block;
+	position: relative;
+	font-size: 1rem;
+	height: 1.5rem;
+	padding: 0rem 1rem;
+	color: #000000;
+	text-decoration: none;
+	cursor: pointer;
+}
+#sort>a:nth-child(1), #sort>span:nth-child(1) {
+	padding-left: 2rem;
+}
+#sort>a:hover, #sort>span:hover {
+	background-color: rgba(255,255,255,0.25);
+}
+#sort>a>.dropdown, #sort>span>.dropdown {
+	top: 100%;
+	font-size: 1rem;
+	color: #40f0c0;
+}
+#options {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	padding: 0.5rem;
+	height: 5rem;
+	width: 11rem;
+}
+#postbutton {
+	position: relative;
+	top: -5rem;
+	left: 0rem;
+	height: 5rem;
+	width: 5rem;
+	background-image: url("./img/post.png");
+	background-size: 5rem;
+	margin-right: 1rem;
+	image-rendering: auto;
+}
+#profile {
+	cursor: pointer;
+	position: relative;
+	top: 0rem;
+	left: 6rem;
+	height: 5rem;
+	width: 5rem;
+	background-image: url("./img/steve.png"), url("./img/steve.png");
+	background-size: 40rem auto;
+	background-position: -25rem -5rem, -5rem -5rem;
+}
+.lighten {
+	visibility: hidden;
+	width: 100%;
+	height: 100%;
+	background-color: #ffffff;
+	opacity: 0.25;
+}
+div:hover>.lighten {
+	visibility: visible;
+}
+.dropdown {
+	display: none;
+	position: absolute;
+	right: 0;
+	background-color: #404040;
+	padding: 0.325rem 0;
+	z-index: 100;
+}
+.dropdown-left {
+	left: 0;
+	right: initial;
+}
+.dropdown-right {
+	right: 0;
+}
+.dropdown>a:visited {
+	all: unset;
+	cursor: pointer;
+}
+.dropdown>a {
+	all: unset;
+	cursor: pointer;
+	white-space: nowrap;
+	padding: 0.125rem 0.5rem;
+	display: block;
+}
+.dropdown>input, .dropdown>button {
+	margin: 0.125rem 0.5rem;
+}
+.dropdown>a input[type=submit], .dropdown>a form {
+	all: unset;
+}
+.dropdown>a:hover {
+	background-color: rgba(255,255,255,0.25);
+}
+div:hover>.dropdown, span:hover>.dropdown {
+	display: block;
+}
+::placeholder {
+	color: inherit;
+	opacity: 1;
+}
+.banner {
+	visibility: hidden;
+	background-color: blue;
+	width: 50%;
+	position: relative;
+	margin: 1rem auto 0;
+	padding: 1em;
+	text-align: center;
+	background-image: url("./img/stone.png");
+	background-size: auto 100%;
+	animation: bannerfade 10s;
+	animation-timing-function: linear;
+}
+@keyframes bannerfade{
+	0% {visibility: visible; opacity: 1}
+	90% {visibility: visible; opacity: 1}
+	100% {visibility: visible; opacity: 0}
+}
