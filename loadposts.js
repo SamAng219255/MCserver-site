@@ -37,7 +37,7 @@ function setupGeneral() {
 function tagSearch() {
 	var gotten=$("#tagSearch").val();
 	if((/^[a-z0-9]+$/).test(gotten)) {
-		location.href="./?tag="+gotten;
+		location.href="./blog.php?tag="+gotten;
 	}
 	else {
 		alert("Tags must be alphanumeric. (Only include letters and numbers.)");
