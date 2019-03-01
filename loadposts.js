@@ -80,6 +80,8 @@ function getOld() {
 		}
 	});
 }
+urlRegEx=/(https?:\/\/)?((?:[a-z0-9%]+)(?:\.[a-z0-9%]+)+)((?:\/[a-z0-9%]+)*)\/?(\?(?:[a-z0-9%]+=[a-z0-9%]+)?(?:&[a-z0-9%]+=[a-z0-9%]+)*)?/gi;
+linkRegEx="<a href=\"$&\" target=\"_blank\">$&</a>";
 function showPost(i,data,side) {
 	var fullTime=data.posts[i].time.split(" ");
 	var sentTime=fullTime[0];
@@ -101,7 +103,7 @@ function showPost(i,data,side) {
 	var d=Date.UTC(t[0], t[1]-1, t[2], t[3], t[4], t[5]);
 	var edit="";
 	if(data.posts[i].owned) edit='<div class="delete" card="'+data.posts[i].id+'">delete</div>&nbsp<a href="./edit.php?id='+data.posts[i].id+'" class="edit">edit</a>';
-	textBox[side]('<div class="card" user="'+data.posts[i].username+'" card="'+data.posts[i].id+'"><div class="postmeta"><div class="h">'+data.posts[i].username+'</div> <div class="topic">'+data.posts[i].topic+'</div> <div class="time">'+sentTime+', '+getTimeOnServer(d).yr+'</div></div><div class="stuffing">'+data.posts[i].content+'</div><div class="footer">'+edit+'</div></div>');
+	textBox[side]('<div class="card" user="'+data.posts[i].username+'" card="'+data.posts[i].id+'"><div class="postmeta"><div class="h">'+data.posts[i].username+'</div> <div class="topic">'+data.posts[i].topic+'</div> <div class="time">'+sentTime+', '+getTimeOnServer(d).yr+'</div></div><div class="stuffing">'+data.posts[i].content.replace(urlRegEx,linkRegEx)+'</div><div class="footer">'+edit+'</div></div>');
 	$(".delete[card="+data.posts[i].id+"]").click(deletePost);
 	var stuffing=$(".card[card="+data.posts[i].id+"] .stuffing");
 	if($(stuffing.height()).toEm()>10) {

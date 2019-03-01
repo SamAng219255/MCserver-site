@@ -58,6 +58,9 @@ input[type=hidden] {
 	position: relative;
 	color: #202020;
 }
+.card a {
+	color: inherit;
+}
 .card table {
 	width: 100%;
 }

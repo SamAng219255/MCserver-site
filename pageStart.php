@@ -93,7 +93,7 @@
 				<a href="./blog.php">
 					<span>Blog</span>
 				</a>
-				<a href="./map/">
+				<a href="./map/" target="_blank">
 					<span>Map</span>
 				</a>
 				<a href="./people.php">
