@@ -1,14 +1,30 @@
 startYear=1458;
-startTime=1543622400000;
+srvSegments=[0];
+irlSegments=[[1543622400000,1552258560000]];
 rate=60;
+
+for(var i=1; i<irlSegments.length; i++) {
+	srvSegments.push(rate*(irlSegments[i][1]-irlSegments[i][0])+srvSegments[i-1]);
+}
 
 function getTimeOnServer(forTime) {
 	var now=(new Date()).getTime();
+	var activeSegment=irlSegments.length;
 	if(typeof forTime!="undefined") now=forTime;
+	for(var i=irlSegments.length-1; i>=0; i--) {
+		if(irlSegments[i][1]>now) {
+			activeSegment=i;
+			break;
+		}
+	}
+	if((activeSegment>=irlSegments.length || irlSegments[activeSegment][0]>now) && activeSegment>0) {
+		activeSegment--;
+		now=irlSegments[activeSegment][1];
+	}
 	var monthLen=[31,28,31,30,31,30,31,31,30,31,30,31,Infinity];
 	var monName=["January","February","March","April","May","June","July","August","September","October","November","December","Error"];
 	var wkdName=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-	var time={mil:rate*(now-startTime)};
+	var time={mil:rate*(now-irlSegments[activeSegment][0])+srvSegments[activeSegment]};
 	time.sec=parseInt(time.mil/1000)
 	time.min=parseInt(time.sec/60);
 	time.sec%=60;
