@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `nations` (
 
 CREATE TABLE IF NOT EXISTS `resources` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `nation` varchar(16) NOT NULL,
+  `nation` varchar(32) NOT NULL,
   `unit` varchar(16) NOT NULL DEFAULT '',
   `type` varchar(16) NOT NULL DEFAULT 'Gold',
   `ntnlwlth` int NOT NULL DEFAULT '0',

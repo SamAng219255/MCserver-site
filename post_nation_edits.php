@@ -3,7 +3,7 @@
 	mysqli_query($conn,$sql);
 
 	
-	$nationsql="UPDATE `mcstuff`.`nations` SET `nation`='".mysqli_real_escape_string($conn,$_POST['name'])."' WHERE `nation`='".mysqli_real_escape_string($conn,$_GET['nation'])."' OR `name`='".$_SESSION['username']."';";
+	$nationsql="UPDATE `mcstuff`.`nations` SET `nation`='".mysqli_real_escape_string($conn,$_POST['name'])."' WHERE `nation`='".mysqli_real_escape_string($conn,$_GET['nation'])."' OR `username`='".$_SESSION['username']."';";
 	mysqli_query($conn,$nationsql);
 
 	$resetsql="DELETE FROM `mcstuff`.`resources` WHERE `nation`='".mysqli_real_escape_string($conn,$_GET['nation'])."';";
