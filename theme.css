@@ -70,12 +70,12 @@ input[type=hidden] {
 	background-size: auto 100%;
 	background-position: center;
 	width: 10%;
-	min-width: 7.5rem;
 	background-repeat: no-repeat;
 }
 .card table tr:nth-child(1)>td:nth-child(1).flag {
 	image-rendering: pixelated;
 	image-rendering: crisp-edges;/*One or the other will work, hopefully.*/
+	min-width: 7.5rem;
 }
 table {
 	color: inherit;
