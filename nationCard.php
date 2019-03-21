@@ -81,34 +81,15 @@
 						$tablerow1="";
 						$tablerow2="";
 						$tablerow3="";
-						if(($row[3]!='0' || $row[5]!='0' || $row[10]=='show') && $row[10]!='hide') {
+						if(($row[3]!='0' || $row[5]!='0' || $row[11]=='show') && $row[11]!='hide') {
 							$tablerow1.='<th>Citizen Wealth:</th><td>'.$row[4].$row[1].'</td>';
 							$tablerow2.='<th>Citizen Income:</th><td>'.$row[6].$row[1].'</td>';
 							$tablerow3.='<th>Tax:</th><td>'.$row[7].$row[1].'</td></tr>';
-						}
-						else {
-							if($row[8]=='show') {
-								$tablerow1.='<th>Citizen Wealth:</th><td>'.$row[4].$row[1].'</td>';
-							}
-							if($row[9]=='show') {
-								$tablerow2.='<th>Citizen Income:</th><td>'.$row[6].$row[1].'</td>';
-							}
-							if($row[12]=='show') {
-								$tablerow3.='<th>Tax:</th><td>'.$row[7].$row[1].'</td></tr>';
-							}
 						}
 						if(($row[3]!='0' || $row[5]!='0' || $row[10]=='show') && $row[10]!='hide') {
 							$tablerow1='<th>National Wealth:</th><td>'.$row[3].$row[1].'</td>'.$tablerow1;
 							$tablerow2='<th>National Income:</th><td>'.$row[5].$row[1].'</td>'.$tablerow2;
 							if($tablerow3!='') $tablerow3='<th></th><td></td>'.$tablerow3;
-						}
-						else {
-							if($row[8]=='show') {
-								$tablerow1='<th>National Wealth:</th><td>'.$row[3].$row[1].'</td>'.$tablerow1;
-							}
-							if($row[9]=='show') {
-								$tablerow2='<th>National Income:</th><td>'.$row[5].$row[1].'</td>'.$tablerow2;
-							}
 						}
 						echo '<div class="card"><div class="postmeta"><div class="h">';
 						echo $row[2];
