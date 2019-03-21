@@ -20,7 +20,7 @@
 						echo '<span>Ruler: <a href="./people.php?target='.$row[1].'">'.$row[1].'</a></span><br><a href="./nations.php?nation='.$row[0].'">See More</a>';
 						echo '</div></td></tr></table></div>';
 					}
-					$stylequery="SELECT `username`,`foreground`,`background`,`skin`,`permissions` FROM `mcstuff`.`users` WHERE `permissions`>0;";
+					$stylequery="SELECT `username`,`forecolor`,`backcolor`,`skin`,`permissions` FROM `mcstuff`.`users` WHERE `permissions`>0;";
 					$stylequeryresult=mysqli_query($conn,$stylequery);
 					for($i=0; $i<$stylequeryresult->num_rows; $i++) {
 						$row=mysqli_fetch_row($stylequeryresult);
