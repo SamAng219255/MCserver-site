@@ -1,4 +1,4 @@
-<?
+<?php
 function echoResourceCard($row,$i) {
 	$tablerow1="";
 	$tablerow2="";
