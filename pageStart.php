@@ -68,10 +68,16 @@
 <html>
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>AmospiaCraft</title>
 	<link rel="stylesheet" type="text/css" href="./theme.css">
 	<link rel="stylesheet" type="text/css" href="./model.css">
-	<link href="./img/icon.png" rel="shortcut icon">
+	<?php
+		if(in_array($currentPage,$hasSort)) {
+			echo '<link href="./img/sign.png" rel="shortcut icon">';
+		}
+		else {
+			echo '<link href="./img/icon.png" rel="shortcut icon">';
+		}
+	?>
 	<script src="jquery.js"></script>
 	<script src="pxem.jQuery.js"></script>
 	<script src="getTimeOnServer.js"></script>
@@ -91,7 +97,7 @@
 					<span>AmsopiaCraft</span>
 				</a>
 				<a href="./blog.php">
-					<span>Blog</span>
+					<span>Posts</span>
 				</a>
 				<a href="./map/" target="_blank">
 					<span>Map</span>

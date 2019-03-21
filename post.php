@@ -1,4 +1,5 @@
 <?php require 'pageStart.php'; ?>
+		<title>Post - AmospiaCraft</title>
 		<?php
 			if(isset($_SESSION['username']) && $permissions>0 && isset($_POST['posting'])) {
 				$tags=',';

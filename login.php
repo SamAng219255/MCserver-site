@@ -8,6 +8,7 @@
 ?>
 <html>
 <head>
+	<title>Login - AmospiaCraft</title>
 	<title>Login or Sign Up</title>
 	<link rel="stylesheet" type="text/css" href="./login.css">
 	<link href="./img/sign.png" rel="shortcut icon">

@@ -67,6 +67,10 @@ input[type=hidden] {
 }
 .card table tr:nth-child(1)>td:nth-child(1) {
 	image-rendering: initial;
+	background-size: auto 100%;
+	background-position: center;
+	width: 10%;
+	background-repeat: no-repeat;
 }
 table {
 	color: inherit;
@@ -93,6 +97,7 @@ table {
 	position: absolute;
 	bottom: 0;
 	left: 1rem;
+	text-decoration: none;
 }
 .card .topic {
 	display: inline-block;
@@ -101,7 +106,7 @@ table {
 	transform: translate(-25%,0);
 	bottom: 0;
 }
-.card .time {
+.card .time, .card .unit {
 	display: inline-block;
 	position: absolute;
 	bottom: 0;
@@ -145,17 +150,17 @@ table {
 .card .footer>* {
 	display: inline-block;
 }
-.card .footer .edit, .card .footer .delete {
+.card>.footer>.edit, .card>.footer>.delete {
 	float: right;
 	visibility: hidden;
 	color: inherit;
 	text-decoration: none;
 	cursor: pointer;
 }
-.card .footer .delete {
+.card>.footer>.delete {
 	margin-left: 0.5rem;
 }
-.card:hover .footer .edit, .card:hover .footer .delete {
+.card:hover>.footer>.edit, .card:hover>.footer>.delete {
 	visibility: visible;
 }
 input[type=submit], input[type=button] {
@@ -292,6 +297,26 @@ input[type=submit], input[type=button] {
 	background-image: url("./img/steve.png"), url("./img/steve.png");
 	background-size: 40rem auto;
 	background-position: -25rem -5rem, -5rem -5rem;
+}
+#nations input[type=text], #nations input[type=number] {
+	all: unset;
+	border-width: 1px;
+	border-radius: 0.25rem;
+	padding: 0.25rem;
+	height: 1.125em;
+	margin: 1px;
+	text-align: left;
+}
+#nations input[type=number] {
+	width: 8em;
+}
+#nations input[type=text]:focus, #nations input[type=number]:focus {
+	border-style: solid;
+	margin: 0px;
+}
+#flag {
+	height: 6em;
+	width: auto;
 }
 .lighten {
 	visibility: hidden;

@@ -26,4 +26,14 @@ echo '<form method="POST">
 	<span>Suffix</span><br>
 	<input type="submit" name="save" value="Save">
 </form>';
+
+$nationquery="SELECT `name`,`ruler` FROM `mcstuff`.`nations` WHERE `ruler`='".$_SESSION['username']."';";
+$nationqueryresult=mysqli_query($conn,$nationquery);
+if($nationqueryresult->num_rows>0) {
+	$nationrow=mysqli_fetch_row($nationqueryresult);
+	echo '<a href="./nation_edit.php?nation='.$nationrow[0].'">Edit your nation.</a>';
+}
+else {
+	echo '<a href="./create_nation.php">Create your nation.</a>';
+}
 ?>

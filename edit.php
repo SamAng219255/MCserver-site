@@ -1,4 +1,5 @@
 <?php require 'pageStart.php'; ?>
+		<title>Edit Post - AmospiaCraft</title>
 		<?php
 			if(isset($_SESSION['username']) && $permissions>0 && isset($_POST['editting'])) {
 				$postquery="SELECT `id`,`username` FROM `mcstuff`.`posts` WHERE `id`='".$_POST['id']."';";

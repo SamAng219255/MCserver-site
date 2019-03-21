@@ -30,8 +30,36 @@ CREATE TABLE IF NOT EXISTS `posts` (
 
 CREATE TABLE IF NOT EXISTS `nations` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(16) NOT NULL,
-  `flag` varchar(64) NOT NULL DEFAULT './img/default_flag.png',
+  `name` varchar(32) NOT NULL,
+  `ruler` varchar(16) NOT NULL,
+  `showruler` enum('show','hide','false') NOT NULL DEFAULT 'false',
+  `parent` varchar(32) NOT NULL DEFAULT '',
+  `showparent` enum('show','hide','false') NOT NULL DEFAULT 'false',
+  `hasflag` int(2) NOT NULL DEFAULT '0',
+  `showflag` enum('show','hide','false') NOT NULL DEFAULT 'false',
+  `population` int NOT NULL DEFAULT '0',
+  `showpopul` enum('show','hide','false') NOT NULL DEFAULT 'false',
+  `desc` text NOT NULL,
+  UNIQUE (`name`),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `resources` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nation` varchar(16) NOT NULL,
+  `unit` varchar(16) NOT NULL DEFAULT '',
+  `type` varchar(16) NOT NULL DEFAULT 'Gold',
+  `ntnlwlth` int NOT NULL DEFAULT '0',
+  `ctznwlth` int NOT NULL DEFAULT '0',
+  `ntnlincome` int NOT NULL DEFAULT '0',
+  `ctznincome` int NOT NULL DEFAULT '0',
+  `tax` int NOT NULL DEFAULT '0',
+  `showwlth` enum('show','hide','false') NOT NULL DEFAULT 'false',
+  `showncm` enum('show','hide','false') NOT NULL DEFAULT 'false',
+  `showntnl` enum('show','hide','false') NOT NULL DEFAULT 'false',
+  `showctzn` enum('show','hide','false') NOT NULL DEFAULT 'false',
+  `showtax` enum('show','hide','false') NOT NULL DEFAULT 'false',
+  `desc` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

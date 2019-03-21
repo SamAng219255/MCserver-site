@@ -2,6 +2,7 @@
 require 'pageStart.php';
 ?>
 
+		<title>AmospiaCraft</title>
 		<div class="body">
 			<div class="card">
 				<div class="postmeta">
@@ -22,7 +23,7 @@ require 'pageStart.php';
 			<div class="card">
 				<table>
 					<tr>
-						<td rowspan="2" style="background-image: url('./img/pack.png'); background-size: auto 100%; background-position: center; width: 10%; background-repeat: no-repeat;">
+						<td rowspan="2" style="background-image: url('./img/pack.png');">
 						</td>
 						<td>
 							<div class="postmeta">

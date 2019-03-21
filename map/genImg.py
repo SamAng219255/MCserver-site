@@ -3,7 +3,7 @@ from sys import argv
 import gzip
 from PIL import Image
 import json
-
+from math import floor
 
 palette=[(0,0,0,0),(127, 178, 56,255),(247, 233, 163,255),(199, 199, 199,255),(255, 0, 0,255),(160, 160, 255,255),(167, 167, 167,255),(0, 124, 0,255),(255, 255, 255,255),(164, 168, 184,255),(151, 109, 77,255),(112, 112, 112,255),(64, 64, 255,255),(143, 119, 72,255),(255, 252, 245,255),(216, 127, 51,255),(178, 76, 216,255),(102, 153, 216,255),(229, 229, 51,255),(127, 204, 25,255),(242, 127, 165,255),(76, 76, 76,255),(153, 153, 153,255),(76, 127, 153,255),(127, 63, 178,255),(51, 76, 178,255),(102, 76, 51,255),(102, 127, 51,255),(153, 51, 51,255),(25, 25, 25,255),(250, 238, 77,255),(92, 219, 213,255),(74, 128, 255,255),(0, 217, 58,255),(129, 86, 49,255),(112, 2, 0,255),(209, 177, 161,255),(159, 82, 36,255),(149, 87, 108,255),(112, 108, 138,255),(186, 133, 36,255),(103, 117, 53,255),(160, 77, 78,255),(57, 41, 35,255),(135, 107, 98,255),(87, 92, 92,255),(122, 73, 88,255),(76, 62, 92,255),(76, 50, 35,255),(76, 82, 42,255),(142, 60, 46,255),(37, 22, 16,255)]
 shades=[180,220,255,135]
@@ -11,13 +11,14 @@ shades=[180,220,255,135]
 while(len(palette)<64):
 	palette.append((255,255,255,0))
 
-exclusions=[390,517,81,455,456,77,64,265,869,1298,759,780,468,153,157,172,398,406,417,422,423,424,795,921,922,1410,2129,2164,1426,1425,1433,920,919,69,2264,19,13,620,2621,5,353,2400,33,878]
+exclusions=[390,517,81,455,456,77,64,265,869,1298,759,780,468,153,157,172,398,406,417,422,423,424,795,921,922,1410,2129,2164,1426,1425,1433,920,919,69,2264,19,13,620,2621,5,353,2400,33,878,2829]
 pictures=[1349]
 exclusions.extend(pictures)
 allNegatives=[]
 allNegativeCoords=[]
 
 def main():
+	print(argv)
 	path='/home/sam/minecraftServer/world/data/'
 	if(len(argv)>3):
 		path=argv[3]
@@ -25,7 +26,7 @@ def main():
 	regionsDone={}
 	tilesUsed={};
 	
-	unit=int(argv[2])//100
+	unit=int(argv[2])/100
 	percent=0;
 	
 	if modeLrg:
@@ -90,7 +91,7 @@ def main():
 							tilesUsed[key]=i
 							xOffset=nbt["data"]["xCenter"].value-(lowest[0]*128)
 							zOffset=nbt["data"]["zCenter"].value-(lowest[1]*128)
-							if not (modeInd or modeOut): finImg.paste(img,box=(xOffset,zOffset))
+							if not (modeInd or modeOut) and nbt["data"]["dimension"].value==0: finImg.paste(img,box=(xOffset,zOffset))
 					else:
 						img.putdata(imgData)
 						key=str(nbt["data"]["dimension"].value)+"_"+str(nbt["data"]["xCenter"].value//128)+'_'+str(nbt["data"]["zCenter"].value//128)
@@ -106,7 +107,7 @@ def main():
 							if not (modeInd or modeOut): img.save('img/excluded/tile_'+str(i)+'.'+str(nbt["data"]["dimension"].value)+'.'+str(nbt["data"]["xCenter"].value//128)+'.'+str(nbt["data"]["zCenter"].value//128)+'.png')
 		except FileNotFoundError:
 			if showErr: print('File Not Found on '+str(i))
-		if(i%unit==0):
+		if(floor(i%unit)==0):
 			if showPer: print(argv[1]+":	"+str(percent)+"% Complete.")
 			percent+=1
 	negF=open("negativeTiles.txt","w")

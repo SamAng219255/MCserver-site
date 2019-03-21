@@ -1,4 +1,5 @@
 <?php require 'pageStart.php'; ?>
+		<title>Profile - AmospiaCraft</title>
 		<div id="settings">
 			<div id="settingscontainer">
 				<input type="button" id="updateskin" value="Update Skin"><br>
@@ -24,7 +25,7 @@
 						})
 					})
 				</script>
-				<?php if($loggedin){ require 'settings.php'; } ?>
+				<?php if($loggedin && $permissions>0){ require 'settings.php'; } ?>
 				<form method="POST"><input name="logout" type="submit" value="Log Out"></form>
 			</div>
 		</div>
