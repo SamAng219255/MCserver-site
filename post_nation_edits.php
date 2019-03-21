@@ -31,6 +31,7 @@
 		}
 		else {
 			// if everything is ok, try to upload file
+			if(file_exists($target_file)) unlink($target_file);
 			if (move_uploaded_file($_FILES["flag"]["tmp_name"], $target_file)) {
 				addBanner("The file ". basename($_FILES["flag"]["name"]).".".$imageFileType. " has been uploaded.");
 			} else {
