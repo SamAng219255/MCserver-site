@@ -61,7 +61,7 @@
 			}
 		</script>
 		<title>Nations - AmospiaCraft</title>
-		<form method="POST"><div id="nations">
+		<form method="POST" enctype="multipart/form-data"><div id="nations">
 			<?php
 
 				$nationquery="SELECT `name`,`ruler`,`hasflag`,`population`,`parent`,`desc`,`showruler`,`showflag`,`showpopul`,`showparent` FROM `mcstuff`.`nations` WHERE `name`='".mysqli_real_escape_string($conn,$_GET['nation'])."';";
@@ -133,9 +133,9 @@
 								?></dd>
 							<dt>Flag:</dt>
 								<dd>
-									<?php echo '<img id="flag" src="./img/flags/'.$name.'">'; ?>
+									<?php echo '<img id="flagimg" src="./img/flags/'.$name.'">'; ?>
 									<br>
-									<input type="file" name="flag">
+									<input type="file" id="flag" name="flag">
 								</dd>
 								<dd><?php
 									if($nationrow[7]=='show') $checked='checked';

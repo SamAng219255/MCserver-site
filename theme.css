@@ -314,7 +314,7 @@ input[type=submit], input[type=button] {
 	border-style: solid;
 	margin: 0px;
 }
-#flag {
+img#flag, img#flagimg {
 	height: 6em;
 	width: auto;
 }
