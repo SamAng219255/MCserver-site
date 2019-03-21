@@ -69,7 +69,7 @@
 				$nationrow=mysqli_fetch_row($nationqueryresult);
 				$name=$nationrow[0];
 				$ruler=$nationrow[1];
-				$hasflag=$nationrow[2]==1;
+				$hasflag=$nationrow[2]=='1';
 				$population=intval($nationrow[3]);
 				$parentcountry=$nationrow[4];
 				if($parentcountry=='') $parentcountry='none';

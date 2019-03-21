@@ -14,32 +14,36 @@
 		mysqli_query($conn,$resourcesql);
 	}
 
-	$target_dir = "img/flags/";
-	$imageFileType = strtolower(pathinfo(basename($_FILES["flag"]["name"]),PATHINFO_EXTENSION));
-	$target_file = $target_dir . $_POST['name'];
-	$uploadOk = 1;
-	// Check if image file is a actual image or fake image
-	$check = getimagesize($_FILES["flag"]["tmp_name"]);
-	if($check !== false) {
-		// Check if file already exists
-		if($_FILES["flag"]["size"] > 500000) {
-			addBanner("Sorry, your file is too large.");
-		}
-		// Allow certain file formats
-		elseif($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") {
-			addBanner("Sorry, only JPG, JPEG, PNG & GIF files are allowed.");
-		}
-		else {
-			// if everything is ok, try to upload file
-			if(file_exists($target_file)) unlink($target_file);
-			if (move_uploaded_file($_FILES["flag"]["tmp_name"], $target_file)) {
-				addBanner("The file ". basename($_FILES["flag"]["name"]) . " has been uploaded.");
-			} else {
-				addBanner("Sorry, there was an error uploading your file.");
+	if($_FILES['flag']["error"]==0) {
+		$target_dir = "img/flags/";
+		$imageFileType = strtolower(pathinfo(basename($_FILES["flag"]["name"]),PATHINFO_EXTENSION));
+		$target_file = $target_dir . $_POST['name'];
+		$uploadOk = 1;
+		// Check if image file is a actual image or fake image
+		$check = getimagesize($_FILES["flag"]["tmp_name"]);
+		if($check !== false) {
+			// Check if file already exists
+			if($_FILES["flag"]["size"] > 500000) {
+				addBanner("Sorry, your file is too large.");
+			}
+			// Allow certain file formats
+			elseif($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") {
+				addBanner("Sorry, only JPG, JPEG, PNG & GIF files are allowed.");
+			}
+			else {
+				// if everything is ok, try to upload file
+				if(file_exists($target_file)) unlink($target_file);
+				if (move_uploaded_file($_FILES["flag"]["tmp_name"], $target_file)) {
+					addBanner("The file ". basename($_FILES["flag"]["name"]) . " has been uploaded.");
+					$flagsql="UPDATE `mcstuff`.`nations` SET `hasflag`='1' WHERE `name`='".mysqli_real_escape_string($conn,$_GET['nation'])."';";
+					mysqli_query($conn,$flagsql);
+				} else {
+					addBanner("Sorry, there was an error uploading your file.");
+				}
 			}
 		}
-	}
-	else {
-		addBanner("File is not an image.");
+		else {
+			addBanner("File is not an image.");
+		}
 	}
 ?>

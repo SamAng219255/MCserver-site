@@ -72,6 +72,10 @@ input[type=hidden] {
 	width: 10%;
 	background-repeat: no-repeat;
 }
+.card table tr:nth-child(1)>td:nth-child(1).flag {
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;/*One or the other will work, hopefully.*/
+}
 table {
 	color: inherit;
 }
