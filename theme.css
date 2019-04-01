@@ -273,6 +273,34 @@ input[type=submit], input[type=button] {
 	font-size: 1rem;
 	color: #40f0c0;
 }
+#status {
+	width: 100%;
+	height: 1.5rem;
+	background-color: #909090;
+}
+#serverstatus {
+	display: inline-block;
+	height: 1em;
+	min-width: 1em;
+	text-indent: 2em;
+	background-image: url("./img/status_yellow.png");
+	background-size: 1em;
+	background-repeat: no-repeat;
+	margin-left: 2em;
+	image-rendering: auto;
+}
+#serverstatus.fail {
+	background-image: url("./img/status_grey.png");
+}
+#serverstatus.on {
+	background-image: url("./img/status_green.png");
+}
+#serverstatus.off {
+	background-image: url("./img/status_red.png");
+}
+#serverstatus.clickable {
+	cursor: pointer;
+}
 #options {
 	position: absolute;
 	top: 0px;

@@ -82,7 +82,7 @@
 	<script src="pxem.jQuery.js"></script>
 	<script src="getTimeOnServer.js"></script>
 	<script src="loadposts.js"></script>
-	<?php if($loggedin) {echo '<script>username="'.$_SESSION['username'].'"; loggedin=true;</script>';} else {echo '<script>loggedin=false;</script>';}?>
+	<?php if($loggedin) {echo '<script>username="'.$_SESSION['username'].'"; loggedin=true; isAdmin='.($loggedin && $permissions>0).';</script>';} else {echo '<script>loggedin=false; isAdmin='.parse_str($loggedin && $permissions>0).';</script>';}?>
 	<style>#profile{cursor: initial;}</style>
 </head>
 <?php echo '<body onload="setup'.$setupMethod.'()">' ?>
@@ -126,4 +126,4 @@
 				</div>
 				<?php if($loggedin && $permissions>0) {echo '<div id="postbutton"><a href="post.php"><div class="lighten"></div></a></div>';}?>
 			</div>
-		</div><?php if(in_array($currentPage,$hasSort)) {require 'sortBar.php';} ?>
+		</div><?php if($loggedin && $permissions>0) {require 'statusBar.php';} if(in_array($currentPage,$hasSort)) {require 'sortBar.php';} ?>

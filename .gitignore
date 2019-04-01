@@ -8,3 +8,5 @@ map/img/flags/*
 map/tileIds.json
 map/upload.sh
 db.php
+getServerStatus
+turnOnServer

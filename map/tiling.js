@@ -516,7 +516,7 @@ function resetStuff() {
 	lastTar=[Infinity,Infinity];
 }
 function setHash() {
-	window.location.hash="x="+(pos[0]+offsetPos[0])+"&z="+(pos[1]+offsetPos[1])+"&zoom="+tileSize/128+"&dimension="+dimension;
+	history.replaceState(undefined, undefined, "#x="+(pos[0]+offsetPos[0])+"&z="+(pos[1]+offsetPos[1])+"&zoom="+tileSize/128+"&dimension="+dimension);
 }
 
 

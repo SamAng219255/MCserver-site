@@ -27,6 +27,10 @@ function setupGeneral() {
 			profileIcon.style="background-image: url("+data.skin+"), url("+data.skin+");";
 		})
 	}
+	if(isAdmin) {
+		statusbutton=$("#serverstatus");
+		statusInter=setInterval(updateServerStatus,1000);
+	}
 	stellarInterval=setInterval(setStars,100);
 	wrapper=document.getElementById("wrapper");
 	wrapper.addEventListener("scroll",checkBottom,{passive:true})
@@ -80,7 +84,7 @@ function getOld() {
 		}
 	});
 }
-urlRegEx=/(https?:\/\/)?((?:[a-z0-9%]+)(?:\.[a-z0-9%]+)+)((?:\/[a-z0-9%]+)*)\/?(\?(?:[a-z0-9%]+=[a-z0-9%]+)?(?:&[a-z0-9%]+=[a-z0-9%]+)*)?/gi;
+urlRegEx=/(https?:\/\/)?((?:[a-z0-9%]+\.)+(?:[a-z]+))((?:\/[a-z0-9%]+)*)\/?(\?(?:[a-z0-9%]+=[a-z0-9%]+)?(?:&[a-z0-9%]+=[a-z0-9%]+)*)?/gi;
 linkRegEx="<a href=\"$&\" target=\"_blank\">$&</a>";
 function showPost(i,data,side) {
 	var fullTime=data.posts[i].time.split(" ");
@@ -126,5 +130,43 @@ function toggleShow(e) {
 	else if(e.target.innerHTML=="Show Less") {
 		e.target.innerHTML="Show More"
 	}
+}
+function updateServerStatus() {
+	$.getJSON("getServerStatus.php",function(data){
+		statusbutton.removeClass("clickable");
+		statusbutton.off("click");
+		statusbutton.removeClass("on");
+		statusbutton.removeClass("off");
+		statusbutton.removeClass("failed");
+		if(data.on) {
+			statusbutton.addClass("on");
+			statusbutton.text("Server is ON.");
+		}
+		else {
+			statusbutton.addClass("off");
+			if(isAdmin) {
+				statusbutton.text("Server is OFF. Click to turn on.");
+				statusbutton.addClass("clickable");
+				statusbutton.click(turnOnServer);
+			}
+			else {
+				statusbutton.text("Server is OFF.");
+			}
+		}
+	}).fail(function( jqxhr, textStatus, error ) {
+		statusbutton.addClass("fail");
+		statusbutton.text("Failed to get server status.");
+		clearInterval(statusInter);
+		var err = textStatus + ", " + error;
+		console.log( "Request Failed: " + err );
+	});
+}
+function turnOnServer() {
+	$.getJSON("turnOnServer.php",function(data){
+
+	}).fail(function( jqxhr, textStatus, error ) {
+		var err = textStatus + ", " + error;
+		console.log( "Request Failed: " + err );
+	});
 }
 
