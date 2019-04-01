@@ -138,19 +138,22 @@ function updateServerStatus() {
 		statusbutton.removeClass("on");
 		statusbutton.removeClass("off");
 		statusbutton.removeClass("failed");
-		if(data.on) {
-			statusbutton.addClass("on");
-			statusbutton.text("Server is ON.");
-		}
-		else {
-			statusbutton.addClass("off");
-			if(isAdmin) {
-				statusbutton.text("Server is OFF. Click to turn on.");
-				statusbutton.addClass("clickable");
-				statusbutton.click(turnOnServer);
+		if(!statusbutton.hasClass("waiting") || data.on) {
+			if(data.on) {
+				statusbutton.removeClass("waiting");
+				statusbutton.addClass("on");
+				statusbutton.text("Server is ON.");
 			}
 			else {
-				statusbutton.text("Server is OFF.");
+				statusbutton.addClass("off");
+				if(isAdmin) {
+					statusbutton.text("Server is OFF. Click to turn on.");
+					statusbutton.addClass("clickable");
+					statusbutton.click(turnOnServer);
+				}
+				else {
+					statusbutton.text("Server is OFF.");
+				}
 			}
 		}
 	}).fail(function( jqxhr, textStatus, error ) {
@@ -168,5 +171,8 @@ function turnOnServer() {
 		var err = textStatus + ", " + error;
 		console.log( "Request Failed: " + err );
 	});
+	statusbutton.text("Turning on the server. This may take a minute.");
+	statusbutton.addClass("waiting");
+	setTimeout(function(){statusbutton.removeClass("waiting")},60000);
 }
 
