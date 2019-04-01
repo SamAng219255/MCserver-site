@@ -82,7 +82,7 @@
 	<script src="pxem.jQuery.js"></script>
 	<script src="getTimeOnServer.js"></script>
 	<script src="loadposts.js"></script>
-	<?php if($loggedin) {echo '<script>username="'.$_SESSION['username'].'"; loggedin=true; isAdmin='.($loggedin && $permissions>0).';</script>';} else {echo '<script>loggedin=false; isAdmin='.parse_str($loggedin && $permissions>0).';</script>';}?>
+	<?php if($loggedin) {echo '<script>username="'.$_SESSION['username'].'"; loggedin=true; isAdmin='.($loggedin && $permissions>0 ? 'true' : 'false').';</script>';} else {echo '<script>loggedin=false; isAdmin='.($loggedin && $permissions>0 ? 'true' : 'false').';</script>';}?>
 	<style>#profile{cursor: initial;}</style>
 </head>
 <?php echo '<body onload="setup'.$setupMethod.'()">' ?>
