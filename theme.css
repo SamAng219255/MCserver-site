@@ -439,6 +439,6 @@ div:hover>.dropdown, span:hover>.dropdown {
 	height: 100%;
 	background-color: #808080;
 	text-align: center;
-	padding: 50% 0;
+	padding: 5rem 0;
 	cursor: pointer;
 }
