@@ -2,8 +2,8 @@
 session_start();
 
 if($_SESSION['permissions']>=1) {
-	shell_exec("./turnOnServer");
-	echo '{"allowed":true}';
+	$response=shell_exec("./turnOnServer");
+	echo '{"allowed":true,"response":"'.$response.'"}';
 }
 else {
 	echo '{"allowed":false}';
