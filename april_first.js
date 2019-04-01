@@ -55,6 +55,9 @@ function fall() {
 	if(getNew && $("div.card[card="+nextTarget+"]")[0].offsetTop<min) {
 		dropCard(nextTarget);
 		getNew=getNextDown();
+		if(!getNew) {
+			setTimeout(restore,10000);
+		}
 	}
 }
 function getNextDown() {
@@ -69,4 +72,7 @@ function getNextDown() {
 function hideBlocker() {
 	$("#blocker").remove();
 	setTimeout(startFall,parseInt(Math.random()*10000));
+}
+function restore() {
+	$("div.card").removeClass("notthere");
 }
