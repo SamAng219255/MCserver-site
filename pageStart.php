@@ -82,11 +82,17 @@
 	<script src="pxem.jQuery.js"></script>
 	<script src="getTimeOnServer.js"></script>
 	<script src="loadposts.js"></script>
+	<script src="april_first.js"></script>
 	<?php if($loggedin) {echo '<script>username="'.$_SESSION['username'].'"; loggedin=true; isAdmin='.($loggedin && $permissions>0 ? 'true' : 'false').';</script>';} else {echo '<script>loggedin=false; isAdmin='.($loggedin && $permissions>0 ? 'true' : 'false').';</script>';}?>
 	<style>#profile{cursor: initial;}</style>
 </head>
 <?php echo '<body onload="setup'.$setupMethod.'()">' ?>
 	<?php if($setupMethod=='') {echo '<style id="userstyles"></style>';} ?>
+	<?php
+		if(in_array($currentPage,$hasPosts)) {
+			echo '<div id="blocker" onclick="hideBlocker()">Do you like TNT?<br>(Click anywhere to continue to the page.)</div>';
+		}
+	?>
 	<div id="wrapper"><div id="wrapper2">
 		<div id="stars1"></div>
 		<div id="stars2"></div>
