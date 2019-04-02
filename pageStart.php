@@ -90,7 +90,7 @@
 	<?php if($setupMethod=='') {echo '<style id="userstyles"></style>';} ?>
 	<?php
 		if(in_array($currentPage,$hasPosts)) {
-			echo '<div id="blocker" onclick="hideBlocker()">Do you like TNT?<br>(Click anywhere to continue to the page.)</div>';
+			//echo '<div id="blocker" onclick="hideBlocker()">Do you like TNT?<br>(Click anywhere to continue to the page.)</div>';
 		}
 	?>
 	<div id="wrapper"><div id="wrapper2">
