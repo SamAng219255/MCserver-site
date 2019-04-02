@@ -22,7 +22,7 @@ function dropCard(targetId) {
 	var newFake=target.clone();
 	target.addClass("notthere");
 	var pos=target[0].offsetTop;
-	falling.push({y:pos,x:0,vel:-0.5,hor:Math.random()*2-1,obj:newFake,creationTime:(new Date()).getTime()});
+	falling.push({starty:pos,y:0,x:0,vel:-0.5,hor:Math.random()*2-1,obj:newFake,creationTime:(new Date()).getTime()});
 	newFake.addClass("falling");
 	cardWidth=target.width();
 	offsetLeft=target[0].offsetLeft;
@@ -43,8 +43,8 @@ function fall() {
 		falling[i].x+=100*(falling[i].hor/1000);
 		falling[i].y+=1000*(falling[i].vel/1000+0.0000049);
 		falling[i].vel+=0.0049;
-		falling[i].obj[0].style="top: "+falling[i].y+"px; width: "+cardWidth+"px; left: "+(offsetLeft+falling[i].x)+"px;"
-		if(falling[i].y<min) min=falling[i].y;
+		falling[i].obj[0].style="top: "+falling[i].starty+"px; width: "+cardWidth+"px; left: "+offsetLeft+"px; transform: translate("+falling[i].x+"px, "+falling[i].y+"px);"
+		if((falling[i].y+falling[i].starty)<min) min=(falling[i].y+falling[i].starty);
 		if((new Date()).getTime()-falling[i].creationTime>4000) {
 			(new Audio('img/explode'+parseInt(Math.random()*4+1)+'.ogg')).play();
 			falling[i].obj.remove();
