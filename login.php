@@ -8,13 +8,15 @@
 ?>
 <html>
 <head>
-	<title>Login - AmospiaCraft</title>
-	<title>Login or Sign Up</title>
+	<title>Login or Sign Up - AmospiaCraft</title>
 	<link rel="stylesheet" type="text/css" href="./login.css">
 	<link href="./img/sign.png" rel="shortcut icon">
 </head>
 <body>
 	<?php
+		function addBanner($bannerTxt) {
+			echo '<div class="banner">'.$bannerTxt.'</div>';
+		}
 		require 'db.php';
 		if(isset($_POST['signup'])) {$url = "https://authserver.mojang.com/authenticate";
 			$data = array();
