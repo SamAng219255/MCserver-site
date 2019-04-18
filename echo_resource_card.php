@@ -98,6 +98,9 @@ function echoResourceCard($row,$i) {
 	echo '<label><input type="radio" value="false" name="showtax-'.$i.'"'.$checked.'> Auto</label>';
 	echo '</dd>';
 	echo '</dl>';
+	if($row[14]=='1') $checked='checked';
+	else $checked='';
+	echo '<label><input type="checkbox" value="hidden" name="hidden-'.$i.'"'.$checked.' title="Check this box to prevent this resource from appearing in your list to other people."> Hide Resource</label>';
 	echo '</div><div class="footer"><span class="delete" onclick="deleteresource('.$i.')">Delete</span></div></div>';
 }
 if(isset($_GET['argv'])) {

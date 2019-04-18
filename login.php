@@ -82,7 +82,7 @@
 		}
 	?>
 	<div id="lcp" class="cp"><form class="loginform" method="post">
-		<small>To log in, use your username for minecraft and your password you created when you created your account here.</small><br>
+		<small>To log in, use your username (not email) for minecraft and your password you created when you created your account here.</small><br>
 		<label for="frminuser">Minecraft Username:</label><br>
 		<input type="text" id="frminuser" placeholder="Username" name="username" required maxlength=16 autocomplete="username"><br>
 		<label for="frminpass">Password:</label><br>

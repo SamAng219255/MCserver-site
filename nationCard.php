@@ -72,7 +72,10 @@
 			?>
 
 			<?php
-				$resourcequery="SELECT `nation`,`unit`,`type`,`ntnlwlth`,`ctznwlth`,`ntnlincome`,`ctznincome`,`tax`,`showwlth`,`showncm`,`showntnl`,`showctzn`,`showtax`,`desc` FROM `mcstuff`.`resources` WHERE `nation`='".mysqli_real_escape_string($conn,$name)."';";
+				$resourcequery="SELECT `nation`,`unit`,`type`,`ntnlwlth`,`ctznwlth`,`ntnlincome`,`ctznincome`,`tax`,`showwlth`,`showncm`,`showntnl`,`showctzn`,`showtax`,`desc`,`hide` FROM `mcstuff`.`resources` WHERE `nation`='".mysqli_real_escape_string($conn,$name)."' AND `hide`=0;";
+				if($_SESSION['username']==$ruler) {
+					$resourcequery="SELECT `nation`,`unit`,`type`,`ntnlwlth`,`ctznwlth`,`ntnlincome`,`ctznincome`,`tax`,`showwlth`,`showncm`,`showntnl`,`showctzn`,`showtax`,`desc`,`hide` FROM `mcstuff`.`resources` WHERE `nation`='".mysqli_real_escape_string($conn,$name)."';";
+				}
 				$resourcequeryresult=mysqli_query($conn,$resourcequery);
 				if($resourcequeryresult->num_rows>0) {
 					echo '<div id="resources"><span id="h">Resources:</span>';
@@ -100,6 +103,7 @@
 						if(($tablerow2!='' || $row[9]=='show') && $row[9]!='hide') echo '<tr>'.$tablerow2.'</tr>';
 						if(($tablerow3!='' || $row[12]=='show') && $row[12]!='hide') echo '<tr>'.$tablerow3.'</tr>';
 						echo '</table>';
+						if($row[14]=='1') echo '<div>(Hidden)</div>';
 						echo '</div></div>';
 					}
 					echo '</div>';

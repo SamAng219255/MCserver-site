@@ -82,14 +82,14 @@
 			$_SESSION['x']=$_POST['x'];
 			$_SESSION['z']=$_POST['z'];
 			$_SESSION['dimension']=$_POST['dimension'];
-			if(!isset($_SESSION['user'])) {
+			if(!isset($_SESSION['username'])) {
 				addBanner('It appears that your session has expired. Please log in to finish submitting.');
 			}
 		}
 		var_dump($_SESSION);
-		if (isset($_SESSION['user'])) {
+		if (isset($_SESSION['username'])) {
 			if(isset($_SESSION['name'])) {
-				$sql="INSERT INTO `mcstuff`.`mappoints` (`id`,`user`,`name`,`desc`,`x`,`z`,`dimension`) VALUES ('0','".$_SESSION['user']."','".$_SESSION['name']."','".$_SESSION['desc']."','".$_SESSION['x']."','".$_SESSION['z']."','".$_SESSION['dimension']."');";
+				$sql="INSERT INTO `mcstuff`.`mappoints` (`id`,`user`,`name`,`desc`,`x`,`z`,`dimension`) VALUES ('0','".$_SESSION['username']."','".$_SESSION['name']."','".$_SESSION['desc']."','".$_SESSION['x']."','".$_SESSION['z']."','".$_SESSION['dimension']."');";
 				if(mysqli_query($conn,$sql)) {
 					addBanner('You have successfully submitted the pin "'.$_SESSION['name'].'".');
 				}
@@ -130,10 +130,10 @@
 				$profile = $result->selectedProfile;
 				$allowedUsers=["redstonetardis42","petrok9001","skinz123","list","kagetora0","thedragonslain","luckyknight68","1999sam1999","greenhouscreeper","enddragon9","lewisthekiller","gentleworks","antraveler","153norc","lightningpwr28","sugargizmo","silverleafnight","pharaohcrab","patientneutral","enderninja7","drn21","d_hex","aquatailz"];
 				if(in_array(strtolower($profile->name), $allowedUsers)) {
-					$_SESSION['user']=strtolower($profile->name);
+					$_SESSION['username']=strtolower($profile->name);
 					require 'db.php';
 					if(isset($_SESSION['name'])) {
-						$sql="INSERT INTO `mcstuff`.`mappoints` (`id`,`user`,`name`,`desc`,`x`,`z`,`dimension`) VALUES ('0','".$_SESSION['user']."','".$_SESSION['name']."','".$_SESSION['desc']."','".$_SESSION['x']."','".$_SESSION['z']."','".$_SESSION['dimension']."');";
+						$sql="INSERT INTO `mcstuff`.`mappoints` (`id`,`user`,`name`,`desc`,`x`,`z`,`dimension`) VALUES ('0','".$_SESSION['username']."','".$_SESSION['name']."','".$_SESSION['desc']."','".$_SESSION['x']."','".$_SESSION['z']."','".$_SESSION['dimension']."');";
 						if(mysqli_query($conn,$sql)) {
 							addBanner('You have successfully submitted the pin "'.$_SESSION['name'].'".');
 						}

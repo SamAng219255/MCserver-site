@@ -64,7 +64,7 @@
 		<form method="POST" enctype="multipart/form-data"><div id="nations">
 			<?php
 
-				$nationquery="SELECT `name`,`ruler`,`hasflag`,`population`,`parent`,`desc`,`showruler`,`showflag`,`showpopul`,`showparent` FROM `mcstuff`.`nations` WHERE `name`='".mysqli_real_escape_string($conn,$_GET['nation'])."';";
+				$nationquery="SELECT `name`,`ruler`,`hasflag`,`population`,`parent`,`desc`,`showruler`,`showflag`,`showpopul`,`showparent`,`troopresource` FROM `mcstuff`.`nations` WHERE `name`='".mysqli_real_escape_string($conn,$_GET['nation'])."';";
 				$nationqueryresult=mysqli_query($conn,$nationquery);
 				$nationrow=mysqli_fetch_row($nationqueryresult);
 				$name=$nationrow[0];
@@ -79,6 +79,7 @@
 				$showpopul=(($population!=0 || $nationrow[8]=='show') && $nationrow[8]!='hide');
 				$showparent=(($parentcountry!='none' || $nationrow[9]=='show') && $nationrow[9]!='hide');
 				$showany=$showruler || $showflag || $showpopul || $showparent;
+				$troopresource=$nationrow[10];
 				$rulerquery="SELECT `username`,`forecolor`,`backcolor`,`character`,`prefix`,`suffix`,`skin` FROM `mcstuff`.`users` WHERE `username`='".$ruler."';";
 				$rulerqueryresult=mysqli_query($conn,$rulerquery);
 				$rulerrow=mysqli_fetch_row($rulerqueryresult);
@@ -161,10 +162,13 @@
 									else $checked='';
 									echo '<label><input type="radio" value="false" name="showpopul"'.$checked.'> Auto</label>';
 								?></dd>
+							<dt title="Name a resoucre for use in restricting troop production. This resource will have the National Wealth automatically incremented by the National Income on a daily basis and will be spent to produce troops.">Troop Restricting Resource:</dt>
+								<dd><?php echo '<input type="text" name="troopresource" value="'.$troopresource.'">'; ?></dd>
+								<dd>Hidden</dd>
 						</dl>
 
 						<?php
-							$resourcequery="SELECT `nation`,`unit`,`type`,`ntnlwlth`,`ctznwlth`,`ntnlincome`,`ctznincome`,`tax`,`showwlth`,`showncm`,`showntnl`,`showctzn`,`showtax`,`desc` FROM `mcstuff`.`resources` WHERE `nation`='".mysqli_real_escape_string($conn,$name)."';";
+							$resourcequery="SELECT `nation`,`unit`,`type`,`ntnlwlth`,`ctznwlth`,`ntnlincome`,`ctznincome`,`tax`,`showwlth`,`showncm`,`showntnl`,`showctzn`,`showtax`,`desc`,`hide` FROM `mcstuff`.`resources` WHERE `nation`='".mysqli_real_escape_string($conn,$name)."';";
 							$resourcequeryresult=mysqli_query($conn,$resourcequery);
 							echo '<div id="resources"><span id="h">Resources:</span><div id="resourceholder">';
 							require 'echo_resource_card.php';

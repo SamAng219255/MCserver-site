@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS `nations` (
   `population` int NOT NULL DEFAULT '0',
   `showpopul` enum('show','hide','false') NOT NULL DEFAULT 'false',
   `desc` text NOT NULL,
+  `troopresource` varchar(16) NOT NULL DEFAULT 'Gold',
   UNIQUE (`name`),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -60,6 +61,7 @@ CREATE TABLE IF NOT EXISTS `resources` (
   `showctzn` enum('show','hide','false') NOT NULL DEFAULT 'false',
   `showtax` enum('show','hide','false') NOT NULL DEFAULT 'false',
   `desc` text NOT NULL,
+  `hide` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -73,3 +75,25 @@ CREATE TABLE IF NOT EXISTS `nationpages` (
   `icon` varchar(64) NOT NULL DEFAULT './img/icon.png',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `troops` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `owner` varchar(16) NOT NULL,
+  `nation` varchar(32) NOT NULL,
+  `name` varchar(64) NOT NULL,
+  `size` int NOT NULL,
+  `power` int NOT NULL,
+  `health` float(6,3) NOT NULL DEFAULT '100.00',
+  `x` int NOT NULL,
+  `y` int NOT NULL,
+  `move` int NOT NULL,
+  `moveleft` int NOT NULL,
+  `sprite` int NOT NULL,
+  `mobile` int NOT NULL,
+  `ranged` int NOT NULL,
+  `state` int NOT NULL DEFAULT 0,
+  `cost` int NOT NULL,
+  `origsize` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+

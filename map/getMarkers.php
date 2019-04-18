@@ -1,8 +1,13 @@
 <?php
-
+session_start();
+if ((isset($_SESSION['last_active']) && (time() - $_SESSION['last_active'] > 1800)) || (!isset($_SESSION['last_active']) && isset($_SESSION['loggedin']))) {
+	session_unset();
+	session_destroy();
+}
+$_SESSION['last_active']=time();
 require 'db.php';
 
-echo '[';
+echo '{"pins":[';
 
 $restrictions='';
 if(isset($_GET['xMin'])) {
@@ -40,6 +45,42 @@ if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
 '), "\\n", $row[3]))).'","x":'.$row[4].',"z":'.$row[5].',"dimension":'.$row[6].'}';
 }}
 
-echo ']';
+echo '],"troops":[';
+
+$colours=array('default'=>'000000');
+
+$query="SELECT `nation`,`forecolor` FROM `mcstuff`.`users`;";
+$queryresult=mysqli_query($conn,$query);
+if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
+	$row=mysqli_fetch_row($queryresult);
+	$colours[$row[0]]=$row[1];
+}}
+
+$query="SELECT * FROM `mcstuff`.`troops` ORDER BY `name` ASC;";
+if($restrictions!=='') {
+	$query="SELECT * FROM `mcstuff`.`troops` WHERE ".$restrictions." ORDER BY `name` ASC;";
+}
+$queryresult=mysqli_query($conn,$query);
+if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
+	$row=mysqli_fetch_row($queryresult);
+	if($i>0) {
+		echo ',';
+	}
+	$colour="000000";
+	if(isset($colours[$row[2]]))
+		$colour=$colours[$row[2]];
+	$isowned='false';
+	if($row[1]==$_SESSION['username'])
+		$isowned='true';
+	$mobiletxt='false';
+	if($row[12]=='1')
+		$mobiletxt='true';
+	$rangedtxt='false';
+	if($row[13]=='1')
+		$rangedtxt='true';
+	echo '{"id":'.$row[0].',"owner":"'.$row[1].'","nation":"'.str_replace('"','\\"',$row[2]).'","name":"'.str_replace('"','\\"',$row[3]).'","size":'.$row[4].',"power":'.$row[5].',"health":'.$row[6].',"x":'.$row[7].',"z":'.$row[8].',"move":'.$row[9].',"moveleft":'.$row[10].',"sprite":'.$row[11].',"state":'.$row[14].',"origsize":'.$row[15].',"color":"'.$colour.'","dimension":0,"owned":'.$isowned.',"mobile":'.$mobiletxt.',"ranged":'.$rangedtxt.'}';
+}}
+
+echo '],"colors":'.json_encode($colours).'}';
 
 ?>
