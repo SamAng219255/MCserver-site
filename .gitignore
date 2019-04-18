@@ -3,8 +3,8 @@ map/dats/*
 map/img/tile.*
 map/img/excluded/*
 map/img/full.png
-map/img/flags
-map/img/flags/*
+img/flags
+img/flags/*
 map/tileIds.json
 map/upload.sh
 db.php
