@@ -85,7 +85,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 				}
 				elseif($_GET['action']=='move') {
 					if($trp['moveleft']>=1) {
-						if(($trp['x']-intval($_GET['x']))**2+($trp['y']-intval($_GET['z']))**2<=16384) {
+						if(pow($trp['x']-intval($_GET['x']),2)+pow($trp['y']-intval($_GET['z']),2)<=16384) {
 							$effectsql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-1)."',`state`='0',`x`='".intval($_GET['x'])."',`y`='".intval($_GET['z'])."' WHERE `id`='".$trp['id']."';";
 							if(mysqli_query($conn,$effectsql)) {
 								echo '{"action":"'.$_GET['action'].'","status":0,"text":"Army successfully set army position."}';
