@@ -12,7 +12,7 @@ if($_SESSION['permissions']>0) {
 			$size=intval($_GET['size']);
 			$invest=$cost=intval($_GET['cost']);
 			$power=floor(($cost+$size)/1000.0);
-			$move=min(2**log(1000.0*$power/$size),max(floor(100000.0/$size),1));
+			$move=min(pow(2,log(1000.0*$power/$size)),max(floor(100000.0/$size),1));
 			$mobiletxt='0';
 			if($_GET['mobility']=='true') {
 				$move*=2;

@@ -54,7 +54,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 			);
 		}
 		if($trp['owner']==$_SESSION['username']) {
-			if(!isset($_GET['target']) || ($trp['x']-$tar['x'])**2+($trp['y']-$tar['y'])**2<=16384) {
+			if(!isset($_GET['target']) || pow($trp['x']-$tar['x'],2)+pow($trp['y']-$tar['y']),2)<=16384) {
 				if($_GET['action']=='fortify') {
 					if($trp['moveleft']>=1) {
 						$effectsql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-1)."',`state`='1' WHERE `id`=".$trp['id'].";";
