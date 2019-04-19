@@ -1157,7 +1157,7 @@ function setTroopCalcs() {
 	$("#trpn-move").text(parseInt(tempMove));
 }
 function createTrp() {
-	var data={id:activeTrpId};
+	var data={};
 	data.name=$("#trpn-name").val();
 	data.owner=$("#trpn-owner").val();
 	data.size=$("#trpn-size").val();
