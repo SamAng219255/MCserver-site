@@ -1070,7 +1070,8 @@ function switchEdit() {
 function setTroopMenu(kind,id) {
 	var foo="ven";
 	var targetMenu=$("#trp"+foo[kind]+"Menu");
-	activeTrpId=troops[id].id;
+	if(kind!=2)
+		activeTrpId=troops[id].id;
 	if(kind==2) {
 		$("#trpn-name").val("");
 		$("#trpn-owner").val(nation);
