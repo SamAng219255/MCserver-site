@@ -78,9 +78,26 @@ if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
 	$rangedtxt='false';
 	if($row[13]=='1')
 		$rangedtxt='true';
-	echo '{"id":'.$row[0].',"owner":"'.$row[1].'","nation":"'.str_replace('"','\\"',$row[2]).'","name":"'.str_replace('"','\\"',$row[3]).'","size":'.$row[4].',"power":'.$row[5].',"health":'.$row[6].',"x":'.$row[7].',"z":'.$row[8].',"move":'.$row[9].',"moveleft":'.$row[10].',"sprite":'.$row[11].',"state":'.$row[14].',"origsize":'.$row[15].',"color":"'.$colour.'","dimension":0,"owned":'.$isowned.',"mobile":'.$mobiletxt.',"ranged":'.$rangedtxt.'}';
+	$usescustom='false';
+	if($row[17]=='1')
+		$usescustom='true';
+	echo '{"id":'.$row[0].',"owner":"'.$row[1].'","nation":"'.str_replace('"','\\"',$row[2]).'","name":"'.str_replace('"','\\"',$row[3]).'","size":'.$row[4].',"power":'.$row[5].',"health":'.$row[6].',"x":'.$row[7].',"z":'.$row[8].',"move":'.$row[9].',"moveleft":'.$row[10].',"sprite":'.$row[11].',"state":'.$row[14].',"cost":'.$row[15].',"origsize":'.$row[16].',"customsprite":'.$usescustom.',"color":"'.$colour.'","dimension":0,"owned":'.$isowned.',"mobile":'.$mobiletxt.',"ranged":'.$rangedtxt.'}';
 }}
 
-echo '],"colors":'.json_encode($colours).'}';
+echo '],"colors":'.json_encode($colours).',"sprites":[';
+
+$query="SELECT * FROM `mcstuff`.`sprites`;";
+$queryresult=mysqli_query($conn,$query);
+if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
+	$row=mysqli_fetch_row($queryresult);
+	if($row[2]=='army') {
+		if($i>0) {
+			echo ',';
+		}
+		echo '{"id":'.$row[0].',"name":"'.$row[1].'","type":"'.$row[2].'","width":'.$row[3].',"height":'.$row[4].'}';
+	}
+}}
+
+echo ']}';
 
 ?>

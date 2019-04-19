@@ -94,6 +94,17 @@ CREATE TABLE IF NOT EXISTS `troops` (
   `state` int NOT NULL DEFAULT 0,
   `cost` int NOT NULL,
   `origsize` int NOT NULL,
+  `customsprite` int NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `sprites` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(32) NOT NULL,
+  `type` enum('army') NOT NULL,
+  `width` int NOT NULL,
+  `height` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 

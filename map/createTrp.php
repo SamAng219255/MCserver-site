@@ -24,11 +24,15 @@ if($_SESSION['permissions']>0) {
 				$power/=2;
 				$rangetxt='1';
 			}
+			$usescustom='0';
+			if($_GET['customsprite']=='true') {
+				$usescustom='1';
+			}
 			$move=floor($move);
 			$x=intval($_GET['x']);
 			$z=intval($_GET['z']);
 			$sprite=intval($_GET['sprite']);
-			$sql="INSERT INTO `mcstuff`.`troops` (`id`,`owner`,`nation`,`name`,`size`,`power`,`x`,`y`,`move`,`moveleft`,`sprite`,`mobile`,`ranged`,`cost`,`origsize`) VALUES ('0','".$owner."','".$nation."','".$name."','".$size."','".$power."','".$x."','".$z."','".$move."','".$move."','".$sprite."','".$mobiletxt."','".$rangetxt."','".$invest."','".$size."');";
+			$sql="INSERT INTO `mcstuff`.`troops` (`id`,`owner`,`nation`,`name`,`size`,`power`,`x`,`y`,`move`,`moveleft`,`sprite`,`mobile`,`ranged`,`cost`,`origsize`,`customsprite`) VALUES ('0','".$owner."','".$nation."','".$name."','".$size."','".$power."','".$x."','".$z."','".$move."','".$move."','".$sprite."','".$mobiletxt."','".$rangetxt."','".$invest."','".$size."','".$usescustom."');";
 			$nationquery="SELECT `name`,`troopresource`,`ruler` FROM `mcstuff`.`nations` WHERE `ruler`='".$owner."';";
 			if($nationqueryresult=mysqli_query($conn,$nationquery)) {
 				if($nationqueryresult->num_rows>0) {
@@ -47,11 +51,11 @@ if($_SESSION['permissions']>0) {
 										echo '{"action":"create","status":0,"text":"Army created.","sql":"'.$sql.'"}';
 									}
 									else {
-										echo '{"action":"create","status":1,"text":"An unkown error occured while creating army.","sql":"'.$sql.'"}';
+										echo '{"action":"create","status":1,"text":"An unknown error occurred while creating army.","sql":"'.$sql.'"}';
 									}
 								}
 								else {
-									echo '{"action":"create","status":1,"text":"An unkown error occured while subtracting spent troop limiting resource.","sql":"'.$costsql.'"}';
+									echo '{"action":"create","status":1,"text":"An unknown error occurred while subtracting spent troop limiting resource.","sql":"'.$costsql.'"}';
 								}
 							}
 							else {
@@ -59,7 +63,7 @@ if($_SESSION['permissions']>0) {
 							}
 						}
 						else {
-							echo '{"action":"create","status":1,"text":"An unkown error occured while checking troop limiting resource.","sql":"'.$resourcequery.'"}';
+							echo '{"action":"create","status":1,"text":"An unknown error occurred while checking troop limiting resource.","sql":"'.$resourcequery.'"}';
 						}
 					}
 					else {
@@ -67,7 +71,7 @@ if($_SESSION['permissions']>0) {
 							echo '{"action":"create","status":0,"text":"NPC army created.","sql":"'.$sql.'"}';
 						}
 						else {
-							echo '{"action":"create","status":1,"text":"An unkown error occured while creating NPC army.","sql":"'.$sql.'"}';
+							echo '{"action":"create","status":1,"text":"An unknown error occurred while creating NPC army.","sql":"'.$sql.'"}';
 						}
 					}
 				}
@@ -76,12 +80,12 @@ if($_SESSION['permissions']>0) {
 						echo '{"action":"create","status":0,"text":"Army created by user with no nation.","sql":"'.$sql.'"}';
 					}
 					else {
-						echo '{"action":"create","status":1,"text":"An unkown error occured while creating army by user with no nation.","sql":"'.$sql.'"}';
+						echo '{"action":"create","status":1,"text":"An unknown error occurred while creating army by user with no nation.","sql":"'.$sql.'"}';
 					}
 				}
 			}
 			else {
-				echo '{"action":"create","status":1,"text":"An unkown error occured while finding user nation.","sql":"'.$nationquery.'"}';
+				echo '{"action":"create","status":1,"text":"An unknown error occurred while finding user nation.","sql":"'.$nationquery.'"}';
 			}
 		}
 		else {
@@ -89,7 +93,7 @@ if($_SESSION['permissions']>0) {
 		}
 	}
 	else {
-		echo '{"action":"create","status":1,"text":"An unkown error occured while checking for name redundancy.","sql":"'.$checkquery.'"}';
+		echo '{"action":"create","status":1,"text":"An unknown error occurred while checking for name redundancy.","sql":"'.$checkquery.'"}';
 	}
 }
 

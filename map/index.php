@@ -31,6 +31,7 @@
 	<link rel="stylesheet" type="text/css" href="./theme.css">
 	<script src="../jquery.js"></script>
 	<script src="../pxem.jQuery.js"></script>
+	<script src="../jquery.form.min.js"></script>
 	<script src="hammer.min.js"></script>
 	<script src="mobileDetect.js"></script>
 	<script src="tiling.js"></script>
@@ -143,6 +144,8 @@
 				<dd id="trpn-move"></dd>
 				<dt>Sprite:</dt>
 				<dd><div id="spritemenu"></div><canvas height="64" width="64" id="trpnspritecnv"></canvas></dd>
+				<dd>OR</dd>
+				<dd>Upload a new sprite: <form action="uploadArmySprite.php" method="post" enctype="multipart/form-data" id="upload"><input type="file" name="sprite" id="spriteupload"><input type="submit" value="Upload"></form></dd>
 			</dl>
 			<input type="submit" value="Create" onclick="createTrp()">
 		</div>

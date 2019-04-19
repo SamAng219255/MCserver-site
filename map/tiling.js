@@ -67,13 +67,16 @@ statusSprites.src='img/status.png';
 isAdmin=false;
 spriteoptions=[];
 trpSprite=0;
+isSpriteCustom=false;
 bannercount=0;
 banners=[];
 troops=[];
 troopshandelling=false;
 troopsaction="";
+newsprite=document.createElement("img");
 rotarySprites=[];
 actionState="default";
+lastCustSprite=0;
 for(var i=0; i<3; i++) {
 	rotarySprites.push(document.createElement('img'));
 }
@@ -124,11 +127,36 @@ function setup() {
 			spriteoptions[i][1].drawImage(sprites,(i%8)*16,parseInt(i/8)*16,16,16,0,0,64,64);
 		}
 	});
+	customsprites=[];
 	spritemenu=$("#spritemenu");
 	trpncnv=$("#trpnspritecnv");
 	trpecnv=$("#trpespritecnv");
 	trpvcnv=$("#trpvspritecnv");
-	setInterval(function(){draw(); $.getJSON("getMarkers.php",function(data){troops=data.troops;});},1000);
+	setInterval(function(){draw(); $.getJSON("getMarkers.php",function(data){
+		troops=data.troops;
+		customspritedata=data.sprites;
+		for(var i=lastCustSprite+1; i<customspritedata.length; i++) {
+			customsprites.push(document.createElement('img'));
+			customsprites[customsprites.length-1].src="img/uploads/"+customspritedata[i].name;customsprites.length-1
+			customsprites[customsprites.length-1].width=customspritedata[i].width;
+			customsprites[customsprites.length-1].height=customspritedata[i].height;
+			spriteoptions.push([document.createElement("canvas")]);
+			spriteoptions[spriteoptions.length-1][0].width=spriteoptions[spriteoptions.length-1][0].height=64;
+			spriteoptions[spriteoptions.length-1][0].i=customsprites.length-1;
+			spriteoptions[spriteoptions.length-1][0].custom=true;
+			spriteoptions[spriteoptions.length-1].push(spriteoptions[spriteoptions.length-1][0].getContext("2d"));
+			spriteoptions[spriteoptions.length-1][1].imageSmoothingEnabled=false;
+			spriteoptions[spriteoptions.length-1][0].addEventListener("click",selectSprite);
+			spriteoptions[spriteoptions.length-1][0].className="sprite-custom";
+			spritemenu.append(spriteoptions[spriteoptions.length-1][0]);
+			customsprites[customsprites.length-1].cnvId=spriteoptions.length-1;
+			customsprites[customsprites.length-1].addEventListener("load",function(e){
+				spriteoptions[e.target.cnvId][1].drawImage(e.target,0,0,64,64)
+			});
+			if(i>lastCustSprite)
+				lastCustSprite=i;
+		}
+	});},1000);
 	var dataStr=window.location.hash.split("#");
 	var data={};
 	if(dataStr.length>1) {
@@ -178,6 +206,29 @@ function setup() {
 			drawPoints();
 		}
 		troops=data.troops;
+		customspritedata=data.sprites;
+		customsprites=[];
+		for(var i=0; i<customspritedata.length; i++) {
+			customsprites.push(document.createElement('img'));
+			customsprites[i].src="img/uploads/"+customspritedata[i].name;
+			customsprites[i].width=customspritedata[i].width;
+			customsprites[i].height=customspritedata[i].height;
+			spriteoptions.push([document.createElement("canvas")]);
+			spriteoptions[spriteoptions.length-1][0].width=spriteoptions[spriteoptions.length-1][0].height=64;
+			spriteoptions[spriteoptions.length-1][0].i=i;
+			spriteoptions[spriteoptions.length-1][0].custom=true;
+			spriteoptions[spriteoptions.length-1].push(spriteoptions[spriteoptions.length-1][0].getContext("2d"));
+			spriteoptions[spriteoptions.length-1][1].imageSmoothingEnabled=false;
+			spriteoptions[spriteoptions.length-1][0].addEventListener("click",selectSprite);
+			spriteoptions[spriteoptions.length-1][0].className="sprite-custom";
+			spritemenu.append(spriteoptions[spriteoptions.length-1][0]);
+			customsprites[i].cnvId=spriteoptions.length-1;
+			customsprites[i].addEventListener("load",function(e){
+				spriteoptions[e.target.cnvId][1].drawImage(e.target,0,0,64,64)
+			});
+			if(i>lastCustSprite)
+				lastCustSprite=i;
+		}
 	});
 	draw();
 	if(!isMobile)
@@ -238,6 +289,18 @@ function setup() {
 	trpncnv[0].addEventListener("click",function() {
 		spritemenu.addClass("show");
 	});
+	$("#upload").ajaxForm({dataType:"json",success:function(data){
+		console.log(data);
+		addBanner(data.text);
+		newsprite=document.createElement("img");
+		newsprite.src="img/uploads/"+data.name;
+		trpnCtx.clearRect(0,0,64,64);
+		newsprite.addEventListener("load",function(){
+			trpnCtx.drawImage(newsprite,0,0,64,64);
+		});
+		isSpriteCustom=true;
+		trpSprite=data.id;
+	}});
 	$(".trpn-calc").on("change",setTroopCalcs);
 	$(".trpn-calc").on("keyup",setTroopCalcs);
 	hammertime=new Hammer.Manager(document.getElementById('mcmap'))
@@ -326,16 +389,24 @@ function canvasSetup() {
 		spriteoptions.push([document.createElement("canvas")]);
 		spriteoptions[i][0].width=spriteoptions[i][0].height=64;
 		spriteoptions[i][0].i=i;
+		spriteoptions[i][0].custom=false;
 		spriteoptions[i].push(spriteoptions[i][0].getContext("2d"));
 		spriteoptions[i][1].imageSmoothingEnabled=false;
-		spriteoptions[i][0].addEventListener("click",function(event){
-			trpnCtx.clearRect(0,0,64,64);
-			trpnCtx.drawImage(sprites,(event.target.i%8)*16,parseInt(event.target.i/8)*16,16,16,0,0,64,64);
-			trpSprite=event.target.i;
-			spritemenu.removeClass("show");
-		});
+		spriteoptions[i][0].addEventListener("click",selectSprite);
 		spritemenu.append(spriteoptions[i][0]);
 	}
+}
+function selectSprite(event){
+	trpnCtx.clearRect(0,0,64,64);
+	if(!event.target.custom) {
+		trpnCtx.drawImage(sprites,(event.target.i%8)*16,parseInt(event.target.i/8)*16,16,16,0,0,64,64);
+	}
+	else {
+		trpnCtx.drawImage(customsprites[event.target.i],0,0,64,64)
+	}
+	trpSprite=event.target.i;
+	isSpriteCustom=event.target.custom;
+	spritemenu.removeClass("show");
 }
 function canvasResize() {
 	canvas=document.getElementById("mcmap");
@@ -845,7 +916,12 @@ function drawTroops() {
 					mobMod=2;
 				}
 				drawCircle(trpCtx,posAdj[0],posAdj[1],18*sizeMod,"#"+troops[i].color);
-				trpCtx.drawImage(sprites,(troops[i].sprite%8)*16,parseInt(troops[i].sprite/8)*16,16,16,posAdj[0]-16*sizeMod,posAdj[1]-16*sizeMod,32*sizeMod,32*sizeMod);
+				if(!troops[i].customsprite)
+					trpCtx.drawImage(sprites,(troops[i].sprite%8)*16,parseInt(troops[i].sprite/8)*16,16,16,posAdj[0]-16*sizeMod,posAdj[1]-16*sizeMod,32*sizeMod,32*sizeMod);
+				else
+					for(var j=0; j<customspritedata.length; j++)
+						if(troops[i].sprite==customspritedata[j].id)
+							trpCtx.drawImage(customsprites[j],posAdj[0]-16*sizeMod,posAdj[1]-16*sizeMod,32*sizeMod,32*sizeMod);
 				if(troops[i].state>0)
 					trpCtx.drawImage(statusSprites,((troops[i].state-1)%4)*64,parseInt((troops[i].state-1)/4)*64,64,64,posAdj[0],posAdj[1],16*sizeMod,16*sizeMod);
 				if(i==selectedArmy) {
@@ -1167,6 +1243,7 @@ function createTrp() {
 	data.x=$("#trpn-x").val();
 	data.z=$("#trpn-z").val();
 	data.sprite=trpSprite;
+	data.customsprite=isSpriteCustom;
 	$.getJSON("createTrp.php",data,checkTrpResponse);
 }
 function editTrp() {

@@ -5,6 +5,8 @@ map/img/excluded/*
 map/img/full.png
 img/flags
 img/flags/*
+map/img/uploads
+map/img/uploads/*
 map/tileIds.json
 map/upload.sh
 db.php
