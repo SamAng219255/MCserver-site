@@ -111,12 +111,12 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 						}
 						$trpDmg=0;
 						$tarDmg=0;
-						$tidalstr=ceil(($trp['power']+$tar['power'])/8);
-						$rounds=mt_rand(5,15);
+						$tidalstr=ceil(($trp['power']+$tar['power'])/4);
+						$rounds=mt_rand(4,12);
 						for($i=0; $i<$rounds; $i++) {
 							$tides=mt_rand(-$tidalstr*1000,$tidalstr*1000)/1000.0;
-							$tarDmg+=$dmgMod*sqrt(($trp['power']*1.25+$tides)/(($tar['power']-$tides)*$defmod))/$rounds;
-							$trpDmg+=$dmgMod*sqrt($defmod*($tar['power']-$tides)/($trp['power']+$tides))/$rounds;
+							$tarDmg+=max($dmgMod*sqrt(($trp['power']*1.25+$tides)/(($tar['power']-$tides)*$defmod))/$rounds,0);
+							$trpDmg+=max($dmgMod*sqrt($defmod*($tar['power']-$tides)/($trp['power']+$tides))/$rounds,0);
 						}
 						$trp['health']-=$trpDmg;
 						$tar['health']-=$tarDmg;
@@ -208,11 +208,11 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 						}
 						$trpDmg=0;
 						$tarDmg=0;
-						$tidalstr=ceil(($trp['power']+$tar['power'])/8);
+						$tidalstr=ceil(($trp['power']+$tar['power'])/4);
 						$rounds=1;
 						for($i=0; $i<$rounds; $i++) {
 							$tides=mt_rand(-$tidalstr*1000,$tidalstr*1000)/1000.0;
-							$tarDmg+=$dmgMod*sqrt(($trp['power']+$tides)/(($tar['power']-$tides)*$defmod))/$rounds;
+							$tarDmg+=max($dmgMod*sqrt(($trp['power']+$tides)/(($tar['power']-$tides)*$defmod))/$rounds,0);
 						}
 						$tar['health']-=$tarDmg;
 						$sizeunit=min(ceil($trp['origsize']/20),ceil($tar['origsize']/20));
@@ -277,11 +277,11 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 						}
 						$trpDmg=0;
 						$tarDmg=0;
-						$tidalstr=ceil(($trp['power']+$tar['power'])/8);
-						$rounds=mt_rand(3,8);
+						$tidalstr=ceil(($trp['power']+$tar['power'])/4);
+						$rounds=mt_rand(2,6);
 						for($i=0; $i<$rounds; $i++) {
 							$tides=mt_rand(-$tidalstr*1000,$tidalstr*1000)/1000.0;
-							$tarDmg+=$dmgMod*sqrt(($trp['power']*1.25+$tides)/(($tar['power']-$tides)*$defmod))/$rounds;
+							$tarDmg+=max($dmgMod*sqrt(($trp['power']*1.25+$tides)/(($tar['power']-$tides)*$defmod))/$rounds,0);
 						}
 						$tar['health']-=$tarDmg;
 						$sizeunit=min(ceil($trp['origsize']/20),ceil($tar['origsize']/20));
