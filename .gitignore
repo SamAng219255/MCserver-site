@@ -9,6 +9,7 @@ map/img/uploads
 map/img/uploads/*
 map/tileIds.json
 map/upload.sh
+dateupdated.txt
 db.php
 getServerStatus
 turnOnServer

@@ -54,10 +54,10 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 			);
 		}
 		if($trp['owner']==$_SESSION['username']) {
-			if(!isset($_GET['target']) || pow($trp['x']-$tar['x'],2)+pow($trp['y']-$tar['y'],2)<=16384) {
+			if(!isset($_GET['target']) || pow($trp['x']-$tar['x'],2)+pow($trp['y']-$tar['y'],2)<=4096) {
 				if($_GET['action']=='fortify') {
-					if($trp['moveleft']>=1) {
-						$effectsql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-1)."',`state`='1' WHERE `id`=".$trp['id'].";";
+					if($trp['moveleft']>=2) {
+						$effectsql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-2)."',`state`='1' WHERE `id`=".$trp['id'].";";
 						if(mysqli_query($conn,$effectsql)) {
 							echo '{"action":"'.$_GET['action'].'","status":0,"text":"Army successfully changed to fortified state."}';
 						}
@@ -70,8 +70,8 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 					}
 				}
 				elseif($_GET['action']=='heal') {
-					if($trp['moveleft']>=1) {
-						$effectsql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-1)."',`health`='".sprintf("%.3f",min(0.24/(1.0+$trp['size']/$trp['cost'])+$trp['health']),100)."' WHERE `id`=".$trp['id'].";";
+					if($trp['moveleft']>=2) {
+						$effectsql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-2)."',`health`='".sprintf("%.3f",min(0.24/(1.0+$trp['size']/$trp['cost'])+$trp['health']),100)."' WHERE `id`=".$trp['id'].";";
 						if(mysqli_query($conn,$effectsql)) {
 							echo '{"action":"'.$_GET['action'].'","status":0,"text":"Army successfully set army health."}';
 						}
@@ -85,7 +85,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 				}
 				elseif($_GET['action']=='move') {
 					if($trp['moveleft']>=1) {
-						if(pow($trp['x']-intval($_GET['x']),2)+pow($trp['y']-intval($_GET['z']),2)<=16384) {
+						if(pow($trp['x']-intval($_GET['x']),2)+pow($trp['y']-intval($_GET['z']),2)<=4096) {
 							$effectsql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-1)."',`state`='0',`x`='".intval($_GET['x'])."',`y`='".intval($_GET['z'])."' WHERE `id`='".$trp['id']."';";
 							if(mysqli_query($conn,$effectsql)) {
 								echo '{"action":"'.$_GET['action'].'","status":0,"text":"Army successfully set army position."}';
@@ -103,7 +103,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 					}
 				}
 				elseif($_GET['action']=='attack') {
-					if($trp['moveleft']>=1) {
+					if($trp['moveleft']>=2) {
 						$defmod=1;
 						if($tar['state']==1) {
 							$defmod*=1.5;
@@ -133,7 +133,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 								$trp['health']*=$oldsize/$trp['size'];
 							}
 							if($trp['size']>0) {
-								$effectonesql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-1)."',`state`='0',`health`='".$trp['health']."',`size`='".$trp['size']."',`power`='".floor($trp['power'])."' WHERE `id`=".$trp['id'].";";
+								$effectonesql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-2)."',`state`='0',`health`='".$trp['health']."',`size`='".$trp['size']."',`power`='".floor($trp['power'])."' WHERE `id`=".$trp['id'].";";
 								$returndata['sql1']=$effectonesql;
 								if(mysqli_query($conn,$effectonesql)) {
 									$returndata['status1']=0;
@@ -200,7 +200,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 					}
 				}
 				elseif($_GET['action']=='hitrun') {
-					if($trp['moveleft']>=2) {
+					if($trp['moveleft']>=4) {
 						$defmod=1;
 						if($tar['state']==1) {
 							$defmod*=1.5;
@@ -216,7 +216,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 						$tar['health']-=$tarDmg;
 						$sizeunit=min(ceil($trp['origsize']/20),ceil($tar['origsize']/20));
 						$returndata=array("action"=>$_GET['action'],"status1"=>0,"status2"=>0,"text1"=>"","text2"=>"","sql1"=>"","sql2"=>"","dmg1"=>$trpDmg,"dmg2"=>$tarDmg,"losses1"=>0,"losses2"=>0);
-						$effectonesql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-2)."',`state`='0' WHERE `id`=".$trp['id'].";";
+						$effectonesql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-4)."',`state`='0' WHERE `id`=".$trp['id'].";";
 						$returndata['sql1']=$effectonesql;
 						if(mysqli_query($conn,$effectonesql)) {
 							$returndata['status1']=0;
@@ -269,7 +269,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 					}
 				}
 				elseif($_GET['action']=='shoot') {
-					if($trp['moveleft']>=1) {
+					if($trp['moveleft']>=2) {
 						$defmod=1;
 						if($tar['state']==1) {
 							$defmod*=1.5;

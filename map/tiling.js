@@ -84,15 +84,15 @@ rotarySprites[0].src="./img/rotarySprites.png";
 rotarySprites[1].src="./img/rotarySpriteShadows.png";
 rotarySprites[2].src="./img/rotarySpritesBlack.png";
 controlBtns=[
-	new RotaryButton(0,"Fortify","Costs 1 move.\nMove the army into defensive position giving an advantage against attackers.",trpAction),
-	new RotaryButton(1,"Heal","Costs 1 move.\nSpend some time healling up. Recovers HP.",trpAction),
+	new RotaryButton(0,"Fortify","Costs 2 moves.\nMove the army into defensive position giving an advantage against attackers.",trpAction),
+	new RotaryButton(1,"Heal","Costs 2 moves.\nSpend some time healling up. Recovers HP.",trpAction),
 	new RotaryButton(2,"Move","Costs 1 move.\nRelocate army.",trpAction),
 	new RotaryButton(3,"View","View the army's information.",viewTrp)
 ];
 attackBtns=[
-	new RotaryButton(4,"Attack","Costs 1 move.\nEngage in combat.",trpAction),
-	new RotaryButton(5,"Hit & Run","Costs 2 moves.\nCharge up and attack then pull back.",trpAction),
-	new RotaryButton(6,"Shoot","Costs 1 move.\nLaunch a long range attack.",trpAction),
+	new RotaryButton(4,"Attack","Costs 2 moves.\nEngage in combat.",trpAction),
+	new RotaryButton(5,"Hit & Run","Costs 4 moves.\nCharge up and attack then pull back.",trpAction),
+	new RotaryButton(6,"Shoot","Costs 2 moves.\nLaunch a long range attack.",trpAction),
 	new RotaryButton(7,"Spy","View the army's information.",function(){
 		setTroopMenu(0,targetArmy);
 		$("#trpvMenu").addClass("shown");
@@ -156,7 +156,7 @@ function setup() {
 			if(i>lastCustSprite)
 				lastCustSprite=i;
 		}
-	});},1000);
+	}); $.getJSON("../dailyrefresh.php",console.log)},1000);
 	var dataStr=window.location.hash.split("#");
 	var data={};
 	if(dataStr.length>1) {
@@ -404,7 +404,7 @@ function selectSprite(event){
 	else {
 		trpnCtx.drawImage(customsprites[event.target.i],0,0,64,64)
 	}
-	trpSprite=event.target.i;
+	trpSprite=customspritedata[event.target.i].id;
 	isSpriteCustom=event.target.custom;
 	spritemenu.removeClass("show");
 }
@@ -710,7 +710,7 @@ function highlight(e) {
 		}
 		drawPoints();
 	}
-	else if(actionState=="move" && Math.pow(newX-troops[selectedArmy].x,2)+Math.pow(newZ-troops[selectedArmy].z,2)<=16384) {
+	else if(actionState=="move" && Math.pow(newX-troops[selectedArmy].x,2)+Math.pow(newZ-troops[selectedArmy].z,2)<=4096) {
 		console.log("Passed",newX,newZ,",",troops[selectedArmy].x,troops[selectedArmy].z);
 		sendTrpAction({id:troops[selectedArmy].id,x:newX,z:newZ,action:"move"});
 		troops[selectedArmy].x=newX;
@@ -792,7 +792,7 @@ function highlighttroops(e) {
 	var trpPos;
 	if(selectedArmy>-1)
 		trpPos=[offsetPix[0]+(troops[selectedArmy].x+0.5)/128*tileSize-cornerPos[0]*tileSize+tileSize/2,offsetPix[1]+(troops[selectedArmy].z+0.5)/128*tileSize-cornerPos[1]*tileSize+tileSize/2];
-	if(clickedTrp || clickedBtn || (actionState=="move" && Math.sqrt(Math.pow(trpPos[0]-e.x,2)+Math.pow(trpPos[1]-e.y,2))<=tileSize))
+	if(clickedTrp || clickedBtn || (actionState=="move" && Math.sqrt(Math.pow(trpPos[0]-e.x,2)+Math.pow(trpPos[1]-e.y,2))<=64*tileSize/128))
 		$("#mcmap").addClass("pointer");
 	else
 		$("#mcmap").removeClass("pointer");
@@ -948,7 +948,7 @@ function drawTroops() {
 							trpBtns[j].data.owned=false;
 						}
 					}
-					if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)>16384) {
+					if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)>4096) {
 						for(var j=0; j<3; j++) {
 							trpBtns[j].active=1;
 							trpBtns[j].data.toofar=true;
@@ -1039,11 +1039,11 @@ function drawUI() {
 		boxCtx.clearRect(0,0,width,height);
 		var posRel=[cornerPos[0]*tileSize,cornerPos[1]*tileSize];
 		var posAdj=[offsetPix[0]+(troops[selectedArmy].x+0.5)/128*tileSize-posRel[0]+tileSize/2,offsetPix[1]+(troops[selectedArmy].z+0.5)/128*tileSize-posRel[1]+tileSize/2];
-		drawCircle(boxCtx,posAdj[0],posAdj[1],tileSize,"rgba("+parseInt(troops[selectedArmy].color.slice(0,2),16)+","+parseInt(troops[selectedArmy].color.slice(2,4),16)+","+parseInt(troops[selectedArmy].color.slice(4,6),16)+",0.5)");
+		drawCircle(boxCtx,posAdj[0],posAdj[1],64*tileSize/128,"rgba("+parseInt(troops[selectedArmy].color.slice(0,2),16)+","+parseInt(troops[selectedArmy].color.slice(2,4),16)+","+parseInt(troops[selectedArmy].color.slice(4,6),16)+",0.5)");
 		boxCtx.beginPath();
 		boxCtx.strokeStyle="#"+troops[selectedArmy].color;
 		boxCtx.lineWidth=4;
-		boxCtx.arc(posAdj[0], posAdj[1], tileSize, 0, 2*Math.PI, true);
+		boxCtx.arc(posAdj[0], posAdj[1], 64*tileSize/128, 0, 2*Math.PI, true);
 		boxCtx.stroke();
 	}
 }
@@ -1084,7 +1084,7 @@ function trpAction(data) {
 	}
 	else if(data.name=="Attack") {
 		if(troops[selectedArmy].moveleft>=1)
-			if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=16384)
+			if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
 				sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"attack"});
 			else
 				addBanner("Too far away.");
@@ -1093,7 +1093,7 @@ function trpAction(data) {
 	}
 	else if(data.name=="Hit & Run") {
 		if(troops[selectedArmy].moveleft>=2)
-			if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=16384)
+			if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
 				sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"hitrun"});
 			else
 				addBanner("Too far away.");
@@ -1102,7 +1102,7 @@ function trpAction(data) {
 	}
 	else if(data.name=="Shoot") {
 		if(troops[selectedArmy].moveleft>=1)
-			if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=16384)
+			if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
 				sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"shoot"});
 			else
 				addBanner("Too far away.");
@@ -1224,7 +1224,8 @@ function setTroopMenu(kind,id) {
 }
 function setTroopCalcs() {
 	var tempPower=parseInt((parseInt($("#trpn-cost").val())+parseInt($("#trpn-size").val()))/1000);
-	var tempMove=Math.min(Math.pow(2,Math.log(1000*tempPower/parseInt($("#trpn-size").val()))),Math.max(parseInt(100000/parseInt($("#trpn-size").val())),1));
+	var tempMove=Math.min(Math.pow(2,Math.log(1000*tempPower/parseInt($("#trpn-size").val()))),Math.max(100000/parseInt($("#trpn-size").val()),1));
+	tempMove*=3;
 	if($("#trpn-mobility").prop("checked"))
 		tempMove*=2;
 	if($("#trpn-ranged").prop("checked"))

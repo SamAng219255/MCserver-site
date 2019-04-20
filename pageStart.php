@@ -64,6 +64,7 @@
 			}
 		}
 	}
+	require 'dailyrefresh.php';
 ?>
 <html>
 <head>
