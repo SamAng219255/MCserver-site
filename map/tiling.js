@@ -400,11 +400,12 @@ function selectSprite(event){
 	trpnCtx.clearRect(0,0,64,64);
 	if(!event.target.custom) {
 		trpnCtx.drawImage(sprites,(event.target.i%8)*16,parseInt(event.target.i/8)*16,16,16,0,0,64,64);
+		trpSprite=event.target.i;
 	}
 	else {
-		trpnCtx.drawImage(customsprites[event.target.i],0,0,64,64)
+		trpnCtx.drawImage(customsprites[event.target.i],0,0,64,64);
+		trpSprite=customspritedata[event.target.i].id;
 	}
-	trpSprite=customspritedata[event.target.i].id;
 	isSpriteCustom=event.target.custom;
 	spritemenu.removeClass("show");
 }
@@ -933,10 +934,14 @@ function drawTroops() {
 						}
 					}
 					if(troops[selectedArmy].moveleft<1) {
-						for(var j=0; j<3; j++) {
-							trpBtns[j].active=1;
-							trpBtns[j].data.moveless=false;
-						}
+						trpBtns[2].active=1;
+						trpBtns[2].data.moveless=true;
+					}
+					if(troops[selectedArmy].moveleft<2) {
+						trpBtns[0].active=1;
+						trpBtns[0].data.moveless=true;
+						trpBtns[1].active=1;
+						trpBtns[1].data.moveless=true;
 					}
 					scheduleRotary(posAdj[0],posAdj[1],mobMod*32,mobMod*96,trpBtns);
 				}
@@ -954,13 +959,13 @@ function drawTroops() {
 							trpBtns[j].data.toofar=true;
 						}
 					}
-					if(troops[selectedArmy].moveleft<1) {
+					if(troops[selectedArmy].moveleft<2) {
 						trpBtns[0].active=1;
 						trpBtns[0].data.moveless=true;
 						trpBtns[2].active=1;
 						trpBtns[2].data.moveless=true;
 					}
-					if(troops[selectedArmy].moveleft<2) {
+					if(troops[selectedArmy].moveleft<4) {
 						trpBtns[1].active=1;
 						trpBtns[1].data.moveless=true;
 					}
