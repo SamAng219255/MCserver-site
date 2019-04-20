@@ -71,9 +71,10 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 				}
 				elseif($_GET['action']=='heal') {
 					if($trp['moveleft']>=2) {
-						$effectsql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-2)."',`health`='".sprintf("%.3f",min(0.24/(1.0+$trp['size']/$trp['cost'])+$trp['health']),100)."' WHERE `id`=".$trp['id'].";";
+						$newhealth=sprintf("%.3f",min((24/(1.0+$trp['size']/$trp['cost']))+$trp['health'],100));
+						$effectsql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-2)."',`health`='".$newhealth."' WHERE `id`=".$trp['id'].";";
 						if(mysqli_query($conn,$effectsql)) {
-							echo '{"action":"'.$_GET['action'].'","status":0,"text":"Army successfully set army health."}';
+							echo '{"action":"'.$_GET['action'].'","status":0,"text":"Army successfully set army health.","sql":"'.$effectsql.'"}';
 						}
 						else {
 							echo '{"action":"'.$_GET['action'].'","status":1,"text":"An unknown error occured while setting army health.","sql":"'.$effectsql.'"}';
