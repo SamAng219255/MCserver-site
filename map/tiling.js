@@ -47,6 +47,7 @@ gotoPinPending="";
 jumpMenuActive=false;
 instMenuActive=false;
 trpMenuActive=[false,false,false];
+commanderMenuActive=false;
 menuActive=false;
 showMissingTiles=false;
 dragging=false;
@@ -77,6 +78,8 @@ newsprite=document.createElement("img");
 rotarySprites=[];
 actionState="default";
 lastCustSprite=0;
+commanders=[];
+shownCommanders={};
 for(var i=0; i<3; i++) {
 	rotarySprites.push(document.createElement('img'));
 }
@@ -100,6 +103,7 @@ attackBtns=[
 		menuActive=true;
 	})
 ];
+specials={name:['combat','defense','open','mobility','ranged','healing','fortify','nomanleft','lucky'],title:['Combat','Defense','Honor','Mobility','Ranged','Healing','Fortification','"No Man Left Behind"','Lucky'],desc:['Bonus to attack strength.','Bonus to defense strength.','Higher bonus to standard Attacks.','Higher bonus to Hit & Run.','Higher bonus to Shooting.','Increase healing effectiveness.','Increase bonus from being Fortified','Less likely to lose troops when taking damage.','The tides of battle tend more to your favor.']};
 tooltip=new RotaryButton(-1,"","",function(){});
 tooltip.active=-1;
 document.addEventListener("keydown", move);
@@ -156,7 +160,17 @@ function setup() {
 			if(i>lastCustSprite)
 				lastCustSprite=i;
 		}
+		commanders=data.commanders;
+		setCommanderLists();
+		nationColors=data.colors;
+		nationColorsIndex=data.knownnations;
+		setNationStyles();
 	}); $.getJSON("../dailyrefresh.php",console.log)},1000);
+	for(var i=0; i<specials.name.length; i++) {
+		var elem=$("<li><label title=\""+specials.desc[i]+"\"><input type=\"checkbox\" value=\""+specials.name[i]+"\" class=\"addcommspec\"><span>"+specials.title[i]+"</span></label></li>");
+		$("#comm-spec").append(elem);
+	}
+	$(".addcommspec").on("change",commCheckHandler);
 	var dataStr=window.location.hash.split("#");
 	var data={};
 	if(dataStr.length>1) {
@@ -229,6 +243,11 @@ function setup() {
 			if(i>lastCustSprite)
 				lastCustSprite=i;
 		}
+		commanders=data.commanders;
+		setCommanderLists();
+		nationColors=data.colors;
+		nationColorsIndex=data.knownnations;
+		setNationStyles();
 	});
 	draw();
 	if(!isMobile)
@@ -269,20 +288,33 @@ function setup() {
 		pointsVis=!pointsVis;
 		$("#pinbutton").toggleClass("active");
 	});
-	if(isAdmin)
-	document.getElementById("addTroopbutton").addEventListener("click",function() {
-		if(!menuActive) {
-			setTroopMenu(2,0);
-			$("#trpnMenu").addClass("shown");
-			trpMenuActive[2]=true;
-			menuActive=true;
-		}
-		else if(trpMenuActive[2]) {
-			$("#trpnMenu").removeClass("shown");
-			trpMenuActive[2]=false;
-			menuActive=false;
-		}
-	});
+	if(isAdmin) {
+		document.getElementById("addTroopbutton").addEventListener("click",function() {
+			if(!menuActive) {
+				setTroopMenu(2,0);
+				$("#trpnMenu").addClass("shown");
+				trpMenuActive[2]=true;
+				menuActive=true;
+			}
+			else if(trpMenuActive[2]) {
+				$("#trpnMenu").removeClass("shown");
+				trpMenuActive[2]=false;
+				menuActive=false;
+			}
+		});
+		document.getElementById("commanderBtn").addEventListener("click",function() {
+			if(!menuActive) {
+				$("#commanderMenu").addClass("shown");
+				commanderMenuActive=true;
+				menuActive=true;
+			}
+			else if(commanderMenuActive) {
+				$("#commanderMenu").removeClass("shown");
+				commanderMenuActive=false;
+				menuActive=false;
+			}
+		});
+	}
 	spritemenu[0].addEventListener("mouseleave",function() {
 		spritemenu.removeClass("show");
 	});
@@ -303,6 +335,10 @@ function setup() {
 	}});
 	$(".trpn-calc").on("change",setTroopCalcs);
 	$(".trpn-calc").on("keyup",setTroopCalcs);
+	$(".tab-tab").on("click",function(e){
+		$(e.target.parentElement.parentElement.children).removeClass("active");
+		$(e.target.parentElement).addClass("active");
+	});
 	hammertime=new Hammer.Manager(document.getElementById('mcmap'))
 	hammertime.add(new Hammer.Pan());
 	hammertime.add(new Hammer.Pinch());
@@ -629,6 +665,11 @@ function closeTrpMenu(which) {
 	menuActive=false;
 	$("#editbtn").removeClass("show");
 }
+function closeCommanderMenu() {
+	$("#commanderMenu").removeClass("shown");
+	commanderMenuActive=false;
+	menuActive=false;
+}
 function highlight(e) {
 	var rawX=e.center.x-offsetPix[0];
 	var rawY=e.center.y-offsetPix[1];
@@ -695,7 +736,7 @@ function highlight(e) {
 				selectedPoint=0;
 				lastTar=[Infinity,Infinity];
 				selectedArmy=whichTrp;
-				$("#infoTxt")[0].innerHTML="<b>"+troops[whichTrp].name+"</b><br>Nation: "+troops[whichTrp].nation+", Size: "+troops[whichTrp].size+", Strength: "+troops[whichTrp].power+"<br><span onclick=\"viewTrp()\">Details</span>";
+				$("#infoTxt")[0].innerHTML="<b>"+troops[whichTrp].name+"</b><br>Nation: "+troops[whichTrp].nation+", Size: "+troops[whichTrp].size+", Strength: "+troops[whichTrp].power+", Level: "+parseInt(Math.sqrt(0.25+2*troops[whichTrp].xp)-0.5)+"<br><span onclick=\"viewTrp()\">Details</span>";
 				$("#infoTxt").addClass("shown");
 			}
 		}
@@ -1174,6 +1215,7 @@ function setTroopMenu(kind,id) {
 		$(".trp-size").text(troops[id].size);
 		$(".trp-power").text(troops[id].power);
 		$(".trp-health").text(troops[id].health+"%");
+		$(".trp-lvl").text(parseInt(Math.sqrt(0.25+2*troops[id].xp)-0.5));
 		var type="";
 		if(troops[id].mobile) {
 			if(type.length>0)
@@ -1190,10 +1232,32 @@ function setTroopMenu(kind,id) {
 		}
 		$(".trp-type").text(type);
 		$(".trp-position").text("X: "+troops[id].x+", Z: "+troops[id].z);
+		var spectxt="";
+		for(var j=0; j<troops[id].bonuses.length; j++) {
+			if(troops[id].bonuses[j]!="") {
+				if(j>0) {
+					spectxt+=", ";
+				}
+				spectxt+="<span title=\""+specials.desc[specials.name.indexOf(troops[id].bonuses[j])]+"\">"+specials.title[specials.name.indexOf(troops[id].bonuses[j])]+"</span>";
+			}
+		}
+		$(".trp-bonuses")[0].innerHTML=spectxt;
 		$(".trp-move").text(troops[id].move);
 		$(".trp-moveleft").text(troops[id].moveleft);
 		trpeCtx.clearRect(0,0,64,64);
-		trpeCtx.drawImage(sprites,(troops[id].sprite%8)*16,parseInt(troops[id].sprite/8)*16,16,16,0,0,64,64);
+		if(!troops[id].customsprite) {
+			trpeCtx.drawImage(sprites,(troops[id].sprite%8)*16,parseInt(troops[id].sprite/8)*16,16,16,0,0,64,64);
+			trpSprite=troops[id].sprite;
+		}
+		else {
+			var spriteId=0;
+			for(var i=0; i<customsprites.length; i++) {
+				if(customspritedata[i].id==troops[id].sprite)
+					spriteId=i;
+			}
+			trpeCtx.drawImage(customsprites[spriteId],0,0,64,64);
+			trpSprite=troops[id].sprite;
+		}
 	}
 	else if(kind==0) {
 		$(".trp-name").text(troops[id].name);
@@ -1201,6 +1265,7 @@ function setTroopMenu(kind,id) {
 		$(".trp-size").text(troops[id].size);
 		$(".trp-power").text(troops[id].power);
 		$(".trp-health").text(troops[id].health+"%");
+		$(".trp-lvl").text(parseInt(Math.sqrt(0.25+2*troops[id].xp)-0.5));
 		var type="";
 		if(troops[id].mobile) {
 			if(type.length>0)
@@ -1217,10 +1282,32 @@ function setTroopMenu(kind,id) {
 		}
 		$(".trp-type").text(type);
 		$(".trp-position").text("X: "+troops[id].x+", Z: "+troops[id].z);
+		var spectxt="";
+		for(var j=0; j<troops[id].bonuses.length; j++) {
+			if(troops[id].bonuses[j]!="") {
+				if(j>0) {
+					spectxt+=", ";
+				}
+				spectxt+="<span title=\""+specials.desc[specials.name.indexOf(troops[id].bonuses[j])]+"\">"+specials.title[specials.name.indexOf(troops[id].bonuses[j])]+"</span>";
+			}
+		}
+		$(".trp-bonuses")[0].innerHTML=spectxt;
 		$(".trp-move").text(troops[id].move);
 		$(".trp-moveleft").text(troops[id].moveleft);
 		trpvCtx.clearRect(0,0,64,64);
-		trpvCtx.drawImage(sprites,(troops[id].sprite%8)*16,parseInt(troops[id].sprite/8)*16,16,16,0,0,64,64);
+		if(!troops[id].customsprite) {
+			trpvCtx.drawImage(sprites,(troops[id].sprite%8)*16,parseInt(troops[id].sprite/8)*16,16,16,0,0,64,64);
+			trpSprite=troops[id].sprite;
+		}
+		else {
+			var spriteId=0;
+			for(var i=0; i<customsprites.length; i++) {
+				if(customspritedata[i].id==troops[id].sprite)
+					spriteId=i;
+			}
+			trpvCtx.drawImage(customsprites[spriteId],0,0,64,64);
+			trpSprite=troops[id].sprite;
+		}
 		if(troops[id].owned)
 			$("#editbtn").addClass("show");
 		else
@@ -1280,6 +1367,103 @@ function checkTrpResponse(data) {
 		addBanner(data.text);
 	$.getJSON("getMarkers.php",function (data) {
 		troops=data.troops;
+	});
+}
+commChecks=[];
+function commCheckHandler(e) {
+	if(e.target.checked) {
+		commChecks.push(e.target.value);
+		while(commChecks.length>3) {
+			$(".addcommspec[value="+commChecks.splice(0,1)[0]+"]")[0].checked=false;
+		}
+	}
+	else {
+		commChecks.splice(commChecks.indexOf(e.target.value),1);
+	}
+}
+function createComm() {
+	$.getJSON("createComm.php",{
+		name:$("#comm-name").val(),
+		nation:$("#comm-ntn").val(),
+		specials:commChecks,
+	},function(data){
+		$("#comm-name").val("");
+		$("#comm-ntn").val("");
+		while(commChecks.length>0) {
+			$(".addcommspec[value="+commChecks.splice(0,1)[0]+"]")[0].checked=false;
+		}
+		console.log(data);
+	});
+}
+function setCommanderLists() {
+	var commview=$("#comm-view");
+	var commmanage=$("#comm-manage");
+	var viewingmanage=$(".tab.active #comm-manage").length>0 && commanderMenuActive==true;
+	for(var i=0; i<commanders.length; i++) {
+		var spectxt="";
+		for(var j=0; j<commanders[i].special.length; j++) {
+			if(j>0) {
+				spectxt+=", ";
+			}
+			spectxt+="<span title=\""+specials.desc[specials.name.indexOf(commanders[i].special[j])]+"\">"+specials.title[specials.name.indexOf(commanders[i].special[j])]+"</span>";
+		}
+		if(shownCommanders[commanders[i].name]) {
+			$(".card[card="+commanders[i].id+"]").attr("nation",commanders[i].nation);
+			$(".card[card="+commanders[i].id+"] .h").text(commanders[i].name);
+			$(".card[card="+commanders[i].id+"] .topic").text(commanders[i].nation);
+			$(".card[card="+commanders[i].id+"] .time").text(commanders[i].owner);
+			$("#comm-view .card[card="+commanders[i].id+"] .stuffing")[0].innerHTML="Specials: "+spectxt+"<br>Army: "+commanders[i].armyname+"<br>Level: "+parseInt(Math.sqrt(0.25+2*commanders[i].xp)-0.5);
+			if(!viewingmanage && commanders[i].owned) {
+				var armyselecter="<select class=\"comm-army\" commid=\""+commanders[i].id+"\"><option></option>";
+				for(var j=0; j<troops.length; j++) {
+					if(troops[j].owned) {
+						var isselected="";
+						if(commanders[i].armyid==troops[j].id)
+							isselected=" selected";
+						armyselecter+="<option"+isselected+">"+troops[j].name+"</option>";
+					}
+				}
+				armyselecter+="</select>";
+				$("#comm-manage .card[card="+commanders[i].id+"] .stuffing")[0].innerHTML="Specials: "+spectxt+"<br>Army: "+armyselecter+"<br>Level: "+parseInt(Math.sqrt(0.25+2*commanders[i].xp)-0.5);
+			}
+		}
+		else {
+			shownCommanders[commanders[i].name]=true;
+			commview.append('<div class="card" nation="'+commanders[i].nation+'" card="'+commanders[i].id+'"><div class="postmeta"><div class="h">'+commanders[i].name+'</div> <div class="topic">'+commanders[i].nation+'</div> <div class="time">'+commanders[i].owner+'</div></div><div class="stuffing">Specials: '+spectxt+'<br>Army: '+commanders[i].armyname+"<br>Level: "+parseInt(Math.sqrt(0.25+2*commanders[i].xp)-0.5)+'</div></div>');
+			if(commanders[i].owned) {
+				var armyselecter="<select class=\"comm-army\" commid=\""+commanders[i].id+"\"><option></option>";
+				for(var j=0; j<troops.length; j++) {
+					if(troops[j].owned) {
+						var isselected="";
+						if(commanders[i].armyid==troops[j].id)
+							isselected=" selected";
+						armyselecter+="<option"+isselected+">"+troops[j].name+"</option>";
+					}
+				}
+				armyselecter+="</select>";
+				commmanage.append('<div class="card" nation="'+commanders[i].nation+'" card="'+commanders[i].id+'"><div class="postmeta"><div class="h">'+commanders[i].name+'</div> <div class="topic">'+commanders[i].nation+'</div> <div class="time">'+commanders[i].owner+'</div></div><div class="stuffing">Specials: '+spectxt+'<br>Army: '+armyselecter+"<br>Level: "+parseInt(Math.sqrt(0.25+2*commanders[i].xp)-0.5)+'</div></div>');
+			}
+		}
+	}
+	$(".comm-army").off("change",setCommTrp);
+	$(".comm-army").on("change",setCommTrp);
+}
+function setNationStyles() {
+	styleBox=document.getElementById("nationstyles");
+	var styleStr=""
+	for(var i=0; i<nationColorsIndex.length; i++) {
+		styleStr+="\n.card[nation=\""+nationColorsIndex[i]+"\"] {\n	color: #"+nationColors[nationColorsIndex[i]].fore+";\n	background-color: #"+nationColors[nationColorsIndex[i]].back+";\n}";
+	}
+	styleStr+="\n";
+	styleBox.innerHTML=styleStr;
+}
+function setCommTrp(e) {
+	var theselector=$(e.currentTarget);
+	$.getJSON("setcommtrp.php",{id:parseInt(theselector.attr("commid")),armyname:theselector.val()},function(data) {
+		console.log(data);
+		if(data.response.status>0) {
+			addBanner(data.response.text);
+		}
 	});
 }
 function addBanner(txt) {

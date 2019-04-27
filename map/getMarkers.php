@@ -47,14 +47,18 @@ if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
 
 echo '],"troops":[';
 
-$colours=array('default'=>'000000');
+$colours=array('default'=>array('fore'=>'000000','back'=>'#c0c0c0'));
+$knownnations=array('default');
 
-$query="SELECT `nation`,`forecolor` FROM `mcstuff`.`users`;";
+$query="SELECT `nation`,`forecolor`,`backcolor`,`username` FROM `mcstuff`.`users`;";
 $queryresult=mysqli_query($conn,$query);
 if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
 	$row=mysqli_fetch_row($queryresult);
-	$colours[$row[0]]=$row[1];
+	$colours[$row[0]]=array('fore'=>$row[1],'back'=>$row[2]);
+	array_push($knownnations,$row[0]);
 }}
+
+$troops=array('0'=>'');
 
 $query="SELECT * FROM `mcstuff`.`troops` ORDER BY `name` ASC;";
 if($restrictions!=='') {
@@ -66,9 +70,9 @@ if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
 	if($i>0) {
 		echo ',';
 	}
-	$colour="000000";
+	$colour=$colours['default']['fore'];
 	if(isset($colours[$row[2]]))
-		$colour=$colours[$row[2]];
+		$colour=$colours[$row[2]]['fore'];
 	$isowned='false';
 	if($row[1]==$_SESSION['username'])
 		$isowned='true';
@@ -81,10 +85,19 @@ if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
 	$usescustom='false';
 	if($row[17]=='1')
 		$usescustom='true';
-	echo '{"id":'.$row[0].',"owner":"'.$row[1].'","nation":"'.str_replace('"','\\"',$row[2]).'","name":"'.str_replace('"','\\"',$row[3]).'","size":'.$row[4].',"power":'.$row[5].',"health":'.$row[6].',"x":'.$row[7].',"z":'.$row[8].',"move":'.$row[9].',"moveleft":'.$row[10].',"sprite":'.$row[11].',"state":'.$row[14].',"cost":'.$row[15].',"origsize":'.$row[16].',"customsprite":'.$usescustom.',"color":"'.$colour.'","dimension":0,"owned":'.$isowned.',"mobile":'.$mobiletxt.',"ranged":'.$rangedtxt.'}';
+	$specs='';
+	$specdata=explode(',',$row[19]);
+	for($j=0; $j<count($specdata); $j++) {
+		if($j>0) {
+			$specs.=',';
+		}
+		$specs.='"'.$specdata[$j].'"';
+	}
+	echo '{"id":'.$row[0].',"owner":"'.$row[1].'","nation":"'.str_replace('"','\\"',$row[2]).'","name":"'.str_replace('"','\\"',$row[3]).'","size":'.$row[4].',"power":'.$row[5].',"health":'.$row[6].',"x":'.$row[7].',"z":'.$row[8].',"move":'.$row[9].',"moveleft":'.$row[10].',"sprite":'.$row[11].',"state":'.$row[14].',"cost":'.$row[15].',"origsize":'.$row[16].',"xp":'.$row[18].',"bonuses":['.$specs.'],"customsprite":'.$usescustom.',"color":"'.$colour.'","dimension":0,"owned":'.$isowned.',"mobile":'.$mobiletxt.',"ranged":'.$rangedtxt.'}';
+	$troops[$row[0]]=str_replace('"','\\"',$row[3]);
 }}
 
-echo '],"colors":'.json_encode($colours).',"sprites":[';
+echo '],"colors":'.json_encode($colours).',"knownnations":'.json_encode($knownnations).',"sprites":[';
 
 $query="SELECT * FROM `mcstuff`.`sprites`;";
 $queryresult=mysqli_query($conn,$query);
@@ -96,6 +109,29 @@ if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
 		}
 		echo '{"id":'.$row[0].',"name":"'.$row[1].'","type":"'.$row[2].'","width":'.$row[3].',"height":'.$row[4].'}';
 	}
+}}
+
+echo '],"commanders":[';
+
+$query="SELECT * FROM `mcstuff`.`commanders`;";
+$queryresult=mysqli_query($conn,$query);
+if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
+	$row=mysqli_fetch_row($queryresult);
+	if($i>0) {
+		echo ',';
+	}
+	$specs='';
+	$specdata=explode(',',$row[3]);
+	for($j=0; $j<count($specdata); $j++) {
+		if($j>0) {
+			$specs.=',';
+		}
+		$specs.='"'.$specdata[$j].'"';
+	}
+	$isowned='false';
+	if($row[2]==$_SESSION['username'])
+		$isowned='true';
+	echo '{"id":'.$row[0].',"name":"'.$row[1].'","owner":"'.$row[2].'","special":['.$specs.'],"xp":'.$row[4].',"armyid":'.$row[5].',"armyname":"'.$troops[$row[5]].'","nation":"'.$row[6].'","owned":'.$isowned.'}';
 }}
 
 echo ']}';

@@ -39,6 +39,7 @@
 	<link href="../img/icon.png" rel="shortcut icon">
 	<?php if($permissions>0) echo '<script>isAdmin=true;</script>'; echo '<script>nation="'.$nation.'";</script>'; ?>
 	<!--<meta name="viewport">-->
+	<style id="nationstyles"></style>
 </head>
 <body onkeydown="return move(event)" onload="setup();" style="touch-action:none" id="body">
 	<div id="bannerholder"></div>
@@ -79,10 +80,14 @@
 				<dd class="trp-power"></dd>
 				<dt>Health:</dt>
 				<dd class="trp-health"></dd>
+				<dt>Level:</dt>
+				<dd class="trp-lvl"></dd>
 				<dt>Type:</dt>
 				<dd class="trp-type"></dd>
 				<td>Position:</td>
 				<dd class="trp-position"></dd>
+				<td>Commander Bonuses:</td>
+				<dd class="trp-bonuses"></dd>
 				<dt>Movement:</dt>
 				<dd class="trp-move"></dd>
 				<dt>Remaining Movement:</dt>
@@ -107,10 +112,14 @@
 				<dd class="trp-power"></dd>
 				<dt>Health:</dt>
 				<dd class="trp-health"></dd>
+				<dt>Level:</dt>
+				<dd class="trp-lvl"></dd>
 				<dt>Type:</dt>
 				<dd class="trp-type"></dd>
 				<td>Position:</td>
 				<dd class="trp-position"></dd>
+				<td>Commander Bonuses:</td>
+				<dd class="trp-bonuses"></dd>
 				<dt>Movement:</dt>
 				<dd class="trp-move"></dd>
 				<dt>Remaining Movement:</dt>
@@ -150,6 +159,35 @@
 			<input type="submit" value="Create" onclick="createTrp()">
 		</div>
 	</div>
+	<div id="commanderMenu">
+		<div onclick="closeCommanderMenu()"></div>
+		<div>
+			<div class="tab active" id="tab-1">
+				<div class="tabbit tab-tab">View</div>
+				<div class="tabbit tab-content" id="comm-view">
+				</div>
+			</div>
+			<div class="tab" id="tab-2">
+				<div class="tabbit tab-tab">Add</div>
+				<div class="tabbit tab-content">
+					<dl>
+						<dt>Name:</dt>
+						<dd><input type="text" id="comm-name"></dd>
+						<dt>Nation:</dt>
+						<dd><input type="text" id="comm-ntn"></dd>
+						<dt>Specials:</dt>
+						<dd><ul id="comm-spec"></ul></dd>
+					</dl>
+					<input type="submit" value="Add" onclick="createComm()">
+				</div>
+			</div>
+			<div class="tab" id="tab-3">
+				<div class="tabbit tab-tab">Manage</div>
+				<div class="tabbit tab-content" id="comm-manage">
+				</div>
+			</div>
+		</div>
+	</div>
 	<div id="instr" onclick="closeInstMenu()" class="hide">
 		<div>
 			<p>Controls:</p>
@@ -169,6 +207,7 @@
 		<?php if($permissions>0) {
 			echo '<a href="./submit.php" target="blank_" title="Create a new pin."><button id="addPinbutton"></button></a>';
 			echo '<button id="addTroopbutton" title="Create a new Army."></button>';
+			echo '<button id="commanderBtn" title="Manage Comanders."></button>';
 		}?>
 	</div>
 	<div id="jumpMenuMobile">

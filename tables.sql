@@ -95,6 +95,8 @@ CREATE TABLE IF NOT EXISTS `troops` (
   `cost` int NOT NULL,
   `origsize` int NOT NULL,
   `customsprite` int NOT NULL,
+  `xp` int NOT NULL DEFAULT 0,
+  `bonuses` set('combat','defense','open','mobility','ranged','healing','fortify','nomanleft','lucky') NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -104,6 +106,17 @@ CREATE TABLE IF NOT EXISTS `sprites` (
   `type` enum('army') NOT NULL,
   `width` int NOT NULL,
   `height` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `commanders` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(32) NOT NULL,
+  `owner` varchar(32) NOT NULL,
+  `special` set('combat','defense','open','mobility','ranged','healing','fortify','nomanleft','lucky') NOT NULL,
+  `xp` int NOT NULL,
+  `army` int NOT NULL,
+  `nation` varchar(32) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

@@ -4,7 +4,7 @@ require 'db.php';
 
 if($_SESSION['permissions']>0) {
 	$name=mysqli_real_escape_string($conn,$_GET['name']);
-	$checkquery="SELECT `id`,`name` FROM `mcstuff`.`troops` WHERE `name`='".$name."';";
+	$checkquery="SELECT `id`,`name` FROM `mcstuff`.`troops` WHERE `name`='".mysqli_real_escape_string($conn,$name)."';";
 	if($checkqueryresult=mysqli_query($conn,$checkquery)) {
 		if($checkqueryresult->num_rows<1) {
 			$owner=$_SESSION['username'];
