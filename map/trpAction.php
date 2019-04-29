@@ -283,6 +283,9 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 						}
 						elseif($_GET['action']=='hitrun') {
 							if($trp['moveleft']>=4) {
+								if($trp['mobile']==0) {
+									$trp['atckbonus']/=3;
+								}
 								$trpDmg=0;
 								$tarDmg=0;
 								if(in_array('mobility',$trp['bonuses'])) {
@@ -363,6 +366,9 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 						}
 						elseif($_GET['action']=='shoot') {
 							if($trp['moveleft']>=2) {
+								if($trp['ranged']==0) {
+									$trp['atckbonus']/=3;
+								}
 								$trpDmg=0;
 								$tarDmg=0;
 								$trp['atckbonus']*=1.25;

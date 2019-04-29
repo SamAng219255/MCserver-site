@@ -1,6 +1,7 @@
 class RotaryButton {
 	constructor(icon,name,desc,func,data) {
 		this.icon=icon;
+		this.buff=-1;
 		this.name=name;
 		this.desc=desc;
 		this.action=func;
@@ -13,7 +14,9 @@ class RotaryButton {
 		this.x=-Infinity;
 		this.y=-Infinity;
 		this.copy=function() {
-			return new RotaryButton(this.icon,this.name,this.desc,this.action,JSON.parse(JSON.stringify(this.data)));
+			var tmp=new RotaryButton(this.icon,this.name,this.desc,this.action,JSON.parse(JSON.stringify(this.data)));
+			tmp.buff=this.buff;
+			return tmp;
 		}
 	}
 	static copyGroup (list) {
@@ -86,15 +89,17 @@ for(var i=0; i<3; i++) {
 rotarySprites[0].src="./img/rotarySprites.png";
 rotarySprites[1].src="./img/rotarySpriteShadows.png";
 rotarySprites[2].src="./img/rotarySpritesBlack.png";
+buffSprites=document.createElement('img');
+buffSprites.src="./img/buff.png";
 controlBtns=[
 	new RotaryButton(0,"Fortify","Costs 2 moves.\nMove the army into defensive position giving an advantage against attackers.",trpAction),
-	new RotaryButton(1,"Heal","Costs 2 moves.\nSpend some time healling up. Recovers HP.",trpAction),
+	new RotaryButton(1,"Heal","Costs 2 moves.\nSpend some time healing up. Recovers HP.",trpAction),
 	new RotaryButton(2,"Move","Costs 1 move.\nRelocate army.",trpAction),
 	new RotaryButton(3,"View","View the army's information.",viewTrp)
 ];
 attackBtns=[
 	new RotaryButton(4,"Attack","Costs 2 moves.\nEngage in combat.",trpAction),
-	new RotaryButton(5,"Hit & Run","Costs 4 moves.\nCharge up and attack then pull back.",trpAction),
+	new RotaryButton(5,"Hit & Run","Costs 4 moves.\nCharge up and attack then pull back avoiding damage.",trpAction),
 	new RotaryButton(6,"Shoot","Costs 2 moves.\nLaunch a long range attack.",trpAction),
 	new RotaryButton(7,"Spy","View the army's information.",function(){
 		setTroopMenu(0,targetArmy);
@@ -359,7 +364,8 @@ function setup() {
 	hammertime.on("panstart", dragStart);
 	hammertime.on("panmove", drag);
 	hammertime.on("singletap", highlight);
-	document.getElementById('mcmap').addEventListener("mousemove",highlighttroops)
+	document.getElementById('mcmap').addEventListener("mousemove",highlighttroops);
+	$("#comm-ntn").val(nation);
 }
 function dragStart(e) {
 	mousePos[0]=e.center.x;
@@ -411,7 +417,6 @@ function canvasSetup() {
 	uiCnv.width=width;
 	uiCnv.height=height;
 	uiCtx=uiCnv.getContext('2d');
-	uiCtx.imageSmoothingEnabled=false;
 	trpnCnv=trpncnv[0];
 	trpeCnv=trpecnv[0];
 	trpvCnv=trpvcnv[0];
@@ -454,7 +459,6 @@ function canvasResize() {
 		boxCtx.imageSmoothingEnabled=false;
 		pinCtx.imageSmoothingEnabled=false;
 		trpCtx.imageSmoothingEnabled=false;
-		uiCtx.imageSmoothingEnabled=false;
 	}
 	else {
 		width=canvas.width=$(window).width();
@@ -984,6 +988,12 @@ function drawTroops() {
 						trpBtns[1].active=1;
 						trpBtns[1].data.moveless=true;
 					}
+					if(troops[selectedArmy].bonuses.indexOf("fortify")>-1) {
+						trpBtns[0].buff++;
+					}
+					if(troops[selectedArmy].bonuses.indexOf("healing")>-1) {
+						trpBtns[1].buff++;
+					}
 					scheduleRotary(posAdj[0],posAdj[1],mobMod*32,mobMod*96,trpBtns);
 				}
 				if(i==targetArmy) {
@@ -1010,11 +1020,37 @@ function drawTroops() {
 						trpBtns[1].active=1;
 						trpBtns[1].data.moveless=true;
 					}
-					if(!troops[selectedArmy].mobile) {
-						trpBtns[1].active=2;
+					if(troops[selectedArmy].bonuses.indexOf("open")>-1) {
+						trpBtns[0].buff+=2;
 					}
-					if(!troops[selectedArmy].ranged) {
-						trpBtns[2].active=2;
+					else if(troops[selectedArmy].bonuses.indexOf("combat")>-1) {
+						trpBtns[0].buff++;
+					}
+					if(troops[selectedArmy].mobile) {
+						trpBtns[1].buff+=2;
+						trpBtns[1].data.ismobile=true;
+					}
+					else {
+						trpBtns[1].data.ismobile=false;
+					}
+					if(troops[selectedArmy].bonuses.indexOf("mobility")>-1) {
+						trpBtns[1].buff+=2;
+					}
+					else if(troops[selectedArmy].bonuses.indexOf("combat")>-1) {
+						trpBtns[1].buff++;
+					}
+					if(troops[selectedArmy].ranged) {
+						trpBtns[2].buff+=2;
+						trpBtns[2].data.isranged=true;
+					}
+					else {
+						trpBtns[2].data.isranged=false;
+					}
+					if(troops[selectedArmy].bonuses.indexOf("ranged")>-1) {
+						trpBtns[2].buff+=2;
+					}
+					else if(troops[selectedArmy].bonuses.indexOf("combat")>-1) {
+						trpBtns[2].buff++;
 					}
 					scheduleRotary(posAdj[0],posAdj[1],mobMod*32,mobMod*96,trpBtns);
 				}
@@ -1044,14 +1080,24 @@ function drawUI() {
 		uiCtx.strokeStyle="#404040";
 		var lines=tooltip.desc.split("\n");
 		lines.splice(0,0,tooltip.name);
+		var qualities=["good","really good","great","amazing","exceptional"];
+		if(tooltip.buff>=0) {
+			lines.push("Your army is "+qualities[tooltip.buff]+" at this action.");
+		}
+		if(tooltip.data.isranged!=undefined && !tooltip.data.isranged) {
+			lines.push("Unless focussed on ranged attacks the army will only deal 1/3 normal damage.");
+		}
+		if(tooltip.data.ismobile!=undefined && !tooltip.data.ismobile) {
+			lines.push("Unless focussed on mobility the army will only deal 1/3 normal damage.");
+		}
 		if(tooltip.data.owned!=undefined && !tooltip.data.owned) {
-			lines.splice(lines.length,0,"You can not perform this action because you do not own this army.");
+			lines.push("You can not perform this action because you do not own this army.");
 		}
 		if(tooltip.data.toofar!=undefined && tooltip.data.toofar) {
-			lines.splice(lines.length,0,"Your army is out of range.");
+			lines.push("Your army is out of range.");
 		}
 		if(tooltip.data.moveless!=undefined && tooltip.data.moveless) {
-			lines.splice(lines.length,0,"Your army does not have enough moves left.");
+			lines.push("Your army does not have enough moves left.");
 		}
 		var newwidth=0;
 		var testwidth;
@@ -1107,6 +1153,8 @@ function drawRotary(x,y,iRadius,oRadius,btns) {
 		btns[i].y=y-radius*Math.cos(Math.TAU*i/4);
 		btns[i].radius=menuwidth/2;
 		uiCtx.drawImage(rotarySprites[btns[i].active],(btns[i].icon%4)*128,parseInt(btns[i].icon/4)*128,128,128,btns[i].x-btnSize/2,btns[i].y-btnSize/2,btnSize,btnSize);
+		if(btns[i].buff>=0)
+			uiCtx.drawImage(buffSprites,(btns[i].buff%4)*64,parseInt(btns[i].buff/4)*64,64,64,btns[i].x,btns[i].y,btnSize/2,btnSize/2);
 		activeRotaryBtns.push(btns[i]);
 	}
 }
@@ -1388,17 +1436,31 @@ function createComm() {
 		specials:commChecks,
 	},function(data){
 		$("#comm-name").val("");
-		$("#comm-ntn").val("");
+		$("#comm-ntn").val(nation);
 		while(commChecks.length>0) {
 			$(".addcommspec[value="+commChecks.splice(0,1)[0]+"]")[0].checked=false;
 		}
 		console.log(data);
+		if(data.response.status!=0) 
+			addBanner(data.response.text);
+		$("#tab-2.tab").removeClass("active");
+		$("#tab-3.tab").addClass("active");
+	});
+}
+function deleteComm(e) {
+	$.getJSON("deleteComm.php",{
+		id:$(e.target).attr("card")
+	},function(data){
+		console.log(data);
+		/*if(data.response.status!=0) 
+			addBanner(data.response.text);*/
 	});
 }
 function setCommanderLists() {
 	var commview=$("#comm-view");
 	var commmanage=$("#comm-manage");
 	var viewingmanage=$(".tab.active #comm-manage").length>0 && commanderMenuActive==true;
+	var seenCommanders=[];
 	for(var i=0; i<commanders.length; i++) {
 		var spectxt="";
 		for(var j=0; j<commanders[i].special.length; j++) {
@@ -1407,7 +1469,8 @@ function setCommanderLists() {
 			}
 			spectxt+="<span title=\""+specials.desc[specials.name.indexOf(commanders[i].special[j])]+"\">"+specials.title[specials.name.indexOf(commanders[i].special[j])]+"</span>";
 		}
-		if(shownCommanders[commanders[i].name]) {
+		seenCommanders[commanders[i].id]=true;
+		if(shownCommanders[commanders[i].id]) {
 			$(".card[card="+commanders[i].id+"]").attr("nation",commanders[i].nation);
 			$(".card[card="+commanders[i].id+"] .h").text(commanders[i].name);
 			$(".card[card="+commanders[i].id+"] .topic").text(commanders[i].nation);
@@ -1428,7 +1491,7 @@ function setCommanderLists() {
 			}
 		}
 		else {
-			shownCommanders[commanders[i].name]=true;
+			shownCommanders[commanders[i].id]=true;
 			commview.append('<div class="card" nation="'+commanders[i].nation+'" card="'+commanders[i].id+'"><div class="postmeta"><div class="h">'+commanders[i].name+'</div> <div class="topic">'+commanders[i].nation+'</div> <div class="time">'+commanders[i].owner+'</div></div><div class="stuffing">Specials: '+spectxt+'<br>Army: '+commanders[i].armyname+"<br>Level: "+parseInt(Math.sqrt(0.25+2*commanders[i].xp)-0.5)+'</div></div>');
 			if(commanders[i].owned) {
 				var armyselecter="<select class=\"comm-army\" commid=\""+commanders[i].id+"\"><option></option>";
@@ -1441,12 +1504,21 @@ function setCommanderLists() {
 					}
 				}
 				armyselecter+="</select>";
-				commmanage.append('<div class="card" nation="'+commanders[i].nation+'" card="'+commanders[i].id+'"><div class="postmeta"><div class="h">'+commanders[i].name+'</div> <div class="topic">'+commanders[i].nation+'</div> <div class="time">'+commanders[i].owner+'</div></div><div class="stuffing">Specials: '+spectxt+'<br>Army: '+armyselecter+"<br>Level: "+parseInt(Math.sqrt(0.25+2*commanders[i].xp)-0.5)+'</div></div>');
+				commmanage.append('<div class="card" nation="'+commanders[i].nation+'" card="'+commanders[i].id+'"><div class="postmeta"><div class="h">'+commanders[i].name+'</div> <div class="topic">'+commanders[i].nation+'</div> <div class="time">'+commanders[i].owner+'</div></div><div class="stuffing">Specials: '+spectxt+'<br>Army: '+armyselecter+"<br>Level: "+parseInt(Math.sqrt(0.25+2*commanders[i].xp)-0.5)+'</div><div class="footer"><div class="delete" card="'+commanders[i].id+'">delete</div></div></div>');
 			}
+		}
+	}
+	var commCards=$("#comm-view .card");
+	for(var i=0; i<commCards.length; i++) {
+		if(seenCommanders[parseInt(commCards[i].attributes.card.value)]==undefined) {
+			shownCommanders[parseInt(commCards[i].attributes.card.value)]=false;
+			$(".card[card="+commCards[i].attributes.card.value+"]").remove();
 		}
 	}
 	$(".comm-army").off("change",setCommTrp);
 	$(".comm-army").on("change",setCommTrp);
+	$("#comm-manage .card .delete").off("click",deleteComm);
+	$("#comm-manage .card .delete").on("click",deleteComm);
 }
 function setNationStyles() {
 	styleBox=document.getElementById("nationstyles");
