@@ -45,7 +45,7 @@
 			}
 			else {
 				$profile = $result->selectedProfile;
-				$allowedUsers=["redstonetardis42","petrok9001","skinz123","kagetora0","thedragonslain","luckyknight68","1999sam1999","greenhouscreeper","enddragon9","lewisthekiller","gentleworks","antraveler","153norc","lightningpwr28","sugargizmo","silverleafnight","pharaohcrab","patientneutral","enderninja7","drn21","d_hex","aquatailz","thetotorotacos"];
+				$allowedUsers=["redstonetardis42","petrok9001","skinz123","kagetora0","thedragonslain","luckyknight68","1999sam1999","greenhouscreeper","enddragon9","lewisthekiller","gentleworks","antraveler","153norc","lightningpwr28","sugargizmo","silverleafnight","pharaohcrab","patientneutral","enderninja7","drn21","d_hex","aquatailz","thetotorotacos","lhibscher349"];
 				$admin='0';
 				if(in_array(strtolower($profile->name), $allowedUsers)) {
 					$admin='1';
