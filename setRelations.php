@@ -8,7 +8,7 @@ if($_SESSION['permissions']>0) {
 	$ownerquery="SELECT `ruler` FROM `mcstuff`.`nations` WHERE `name`='".$nation."';";
 	if($ownerqueryresult=mysqli_query($conn,$ownerquery)) {
 		if($ownerqueryresult->num_rows==0 || mysqli_fetch_row($ownerqueryresult)[0]==$_SESSION['username']) {
-			$clearsql="DELETE FROM `mcstuff`.`relations` WHERE `nation1`='".$nation."' OR `nation2`='".$nation."';";
+			$clearsql="DELETE FROM `mcstuff`.`relations` WHERE `relation`=".(intval($_GET['relation'])+1)." AND (`nation1`='".$nation."' OR `nation2`='".$nation."');";
 			if(mysqli_query($conn,$clearsql)) {
 				$values='';
 				$natlength=count($_GET['nation2']);
