@@ -34,6 +34,7 @@
 	$hasPosts=array('blog.php');
 	$hasSortInit=array('edit.php','post.php');
 	$hasSort=array_merge($hasSortInit,$hasPosts);
+	$hasNations=array('nations.php','relations.php');
 	$pathstuff=explode('/',$_SERVER['SCRIPT_NAME']);
 	$currentPage=$pathstuff[count($pathstuff)-1];
 	if(in_array($currentPage,$hasSort)) {
@@ -88,6 +89,7 @@
 	<style>#profile{cursor: initial;}</style>
 </head>
 <?php echo '<body onload="setup'.$setupMethod.'()">' ?>
+	<div id="bannerholder"></div>
 	<?php if($setupMethod=='') {echo '<style id="userstyles"></style>';} ?>
 	<?php
 		if(in_array($currentPage,$hasPosts)) {
@@ -133,4 +135,8 @@
 				</div>
 				<?php if($loggedin && $permissions>0) {echo '<div id="postbutton"><a href="post.php"><div class="lighten"></div></a></div>';}?>
 			</div>
-		</div><?php if($loggedin && $permissions>0) {require 'statusBar.php';} if(in_array($currentPage,$hasSort)) {require 'sortBar.php';} ?>
+		</div><?php
+		if($loggedin && $permissions>0) require 'statusBar.php';
+		if(in_array($currentPage,$hasSort)) require 'sortBar.php';
+		if(in_array($currentPage,$hasNations)) require 'nationBar.php';
+		?>

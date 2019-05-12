@@ -120,4 +120,12 @@ CREATE TABLE IF NOT EXISTS `commanders` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `relations` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nation1` varchar(32) NOT NULL,
+  `nation2` varchar(32) NOT NULL,
+  `relation` enum('Allies','Friends','Friendly','Neutral','Unfriendly','Enemies','War') NOT NULL DEFAULT 'Neutral',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 

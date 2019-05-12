@@ -25,7 +25,7 @@ if($_SESSION['permissions']>0) {
 		}
 	}
 	else {
-		echo '{"action":"delete","status":1,"text":"An unkown error occured while checking army ownership.","sql":"'.$checkquery.'"}';
+		echo '{"action":"delete","status":1,"text":"An unknown error occured while checking army ownership.","sql":"'.$checkquery.'"}';
 	}
 }
 ?>

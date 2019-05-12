@@ -1,4 +1,6 @@
 setFuncs=[];
+bannercount=0;
+banners=[];
 function setStars() {
 	wrapper2=document.getElementById("wrapper2");
 	stars1=document.getElementById("stars1");
@@ -175,4 +177,12 @@ function turnOnServer() {
 	statusbutton.addClass("waiting");
 	setTimeout(function(){statusbutton.removeClass("waiting")},60000);
 }
-
+function addBanner(txt) {
+	$("#bannerholder").append("<div class=\"scriptbanner\" id=\"banner-"+bannercount+"\">"+txt+"</div>");
+	banners.push(bannercount);
+	bannercount++;
+	setTimeout(removeBanner,5000);
+}
+function removeBanner() {
+	$("#banner-"+banners.splice(0,1)[0]).remove();
+}

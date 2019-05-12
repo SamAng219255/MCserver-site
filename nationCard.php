@@ -40,11 +40,6 @@
 		padding: 1rem;
 		border-radius: 0.5rem;
 	}
-	#resources>#h {
-		font-weight: bold;
-		font-size: 1.5em;
-		margin: 2rem;
-	}
 	.card table th {
 		text-align: left;
 	}

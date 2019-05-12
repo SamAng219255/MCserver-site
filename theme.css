@@ -48,8 +48,12 @@ input[type=hidden] {
 	margin: 0 1rem;
 }
 #settings input {
-	margin-top: 1rem;
+	margin-top: 1.5rem;
 	font-size: 1rem;
+	display: block;
+}
+#settings select {
+	display: block;
 }
 .card {
 	margin: 1rem;
@@ -247,12 +251,12 @@ input[type=submit], input[type=button] {
 	font-size: 1rem;
 	color: #40f0c0;
 }
-#sort {
+#sort, #nationpages {
 	width: 100%;
 	height: 1.5rem;
 	background-color: #a0a0a0;
 }
-#sort>a, #sort>span {
+#sort>a, #sort>span, #nationpages>a, #nationpages>span {
 	display: inline-block;
 	position: relative;
 	font-size: 1rem;
@@ -262,13 +266,13 @@ input[type=submit], input[type=button] {
 	text-decoration: none;
 	cursor: pointer;
 }
-#sort>a:nth-child(1), #sort>span:nth-child(1) {
+#sort>a:nth-child(1), #sort>span:nth-child(1), #nationpages>a:nth-child(1), #nationpages>span:nth-child(1) {
 	padding-left: 2rem;
 }
-#sort>a:hover, #sort>span:hover {
+#sort>a:hover, #sort>span:hover, #nationpages>a:hover, #nationpages>span:hover {
 	background-color: rgba(255,255,255,0.25);
 }
-#sort>a>.dropdown, #sort>span>.dropdown {
+#sort>a>.dropdown, #sort>span>.dropdown, #nationpages>a>.dropdown, #nationpages>span>.dropdown {
 	top: 100%;
 	font-size: 1rem;
 	color: #40f0c0;
@@ -424,6 +428,34 @@ div:hover>.dropdown, span:hover>.dropdown {
 	90% {visibility: visible; opacity: 1}
 	100% {visibility: visible; opacity: 0}
 }
+.scriptbanner {
+	margin: 1rem 0rem 0rem;
+	padding: 0.5em;
+	width: 100%;
+	background-image: url('./img/planks_birch.png');
+	background-size: 4rem;
+	text-align: center;
+	visibility: hidden;
+	animation: scriptbannerfade 5s;
+	z-index: 20;
+	color: #000000;
+}
+@keyframes scriptbannerfade{
+	0% {visibility: visible; opacity: 0}
+	10% {visibility: visible; opacity: 1}
+	80% {visibility: visible; opacity: 1}
+	100% {visibility: visible; opacity: 0}
+}
+#bannerholder {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: calc(100% - 16rem);
+	height: calc(100% - 1rem);
+	padding: 1rem 8rem 0;
+	visibility: hidden;
+	z-index: 10;
+}
 .falling {
 	position: absolute;
 	margin: 0;
@@ -431,6 +463,26 @@ div:hover>.dropdown, span:hover>.dropdown {
 }
 .notthere {
 	visibility: hidden !important;
+}
+#h {
+	font-weight: bold;
+	font-size: 1.5em;
+	margin: 2rem;
+}
+#gridHold {
+	width: calc(100% - 4rem);
+	margin: auto;
+	min-height: calc(100% - 15rem);
+}
+#gridHold.loading {
+	background-color: #808080;
+}
+#gridHold>span {
+	display: block;
+	position: absolute;
+	top:50%;
+	left:50%;
+	transform: translate(-50%, -50%);
 }
 #blocker {
 	position: absolute;
@@ -440,6 +492,9 @@ div:hover>.dropdown, span:hover>.dropdown {
 	background-color: #808080;
 	text-align: center;
 	padding: 5rem 0;
+	cursor: pointer;
+}
+.editrow td:not(:nth-child(1)):not(:nth-child(9)) {
 	cursor: pointer;
 }
 *[title]::before {
