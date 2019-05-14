@@ -39,6 +39,8 @@ function setupGeneral() {
 	for(var i=0; i<setFuncs.length; i++) {
 		(setFuncs[i])();
 	}
+	$("#navbarspacer")[0].style="height: "+$("#navbarwrapper")[0].offsetHeight+"px;";
+	wrapper.addEventListener("scroll",function(){$("#navbarwrapper")[0].style="top: "+wrapper.scrollTop+"px;"},{passive:true});
 }
 function tagSearch() {
 	var gotten=$("#tagSearch").val();

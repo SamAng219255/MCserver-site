@@ -32,6 +32,7 @@
 			);
 			$context = stream_context_create($options);
 			$result = json_decode(file_get_contents($url, false, $context));
+			$profile = $result->selectedProfile;
 			$query="SELECT `username` from `mcstuff`.`users` where username='".$profile->name."';";
 			$hashed=password_hash($_POST['password'],PASSWORD_DEFAULT);
 			if($result==false) {
@@ -44,7 +45,6 @@
 				addBanner('Username is taken.');
 			}
 			else {
-				$profile = $result->selectedProfile;
 				$allowedUsers=["redstonetardis42","petrok9001","lhibscher349","list","kagetora0","luckyknight68","1999sam1999","enddragon9","lewisthekiller","gentleworks","153norc","sugargizmo","silverleafnight","pharaohcrab","enderninja7","drn21","d_hex","aquatailz","skinz123","thedragonslain","thetotorotacos","greenhouscreeper","thepartygod","smallsmelt300","antraveler","lightningpwr28","patientneutral"];
 				$admin='0';
 				if(in_array(strtolower($profile->name), $allowedUsers)) {
