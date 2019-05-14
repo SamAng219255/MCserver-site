@@ -18,6 +18,12 @@ body {
 	overflow: hidden;
 }
 
+.h {
+	font-size: 2rem;
+}
+hr {
+	border-color: #000000;
+}
 input[type=text], input[type=email], input[type=password] {
 	all: unset;
 	background-color: #f0f0f0;
@@ -91,8 +97,9 @@ small {
 	visibility: hidden;
 	background-color: blue;
 	width: 50%;
-	position: relative;
+	position: absolute;
 	margin: 1rem auto 0;
+	left: 25%;
 	padding: 1em;
 	text-align: center;
 	background-image: url("./img/stone.png");

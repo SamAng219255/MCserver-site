@@ -82,6 +82,7 @@
 		}
 	?>
 	<div id="lcp" class="cp"><form class="loginform" method="post">
+		<span class="h">Log In</span><hr>
 		<small>To log in, use your username (not email) for minecraft and your password you created when you created your account here.</small><br>
 		<label for="frminuser">Minecraft Username:</label><br>
 		<input type="text" id="frminuser" placeholder="Username" name="username" required maxlength=16 autocomplete="username"><br>
@@ -90,6 +91,7 @@
 		<input type="submit" value="Sign In" name="signin"><br>
 	</form></div>
 	<div id="rcp" class="cp"><form class="loginform" method="post">
+		<span class="h">Create Account</span><hr>
 		<div class="col">
 			<label for="frmupmail">Minecraft Email:</label><br>
 			<input type="email" id="frmupmail" placeholder="someone@example.com" name="email" required autocomplete="email"><br>
