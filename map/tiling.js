@@ -108,6 +108,17 @@ attackBtns=[
 		menuActive=true;
 	})
 ];
+helpBtns=[
+	new RotaryButton(0,"Defend","Costs 2 moves.\nMove your army to aid the target army temporarily granting it half your strength.",trpAction),
+	new RotaryButton(1,"Heal","Costs 2 moves.\nSpend some time healing the target army.",trpAction),
+	new RotaryButton(2,"Merge","Merge the your army with the target army.",trpAction),
+	new RotaryButton(3,"View","View the army's information.",function(){
+		setTroopMenu(0,targetArmy);
+		$("#trpvMenu").addClass("shown");
+		trpMenuActive[0]=true;
+		menuActive=true;
+	})
+];
 specials={name:['combat','defense','open','mobility','ranged','healing','fortify','nomanleft','lucky'],title:['Combat','Defense','Honor','Mobility','Ranged','Healing','Fortification','"No Man Left Behind"','Lucky'],desc:['Bonus to attack strength.','Bonus to defense strength.','Higher bonus to standard Attacks.','Higher bonus to Hit & Run.','Higher bonus to Shooting.','Increase healing effectiveness.','Increase bonus from being Fortified','Less likely to lose troops when taking damage.','The tides of battle tend more to your favor.']};
 tooltip=new RotaryButton(-1,"","",function(){});
 tooltip.active=-1;

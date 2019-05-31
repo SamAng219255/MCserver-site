@@ -22,7 +22,7 @@
 			$_SESSION['permissions']=$permissions=intval($row[2]);
 			$forecolor=$row[3];
 			$backcolor=$row[4];
-			$nation=$row[5];
+			$_SESSION['nation']=$nation=$row[5];
 			$character=$row[6];
 			$prefix=$row[7];
 			$suffix=$row[8];

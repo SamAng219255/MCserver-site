@@ -136,4 +136,6 @@ if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
 
 echo ']}';
 
+$query="SELECT * FROM (SELECT `nation1`,`nation2`,`relation` FROM `mcstuff`.`relations` UNION SELECT `nation2`,`nation1`,`relation` FROM `mcstuff`.`relations`) AS `relation` WHERE `relation`='Allies' OR `relation`='Friends' OR `relation`='Friendly';";
+
 ?>

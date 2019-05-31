@@ -5,10 +5,11 @@ require 'db.php';
 echo '{"input":'.json_encode($_GET).',"response":';
 
 if($_SESSION['permissions']>0) {
+	$id=intval($_GET['id']);
 	$ownerquery="SELECT `owner` FROM `mcstuff`.`commanders` WHERE `id`='".$id."'";
 	if($ownerqueryresult=mysqli_query($conn,$ownerquery)) {
 		if(mysqli_fetch_row($ownerqueryresult)[0]==$_SESSION['username']) {
-			$oldbonusquery="SELECT `special` FROM `mcstuff`.`commanders` WHERE `army`=(SELECT `army` FROM `mcstuff`.`commanders` WHERE `id`='".mysqli_real_escape_string($conn,$_GET['id'])."') AND `id`!='".mysqli_real_escape_string($conn,$_GET['id'])."';";
+			$oldbonusquery="SELECT `special` FROM `mcstuff`.`commanders` WHERE `army`=(SELECT `army` FROM `mcstuff`.`commanders` WHERE `id`='".mysqli_real_escape_string($conn,$id)."') AND `id`!='".mysqli_real_escape_string($conn,$id)."';";
 			if($oldbonusqueryresult=mysqli_query($conn,$oldbonusquery)) {
 				$oldbonuses='';
 				for($i=0; $i<$oldbonusqueryresult->num_rows; $i++) {
@@ -18,7 +19,7 @@ if($_SESSION['permissions']>0) {
 					$oldbonusrow=mysqli_fetch_row($oldbonusqueryresult);
 					$oldbonuses.=$oldbonusrow[0];
 				}
-				$oldbonussql="UPDATE `mcstuff`.`troops` SET `bonuses`='".$oldbonuses."' WHERE `id`=(SELECT `army` FROM `mcstuff`.`commanders` WHERE `id`='".mysqli_real_escape_string($conn,$_GET['id'])."');";
+				$oldbonussql="UPDATE `mcstuff`.`troops` SET `bonuses`='".$oldbonuses."' WHERE `id`=(SELECT `army` FROM `mcstuff`.`commanders` WHERE `id`='".mysqli_real_escape_string($conn,$id)."');";
 				if(mysqli_query($conn,$oldbonussql)) {
 					if($_GET['armyname']!='') {
 						$tarquery="SELECT `id`,`owner`,`name` FROM `mcstuff`.`troops` WHERE `name`='".mysqli_real_escape_string($conn,$_GET['armyname'])."';";
@@ -26,7 +27,7 @@ if($_SESSION['permissions']>0) {
 							if($tarqueryresult->num_rows>0) {
 								$tarrow=mysqli_fetch_row($tarqueryresult);
 								if($tarrow[1]==$_SESSION['username']) {
-									$sql="UPDATE `mcstuff`.`commanders` SET `army`='".$tarrow[0]."' WHERE `id`='".mysqli_real_escape_string($conn,$_GET['id'])."';";
+									$sql="UPDATE `mcstuff`.`commanders` SET `army`='".$tarrow[0]."' WHERE `id`='".mysqli_real_escape_string($conn,$id)."';";
 									if(mysqli_query($conn,$sql)) {
 										$bonusquery="SELECT `special`,`army` FROM `mcstuff`.`commanders` WHERE `army`='".$tarrow[0]."';";
 										if($bonusqueryresult=mysqli_query($conn,$bonusquery)) {
@@ -67,7 +68,7 @@ if($_SESSION['permissions']>0) {
 						}
 					}
 					else {
-						$sql="UPDATE `mcstuff`.`commanders` SET `army`='0' WHERE `id`='".mysqli_real_escape_string($conn,$_GET['id'])."';";
+						$sql="UPDATE `mcstuff`.`commanders` SET `army`='0' WHERE `id`='".mysqli_real_escape_string($conn,$id)."';";
 						if(mysqli_query($conn,$sql)) {
 							echo '{"status":0,"text":"Commander army reset.","sql":"'.$sql.'","sql1":"'.$oldbonusquery.'","sql2":"'.$oldbonussql.'"}';
 						}

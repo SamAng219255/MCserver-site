@@ -61,50 +61,51 @@ def main():
 			nbt=pynbt.NBTFile(gzip.GzipFile(mode='r', fileobj=f))
 			f.close()
 			if (modeSin and str(nbt["data"]["xCenter"].value//128)+'_'+str(nbt["data"]["zCenter"].value//128)==argv[4]) or not modeSin:
-				if nbt["data"]["scale"].value==0:
-					img=Image.new("RGBA",(128,128),(0,0,0,0))
-					imgData=[]
-					negatives=[]
-					completeness=0
-					j=0
-					for colId in nbt["data"]["colors"].value:
-						if colId<0 and colId not in negatives: negatives.append(colId)
-						if colId>4: completeness+=1
-						color,shade=divmod(colId,4)
-						if color<0 and color not in allNegatives:
-							allNegatives.append(color)
-							x=nbt["data"]["xCenter"].value+(j%128-64)
-							z=nbt["data"]["zCenter"].value+(j//128-64)
-							allNegativeCoords.append((color,x,z))
-						r,g,b,a=palette[color]
-						shaMul=shades[shade]
-						imgData.append((((r*shaMul)//255),(g*shaMul)//255,(b*shaMul)//255,a))
-						j+=1
-					if showNeg and len(negatives)>0: print("Negatives "+json.dumps(negatives)+" found on "+str(i)+" at ("+str(nbt["data"]["dimension"].value//128)+", "+str(nbt["data"]["xCenter"].value//128)+", "+str(nbt["data"]["zCenter"].value//128)+").")
-					if modeLrg:
-						key=str(nbt["data"]["dimension"].value)+"_"+str(nbt["data"]["xCenter"].value//128)+'_'+str(nbt["data"]["zCenter"].value//128)
-						if showDup and nbt["data"]["dimension"].value==0 and key in regionsDone: print("Duplicate of "+key+" found.")
-						if showBla and completeness==0: print("Blank Found: "+str(i))
-						if i not in exclusions and (((key in regionsDone) and completeness>=regionsDone[key]) or (key not in regionsDone)):
-							img.putdata(imgData)
-							regionsDone[key]=completeness
-							tilesUsed[key]=i
-							xOffset=nbt["data"]["xCenter"].value-(lowest[0]*128)
-							zOffset=nbt["data"]["zCenter"].value-(lowest[1]*128)
-							if not (modeInd or modeOut) and nbt["data"]["dimension"].value==0: finImg.paste(img,box=(xOffset,zOffset))
-					else:
+				img=Image.new("RGBA",(128,128),(0,0,0,0))
+				imgData=[]
+				negatives=[]
+				completeness=0
+				j=0
+				for colId in nbt["data"]["colors"].value:
+					if colId<0 and colId not in negatives: negatives.append(colId)
+					if colId>4: completeness+=1
+					color,shade=divmod(colId,4)
+					if color<0 and color not in allNegatives:
+						allNegatives.append(color)
+						x=nbt["data"]["xCenter"].value+(j%128-64)
+						z=nbt["data"]["zCenter"].value+(j//128-64)
+						allNegativeCoords.append((color,x,z))
+					r,g,b,a=palette[color]
+					shaMul=shades[shade]
+					imgData.append((((r*shaMul)//255),(g*shaMul)//255,(b*shaMul)//255,a))
+					j+=1
+				if showNeg and len(negatives)>0: print("Negatives "+json.dumps(negatives)+" found on "+str(i)+" at ("+str(nbt["data"]["dimension"].value//128)+", "+str(nbt["data"]["xCenter"].value//128)+", "+str(nbt["data"]["zCenter"].value//128)+").")
+				key=str(nbt["data"]["dimension"].value)+"_"+str(nbt["data"]["xCenter"].value//128)+'_'+str(nbt["data"]["zCenter"].value//128)
+				if nbt["data"]["scale"].value!=0: key+="_"+str(nbt["data"]["scale"].value)
+				if modeLrg:
+					if showDup and nbt["data"]["dimension"].value==0 and key in regionsDone: print("Duplicate of "+key+" found.")
+					if showBla and completeness==0: print("Blank Found: "+str(i))
+					if i not in exclusions and (((key in regionsDone) and completeness>=regionsDone[key]) or (key not in regionsDone)):
 						img.putdata(imgData)
-						key=str(nbt["data"]["dimension"].value)+"_"+str(nbt["data"]["xCenter"].value//128)+'_'+str(nbt["data"]["zCenter"].value//128)
-						if showDup and nbt["data"]["dimension"].value==0 and key in regionsDone: print("Duplicate of "+key+" found.")
-						if showBla and completeness==0: print("Blank Found: "+str(i))
-						if i not in exclusions and (((key in regionsDone) and completeness>=regionsDone[key]) or (key not in regionsDone)):
-							regionsDone[key]=completeness
-							tilesUsed[key]=i
-							if not (modeInd or modeOut): img.save('img/tile.'+str(nbt["data"]["dimension"].value)+'.'+str(nbt["data"]["xCenter"].value//128)+'.'+str(nbt["data"]["zCenter"].value//128)+'.png')
-						elif i not in exclusions and nbt["data"]["dimension"].value!=0:
-							if not (modeInd or modeOut): img.save('img/tile.'+str(nbt["data"]["dimension"].value)+'.'+str(nbt["data"]["xCenter"].value//128)+'.'+str(nbt["data"]["zCenter"].value//128)+'.png')
-						if i in exclusions:
-							if not (modeInd or modeOut): img.save('img/excluded/tile_'+str(i)+'.'+str(nbt["data"]["dimension"].value)+'.'+str(nbt["data"]["xCenter"].value//128)+'.'+str(nbt["data"]["zCenter"].value//128)+'.png')
+						regionsDone[key]=completeness
+						tilesUsed[key]=i
+						xOffset=nbt["data"]["xCenter"].value-(lowest[0]*128)
+						zOffset=nbt["data"]["zCenter"].value-(lowest[1]*128)
+						if not (modeInd or modeOut) and nbt["data"]["dimension"].value==0: finImg.paste(img,box=(xOffset,zOffset))
+				else:
+					img.putdata(imgData)
+					scaleExt=""
+					if nbt["data"]["scale"].value!=0: scaleExt+="."+str(nbt["data"]["scale"].value)
+					if showDup and nbt["data"]["dimension"].value==0 and key in regionsDone: print("Duplicate of "+key+" found.")
+					if showBla and completeness==0: print("Blank Found: "+str(i))
+					if i not in exclusions and (((key in regionsDone) and completeness>=regionsDone[key]) or (key not in regionsDone)):
+						regionsDone[key]=completeness
+						tilesUsed[key]=i
+						if not (modeInd or modeOut): img.save('img/tile.'+str(nbt["data"]["dimension"].value)+'.'+str(nbt["data"]["xCenter"].value//128)+'.'+str(nbt["data"]["zCenter"].value//128)+scaleExt+'.png')
+					elif i not in exclusions and nbt["data"]["dimension"].value!=0:
+						if not (modeInd or modeOut): img.save('img/tile.'+str(nbt["data"]["dimension"].value)+'.'+str(nbt["data"]["xCenter"].value//128)+'.'+str(nbt["data"]["zCenter"].value//128)+scaleExt+'.png')
+					if i in exclusions:
+						if not (modeInd or modeOut): img.save('img/excluded/tile_'+str(i)+'.'+str(nbt["data"]["dimension"].value)+'.'+str(nbt["data"]["xCenter"].value//128)+'.'+str(nbt["data"]["zCenter"].value//128)+scaleExt+'.png')
 		except FileNotFoundError:
 			if showErr: print('File Not Found on '+str(i))
 		if(floor(i%unit)==0):
