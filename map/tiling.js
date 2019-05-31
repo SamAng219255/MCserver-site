@@ -93,7 +93,7 @@ buffSprites=document.createElement('img');
 buffSprites.src="./img/buff.png";
 controlBtns=[
 	new RotaryButton(0,"Fortify","Costs 2 moves.\nMove the army into defensive position giving an advantage against attackers.",trpAction),
-	new RotaryButton(1,"Heal","Costs 2 moves.\nSpend some time healing up. Recovers HP.",trpAction),
+	new RotaryButton(1,"Rest","Costs 2 moves.\nSpend some time healing up. Recovers HP.",trpAction),
 	new RotaryButton(2,"Move","Costs 1 move.\nRelocate army.",trpAction),
 	new RotaryButton(3,"View","View the army's information.",viewTrp)
 ];
@@ -109,7 +109,7 @@ attackBtns=[
 	})
 ];
 helpBtns=[
-	new RotaryButton(0,"Defend","Costs 2 moves.\nMove your army to aid the target army temporarily granting it half your strength.",trpAction),
+	new RotaryButton(0,"Aid","Costs 2 moves.\nMove your army to aid the target army temporarily granting it half your strength.",trpAction),
 	new RotaryButton(1,"Heal","Costs 2 moves.\nSpend some time healing the target army.",trpAction),
 	new RotaryButton(2,"Merge","Merge the your army with the target army.",trpAction),
 	new RotaryButton(3,"View","View the army's information.",function(){
@@ -119,7 +119,7 @@ helpBtns=[
 		menuActive=true;
 	})
 ];
-specials={name:['combat','defense','open','mobility','ranged','healing','fortify','nomanleft','lucky'],title:['Combat','Defense','Honor','Mobility','Ranged','Healing','Fortification','"No Man Left Behind"','Lucky'],desc:['Bonus to attack strength.','Bonus to defense strength.','Higher bonus to standard Attacks.','Higher bonus to Hit & Run.','Higher bonus to Shooting.','Increase healing effectiveness.','Increase bonus from being Fortified','Less likely to lose troops when taking damage.','The tides of battle tend more to your favor.']};
+specials={name:['combat','defense','open','mobility','ranged','healing','fortify','helpful','nomanleft','lucky'],title:['Combat','Defense','Honor','Mobility','Ranged','Healing','Fortification','Helpful','"No Man Left Behind"','Lucky'],desc:['Bonus to attack strength.','Bonus to defense strength.','Higher bonus to standard Attacks.','Higher bonus to Hit & Run.','Higher bonus to Shooting.','Increase healing effectiveness.','Increase bonus from being Fortified','Grants additional strength when aiding another army.','Less likely to lose troops when taking damage.','The tides of battle tend more to your favor.']};
 tooltip=new RotaryButton(-1,"","",function(){});
 tooltip.active=-1;
 document.addEventListener("keydown", move);
@@ -176,6 +176,7 @@ function setup() {
 			if(i>lastCustSprite)
 				lastCustSprite=i;
 		}
+		relations=data.relations;
 		commanders=data.commanders;
 		setCommanderLists();
 		nationColors=data.colors;
@@ -259,6 +260,7 @@ function setup() {
 			if(i>lastCustSprite)
 				lastCustSprite=i;
 		}
+		relations=data.relations
 		commanders=data.commanders;
 		setCommanderLists();
 		nationColors=data.colors;
@@ -1008,62 +1010,89 @@ function drawTroops() {
 					scheduleRotary(posAdj[0],posAdj[1],mobMod*32,mobMod*96,trpBtns);
 				}
 				if(i==targetArmy) {
-					var trpBtns=RotaryButton.copyGroup(attackBtns);
-					if(!troops[selectedArmy].owned) {
-						for(var j=0; j<3; j++) {
-							trpBtns[j].active=1;
-							trpBtns[j].data.owned=false;
+					if(relations[troops[selectedArmy].nation][troops[targetArmy].nation]!=undefined && relations[troops[selectedArmy].nation][troops[targetArmy].nation]<4) {
+						var trpBtns=RotaryButton.copyGroup(helpBtns);
+						if(!troops[selectedArmy].owned) {
+							for(var j=0; j<3; j++) {
+								trpBtns[j].active=1;
+								trpBtns[j].data.owned=false;
+							}
 						}
-					}
-					if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)>4096) {
-						for(var j=0; j<3; j++) {
-							trpBtns[j].active=1;
-							trpBtns[j].data.toofar=true;
+						if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)>4096) {
+							for(var j=0; j<3; j++) {
+								trpBtns[j].active=1;
+								trpBtns[j].data.toofar=true;
+							}
 						}
-					}
-					if(troops[selectedArmy].moveleft<2) {
-						trpBtns[0].active=1;
-						trpBtns[0].data.moveless=true;
-						trpBtns[2].active=1;
-						trpBtns[2].data.moveless=true;
-					}
-					if(troops[selectedArmy].moveleft<4) {
-						trpBtns[1].active=1;
-						trpBtns[1].data.moveless=true;
-					}
-					if(troops[selectedArmy].bonuses.indexOf("open")>-1) {
-						trpBtns[0].buff+=2;
-					}
-					else if(troops[selectedArmy].bonuses.indexOf("combat")>-1) {
-						trpBtns[0].buff++;
-					}
-					if(troops[selectedArmy].mobile) {
-						trpBtns[1].buff+=2;
-						trpBtns[1].data.ismobile=true;
+						if(troops[selectedArmy].moveleft<2) {
+							trpBtns[0].active=1;
+							trpBtns[0].data.moveless=true;
+							trpBtns[1].active=1;
+							trpBtns[1].data.moveless=true;
+						}
+						if(troops[selectedArmy].bonuses.indexOf("healing")>-1) {
+							trpBtns[1].buff++;
+						}
+						scheduleRotary(posAdj[0],posAdj[1],mobMod*32,mobMod*96,trpBtns);
 					}
 					else {
-						trpBtns[1].data.ismobile=false;
+						var trpBtns=RotaryButton.copyGroup(attackBtns);
+						if(!troops[selectedArmy].owned) {
+							for(var j=0; j<3; j++) {
+								trpBtns[j].active=1;
+								trpBtns[j].data.owned=false;
+							}
+						}
+						if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)>4096) {
+							for(var j=0; j<3; j++) {
+								trpBtns[j].active=1;
+								trpBtns[j].data.toofar=true;
+							}
+						}
+						if(troops[selectedArmy].moveleft<2) {
+							trpBtns[0].active=1;
+							trpBtns[0].data.moveless=true;
+							trpBtns[2].active=1;
+							trpBtns[2].data.moveless=true;
+						}
+						if(troops[selectedArmy].moveleft<4) {
+							trpBtns[1].active=1;
+							trpBtns[1].data.moveless=true;
+						}
+						if(troops[selectedArmy].bonuses.indexOf("open")>-1) {
+							trpBtns[0].buff+=2;
+						}
+						else if(troops[selectedArmy].bonuses.indexOf("combat")>-1) {
+							trpBtns[0].buff++;
+						}
+						if(troops[selectedArmy].mobile) {
+							trpBtns[1].buff+=2;
+							trpBtns[1].data.ismobile=true;
+						}
+						else {
+							trpBtns[1].data.ismobile=false;
+						}
+						if(troops[selectedArmy].bonuses.indexOf("mobility")>-1) {
+							trpBtns[1].buff+=2;
+						}
+						else if(troops[selectedArmy].bonuses.indexOf("combat")>-1) {
+							trpBtns[1].buff++;
+						}
+						if(troops[selectedArmy].ranged) {
+							trpBtns[2].buff+=2;
+							trpBtns[2].data.isranged=true;
+						}
+						else {
+							trpBtns[2].data.isranged=false;
+						}
+						if(troops[selectedArmy].bonuses.indexOf("ranged")>-1) {
+							trpBtns[2].buff+=2;
+						}
+						else if(troops[selectedArmy].bonuses.indexOf("combat")>-1) {
+							trpBtns[2].buff++;
+						}
+						scheduleRotary(posAdj[0],posAdj[1],mobMod*32,mobMod*96,trpBtns);
 					}
-					if(troops[selectedArmy].bonuses.indexOf("mobility")>-1) {
-						trpBtns[1].buff+=2;
-					}
-					else if(troops[selectedArmy].bonuses.indexOf("combat")>-1) {
-						trpBtns[1].buff++;
-					}
-					if(troops[selectedArmy].ranged) {
-						trpBtns[2].buff+=2;
-						trpBtns[2].data.isranged=true;
-					}
-					else {
-						trpBtns[2].data.isranged=false;
-					}
-					if(troops[selectedArmy].bonuses.indexOf("ranged")>-1) {
-						trpBtns[2].buff+=2;
-					}
-					else if(troops[selectedArmy].bonuses.indexOf("combat")>-1) {
-						trpBtns[2].buff++;
-					}
-					scheduleRotary(posAdj[0],posAdj[1],mobMod*32,mobMod*96,trpBtns);
 				}
 			}
 		}
@@ -1177,9 +1206,9 @@ function trpAction(data) {
 		else
 			addBanner("That unit does not have enough movement left to perform that action.");
 	}
-	else if(data.name=="Heal") {
+	else if(data.name=="Rest") {
 		if(troops[selectedArmy].moveleft>=1)
-			sendTrpAction({id:troops[selectedArmy].id,action:"heal"});
+			sendTrpAction({id:troops[selectedArmy].id,action:"rest"});
 		else
 			addBanner("That unit does not have enough movement left to perform that action.");
 	}
@@ -1209,6 +1238,33 @@ function trpAction(data) {
 		if(troops[selectedArmy].moveleft>=1)
 			if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
 				sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"shoot"});
+			else
+				addBanner("Too far away.");
+		else
+			addBanner("That unit does not have enough movement left to perform that action.");
+	}
+	else if(data.name=="Aid") {
+		if(troops[selectedArmy].moveleft>=1)
+			if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
+				sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"aid"});
+			else
+				addBanner("Too far away.");
+		else
+			addBanner("That unit does not have enough movement left to perform that action.");
+	}
+	else if(data.name=="Heal") {
+		if(troops[selectedArmy].moveleft>=2)
+			if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
+				sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"heal"});
+			else
+				addBanner("Too far away.");
+		else
+			addBanner("That unit does not have enough movement left to perform that action.");
+	}
+	else if(data.name=="Merge") {
+		if(troops[selectedArmy].moveleft>=1)
+			if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
+				sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"merge"});
 			else
 				addBanner("Too far away.");
 		else
@@ -1490,7 +1546,7 @@ function setCommanderLists() {
 			if(!viewingmanage && commanders[i].owned) {
 				var armyselecter="<select class=\"comm-army\" commid=\""+commanders[i].id+"\"><option></option>";
 				for(var j=0; j<troops.length; j++) {
-					if(troops[j].owned) {
+					if(relations[commanders[i].nation][troops[j].nation]<4) {
 						var isselected="";
 						if(commanders[i].armyid==troops[j].id)
 							isselected=" selected";
@@ -1507,7 +1563,7 @@ function setCommanderLists() {
 			if(commanders[i].owned) {
 				var armyselecter="<select class=\"comm-army\" commid=\""+commanders[i].id+"\"><option></option>";
 				for(var j=0; j<troops.length; j++) {
-					if(troops[j].owned) {
+					if(relations[commanders[i].nation][troops[j].nation]<4) {
 						var isselected="";
 						if(commanders[i].armyid==troops[j].id)
 							isselected=" selected";

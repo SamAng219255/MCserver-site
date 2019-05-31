@@ -134,8 +134,20 @@ if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
 	echo '{"id":'.$row[0].',"name":"'.$row[1].'","owner":"'.$row[2].'","special":['.$specs.'],"xp":'.$row[4].',"armyid":'.$row[5].',"armyname":"'.$troops[$row[5]].'","nation":"'.$row[6].'","owned":'.$isowned.'}';
 }}
 
-echo ']}';
+echo '],"relations":';
 
-$query="SELECT * FROM (SELECT `nation1`,`nation2`,`relation` FROM `mcstuff`.`relations` UNION SELECT `nation2`,`nation1`,`relation` FROM `mcstuff`.`relations`) AS `relation` WHERE `relation`='Allies' OR `relation`='Friends' OR `relation`='Friendly';";
+$relations=array();
+$query="SELECT * FROM (SELECT `nation1`,`nation2`,`relation`+0 FROM `mcstuff`.`relations` UNION SELECT `nation2`,`nation1`,`relation`+0 FROM `mcstuff`.`relations`) AS `relation`;";
+$queryresult=mysqli_query($conn,$query);
+if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
+	$row=mysqli_fetch_row($queryresult);
+	if(!isset($relations[$row[0]])) {
+		$relations[$row[0]]=array();
+	}
+	$relations[$row[0]][$row[1]]=intval($row[2]);
+}}
+$_SESSION['relations']=$relations;
+echo json_encode($relations);
 
+echo '}';
 ?>

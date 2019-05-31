@@ -96,7 +96,8 @@ CREATE TABLE IF NOT EXISTS `troops` (
   `origsize` int NOT NULL,
   `customsprite` int NOT NULL,
   `xp` int NOT NULL DEFAULT 0,
-  `bonuses` set('combat','defense','open','mobility','ranged','healing','fortify','nomanleft','lucky') NOT NULL DEFAULT '',
+  `bonuses` set('combat','defense','open','mobility','ranged','healing','fortify','nomanleft','lucky','helpful') NOT NULL DEFAULT '',
+  `aiding` varchar(64) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -113,7 +114,7 @@ CREATE TABLE IF NOT EXISTS `commanders` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(32) NOT NULL,
   `owner` varchar(32) NOT NULL,
-  `special` set('combat','defense','open','mobility','ranged','healing','fortify','nomanleft','lucky') NOT NULL,
+  `special` set('combat','defense','open','mobility','ranged','healing','fortify','nomanleft','lucky','helpful') NOT NULL,
   `xp` int NOT NULL,
   `army` int NOT NULL,
   `nation` varchar(32) NOT NULL,

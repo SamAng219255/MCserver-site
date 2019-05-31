@@ -40,7 +40,8 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 					'bonuses' => explode(',',$row[18]),
 					'bonusdata' => array_fill_keys(explode(',',$row[18]),0),
 					'atckbonus' => 1,
-					'dfnsbonus' => 1
+					'dfnsbonus' => 1,
+					'strgbonus' => 0
 				);
 				$trp['atckbonus']*=1+50/(1+exp(5-$trp['lvl']));
 				for($i=0; $i<$trpcommqueryresult->num_rows; $i++) {
@@ -55,6 +56,12 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 				$trpnomanleft=0;
 				if(in_array('nomanleft',$trp['bonuses'])) {
 					$trpnomanleft=56/(1+exp((3.77-$trp['bonusdata']['nomanleft'])/2.5));
+				}
+				$trphelpquery="SELECT `power` FROM `mcstuff`.`troops` WHERE `state`='2' AND `aiding`='".$trp['name']."';";
+				if($trphelpqueryresult=mysqli_query($conn,$trphelpquery)) {
+					for($i=0; $i<$trphelpqueryresult->num_rows; $i++) {
+						$trp['strgbonus']+=intval($mysqli_fetch_row($trphelpqueryresult)[0])/2;
+					}
 				}
 				if(isset($_GET['target'])) {
 					$row=mysqli_fetch_row($tarqueryresult);
@@ -81,7 +88,8 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 						'bonuses' => explode(',',$row[18]),
 						'bonusdata' => array_fill_keys(explode(',',$row[18]),0),
 						'atckbonus' => 1,
-						'dfnsbonus' => 1
+						'dfnsbonus' => 1,
+						'strgbonus' => 0
 					);
 					$tar['atckbonus']*=1+50/(1+exp(5-$tar['lvl']));
 					for($i=0; $i<$tarcommqueryresult->num_rows; $i++) {
@@ -108,6 +116,12 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 					if(in_array('nomanleft',$tar['bonuses'])) {
 						$tarnomanleft=56/(1+exp((3.77-$tar['bonusdata']['nomanleft'])/2.5));
 					}
+					$tarhelpquery="SELECT `power` FROM `mcstuff`.`troops` WHERE `state`='2' AND `aiding`='".$tar['name']."';";
+					if($tarhelpqueryresult=mysqli_query($conn,$tarhelpquery)) {
+						for($i=0; $i<$tarhelpqueryresult->num_rows; $i++) {
+							$tar['strgbonus']+=intval($mysqli_fetch_row($tarhelpqueryresult)[0])/2;
+						}
+					}
 				}
 				if($trp['owner']==$_SESSION['username']) {
 					if(!isset($_GET['target']) || pow($trp['x']-$tar['x'],2)+pow($trp['y']-$tar['y'],2)<=4096) {
@@ -125,7 +139,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 								echo '{"action":"'.$_GET['action'].'","status":4,"text":"Your army does not have enough moves left."}';
 							}
 						}
-						elseif($_GET['action']=='heal') {
+						elseif($_GET['action']=='rest') {
 							if($trp['moveleft']>=2) {
 								$newhealth=sprintf("%.3f",min(((1+0.56/(1+exp((3.77-$trp['bonusdata']['healing'])/2.5)))*24/(1.0+$trp['size']/$trp['cost']))+$trp['health'],100));
 								$effectsql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-2)."',`health`='".$newhealth."' WHERE `id`=".$trp['id'].";";
@@ -143,8 +157,9 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 						elseif($_GET['action']=='move') {
 							if($trp['moveleft']>=1) {
 								if(pow($trp['x']-intval($_GET['x']),2)+pow($trp['y']-intval($_GET['z']),2)<=4096) {
-									$effectsql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-1)."',`state`='0',`x`='".intval($_GET['x'])."',`y`='".intval($_GET['z'])."' WHERE `id`='".$trp['id']."';";
-									if(mysqli_query($conn,$effectsql)) {
+									$effectonesql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-1)."',`state`='0',`x`='".intval($_GET['x'])."',`y`='".intval($_GET['z'])."' WHERE `id`='".$trp['id']."';";
+									$effecttwosql="UPDATE `mcstuff`.`troops` SET `state`='0' WHERE `state`='2' AND `aiding`='".$trp['name']."';";
+									if(mysqli_query($conn,$effectonesql) && mysqli_query($conn,$effecttwosql)) {
 										echo '{"action":"'.$_GET['action'].'","status":0,"text":"Army successfully set army position."}';
 									}
 									else {
@@ -192,8 +207,8 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 								$rounds=mt_rand(4,12);
 								for($i=0; $i<$rounds; $i++) {
 									$tides=mt_rand($tidalstr*1000*($luck-1),$tidalstr*1000*($luck+1))/1000.0;
-									$tarDmg+=max($dmgMod*sqrt(($trp['power']*$trp['atckbonus']+$tides)/($tar['power']*$tar['dfnsbonus']-$tides))/$rounds,0);
-									$trpDmg+=max($dmgMod*sqrt(($tar['power']*$tar['atckbonus']-$tides)/($trp['power']*$trp['dfnsbonus']+$tides))/$rounds,0);
+									$tarDmg+=max($dmgMod*sqrt(($trp['power']*$trp['atckbonus']+$tides+$trp['strgbonus'])/($tar['power']*$tar['dfnsbonus']-$tides+$tar['strgbonus']))/$rounds,0);
+									$trpDmg+=max($dmgMod*sqrt(($tar['power']*$tar['atckbonus']-$tides+$tar['strgbonus'])/($trp['power']*$trp['dfnsbonus']+$tides+$trp['strgbonus']))/$rounds,0);
 								}
 								$trp['health']-=$trpDmg;
 								$tar['health']-=$tarDmg;
@@ -304,7 +319,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 								$rounds=1;
 								for($i=0; $i<$rounds; $i++) {
 									$tides=mt_rand($tidalstr*1000*($luck-1),$tidalstr*1000*($luck+1))/1000.0;
-									$tarDmg+=max($dmgMod*sqrt(($trp['power']*$trp['atckbonus']+$tides)/($tar['power']*$tar['dfnsbonus']-$tides))/$rounds,0);
+									$tarDmg+=max($dmgMod*sqrt(($trp['power']*$trp['atckbonus']+$tides+$trp['strgbonus'])/($tar['power']*$tar['dfnsbonus']-$tides+$tar['strgbonus']))/$rounds,0);
 								}
 								$tar['health']-=$tarDmg;
 								$sizeunit=min(ceil($trp['origsize']/20),ceil($tar['origsize']/20));
@@ -388,7 +403,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 								$rounds=mt_rand(2,6);
 								for($i=0; $i<$rounds; $i++) {
 									$tides=mt_rand($tidalstr*1000*($luck-1),$tidalstr*1000*($luck+1))/1000.0;
-									$tarDmg+=max($dmgMod*sqrt(($trp['power']*$trp['atckbonus']+$tides)/($tar['power']*$tar['dfnsbonus']-$tides))/$rounds,0);
+									$tarDmg+=max($dmgMod*sqrt(($trp['power']*$trp['atckbonus']+$tides+$trp['strgbonus'])/($tar['power']*$tar['dfnsbonus']-$tides+$tar['strgbonus']))/$rounds,0);
 								}
 								$tar['health']-=$tarDmg;
 								$sizeunit=min(ceil($trp['origsize']/20),ceil($tar['origsize']/20));
@@ -448,9 +463,76 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 								echo '{"action":"'.$_GET['action'].'","status":4,"text":"Your army does not have enough moves left."}';
 							}
 						}
+						elseif($_GET['action']=='aid') {
+							if($trp['moveleft']>=2) {
+								$effectonesql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-2)."',`state`='2',`aiding`='".$tar['name']."' WHERE `id`=".$trp['id'].";";
+								$effecttwosql="UPDATE `mcstuff`.`troops` SET `state`='0' WHERE `state`='2' AND `aiding`='".$trp['name']."';";
+								if(mysqli_query($conn,$effectonesql) && mysqli_query($conn,$effecttwosql)) {
+									echo '{"action":"'.$_GET['action'].'","status":0,"text":"Army successfully changed to aiding state."}';
+								}
+								else {
+									echo '{"action":"'.$_GET['action'].'","status":1,"text":"An unknown error occured while changing army to aiding state.","sql":"'.$effectsql.'"}';
+								}
+							}
+							else {
+								echo '{"action":"'.$_GET['action'].'","status":4,"text":"Your army does not have enough moves left."}';
+							}
+						}
+						elseif($_GET['action']=='heal') {
+							if($trp['moveleft']>=2) {
+								$newhealth=sprintf("%.3f",min(((1+0.56/(1+exp((3.77-$trp['bonusdata']['healing'])/2.5)))*24/(1.0+$trp['size']/$trp['cost']))+$tar['health'],100));
+								$effectonesql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-2)."' WHERE `id`=".$trp['id'].";";
+								$effecttwosql="UPDATE `mcstuff`.`troops` SET `health`='".$newhealth."' WHERE `id`=".$tar['id'].";";
+								if(mysqli_query($conn,$effectonesql) && mysqli_query($conn,$effecttwosql)) {
+									echo '{"action":"'.$_GET['action'].'","status":0,"text":"Army successfully set army health.","sql":"'.$effectsql.'"}';
+								}
+								else {
+									echo '{"action":"'.$_GET['action'].'","status":1,"text":"An unknown error occured while setting army health.","sql":"'.$effectsql.'"}';
+								}
+							}
+							else {
+								echo '{"action":"'.$_GET['action'].'","status":4,"text":"Your army does not have enough moves left."}';
+							}
+						}
+						elseif($_GET['action']=='merge') {
+							$tap=$tar->getArrayCopy();
+							$tap['size']+=$trp['size'];
+							$tap['power']=floor(($tar['power']*$tar['size']+$trp['power']*$trp['size'])/$tap['size']);
+							$tap['health']=($tar['health']*$tar['size']+$trp['health']*$trp['size'])/$tap['size'];
+							$tap['move']=floor(($tar['move']*$tar['size']+$trp['move']*$trp['size'])/$tap['size']);
+							$tap['moveleft']=floor(($tar['moveleft']*$tar['size']+$trp['moveleft']*$trp['size'])/$tap['size']);
+							$tap['cost']+=$trp['cost'];
+							$tap['origsize']+=$trp['origsize'];
+							$tap['xp']=floor(($tar['xp']*$tar['size']+$trp['xp']*$trp['size'])/$tap['size']);
+							$bonusstr='';
+							for($i=0; $i<count($tar['bonuses']); $i++) {
+								if($bonusstr!='') {
+									$bonusstr.=',';
+								}
+								$bonusstr.=$tar['bonuses'][$i];
+							}
+							for($i=0; $i<count($trp['bonuses']); $i++) {
+								if(!isset($tar['bonusdata'][$trp['bonuses'][$i]])) {
+									if($bonusstr!='') {
+										$bonusstr.=',';
+									}
+									$bonusstr.=$tar['bonuses'][$i];
+								}
+							}
+							$effectonesql="UPDATE `mcstuff`.`troops` SET `size`='".$tap['size']."',`power`='".$tap['power']."',`health`='".sprintf("%.3f",$tap['health'])."',`move`='".$tap['move']."',`moveleft`='".$tap['moveleft']."',`cost`='".$tap['cost']."',`origsize`='".$tap['origsize']."',`xp`='".$tap['xp']."',`bonuses`='".$bonusstr."' WHERE `id`='".$tar['id']."';";
+							$effecttwosql="DELETE FROM `mcstuff`.`troops` WHERE `id`='".$trp['id']."';";
+							$effectohrsql="UPDATE `mcstuff`.`commanders` SET `army`='".$tar['id']."' WHERE `army`='".$trp['id']."';";
+							$effectfousql="UPDATE `mcstuff`.`troops` SET `state`='0' WHERE `state`='2' AND `aiding`='".$trp['name']."';";
+							if(mysqli_query($conn,$effectonesql) && mysqli_query($conn,$effecttwosql) && mysqli_query($conn,$effectthrsql) && mysqli_query($conn,$effectfousql)) {
+								echo '{"action":"'.$_GET['action'].'","status":0,"text":"Successfully merged armies..","sql":"'.$effectsql.'"}';
+							}
+							else {
+								echo '{"action":"'.$_GET['action'].'","status":1,"text":"An unknown error occured while merging armies.","sql":"'.$effectsql.'"}';
+							}
+						}
 					}
 					else {
-						echo '{"action":"'.$_GET['action'].'","status":3,"text":"Enemy army is too far away."}';
+						echo '{"action":"'.$_GET['action'].'","status":3,"text":"Target army is too far away."}';
 					}
 				}
 				else {
