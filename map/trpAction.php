@@ -57,7 +57,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 				if(in_array('nomanleft',$trp['bonuses'])) {
 					$trpnomanleft=56/(1+exp((3.77-$trp['bonusdata']['nomanleft'])/2.5));
 				}
-				$trphelpquery="SELECT `power` FROM `mcstuff`.`troops` WHERE `state`='2' AND `aiding`='".$trp['name']."';";
+				$trphelpquery="SELECT `power` FROM `mcstuff`.`troops` WHERE `state`='2' AND `aiding`='".mysqli_real_escape_string($conn,$trp['name'])."';";
 				if($trphelpqueryresult=mysqli_query($conn,$trphelpquery)) {
 					for($i=0; $i<$trphelpqueryresult->num_rows; $i++) {
 						$trp['strgbonus']+=intval($mysqli_fetch_row($trphelpqueryresult)[0])/2;
@@ -116,7 +116,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 					if(in_array('nomanleft',$tar['bonuses'])) {
 						$tarnomanleft=56/(1+exp((3.77-$tar['bonusdata']['nomanleft'])/2.5));
 					}
-					$tarhelpquery="SELECT `power` FROM `mcstuff`.`troops` WHERE `state`='2' AND `aiding`='".$tar['name']."';";
+					$tarhelpquery="SELECT `power` FROM `mcstuff`.`troops` WHERE `state`='2' AND `aiding`='".mysqli_real_escape_string($conn,$tar['name'])."';";
 					if($tarhelpqueryresult=mysqli_query($conn,$tarhelpquery)) {
 						for($i=0; $i<$tarhelpqueryresult->num_rows; $i++) {
 							$tar['strgbonus']+=intval($mysqli_fetch_row($tarhelpqueryresult)[0])/2;
@@ -158,7 +158,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 							if($trp['moveleft']>=1) {
 								if(pow($trp['x']-intval($_GET['x']),2)+pow($trp['y']-intval($_GET['z']),2)<=4096) {
 									$effectonesql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-1)."',`state`='0',`x`='".intval($_GET['x'])."',`y`='".intval($_GET['z'])."' WHERE `id`='".$trp['id']."';";
-									$effecttwosql="UPDATE `mcstuff`.`troops` SET `state`='0' WHERE `state`='2' AND `aiding`='".$trp['name']."';";
+									$effecttwosql="UPDATE `mcstuff`.`troops` SET `state`='0' WHERE `state`='2' AND `aiding`='".mysqli_real_escape_string($conn,$trp['name'])."';";
 									if(mysqli_query($conn,$effectonesql) && mysqli_query($conn,$effecttwosql)) {
 										echo '{"action":"'.$_GET['action'].'","status":0,"text":"Army successfully set army position."}';
 									}
@@ -465,8 +465,8 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 						}
 						elseif($_GET['action']=='aid') {
 							if($trp['moveleft']>=2) {
-								$effectonesql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-2)."',`state`='2',`aiding`='".$tar['name']."' WHERE `id`=".$trp['id'].";";
-								$effecttwosql="UPDATE `mcstuff`.`troops` SET `state`='0' WHERE `state`='2' AND `aiding`='".$trp['name']."';";
+								$effectonesql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-2)."',`state`='2',`aiding`='".mysqli_real_escape_string($conn,$tar['name'])."' WHERE `id`=".$trp['id'].";";
+								$effecttwosql="UPDATE `mcstuff`.`troops` SET `state`='0' WHERE `state`='2' AND `aiding`='".mysqli_real_escape_string($conn,$trp['name'])."';";
 								if(mysqli_query($conn,$effectonesql) && mysqli_query($conn,$effecttwosql)) {
 									echo '{"action":"'.$_GET['action'].'","status":0,"text":"Army successfully changed to aiding state."}';
 								}
@@ -522,7 +522,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 							$effectonesql="UPDATE `mcstuff`.`troops` SET `size`='".$tap['size']."',`power`='".$tap['power']."',`health`='".sprintf("%.3f",$tap['health'])."',`move`='".$tap['move']."',`moveleft`='".$tap['moveleft']."',`cost`='".$tap['cost']."',`origsize`='".$tap['origsize']."',`xp`='".$tap['xp']."',`bonuses`='".$bonusstr."' WHERE `id`='".$tar['id']."';";
 							$effecttwosql="DELETE FROM `mcstuff`.`troops` WHERE `id`='".$trp['id']."';";
 							$effectohrsql="UPDATE `mcstuff`.`commanders` SET `army`='".$tar['id']."' WHERE `army`='".$trp['id']."';";
-							$effectfousql="UPDATE `mcstuff`.`troops` SET `state`='0' WHERE `state`='2' AND `aiding`='".$trp['name']."';";
+							$effectfousql="UPDATE `mcstuff`.`troops` SET `state`='0' WHERE `state`='2' AND `aiding`='".mysqli_real_escape_string($conn,$trp['name'])."';";
 							if(mysqli_query($conn,$effectonesql) && mysqli_query($conn,$effecttwosql) && mysqli_query($conn,$effectthrsql) && mysqli_query($conn,$effectfousql)) {
 								echo '{"action":"'.$_GET['action'].'","status":0,"text":"Successfully merged armies..","sql":"'.$effectsql.'"}';
 							}
