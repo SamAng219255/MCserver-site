@@ -6,7 +6,7 @@ echo '{"input":'.json_encode($_GET).',"response":';
 
 if($_SESSION['permissions']>0) {
 	$id=intval($_GET['id']);
-	$ownerquery="SELECT `owner`.`nation` FROM `mcstuff`.`commanders` WHERE `id`='".$id."';";
+	$ownerquery="SELECT `owner`,`nation` FROM `mcstuff`.`commanders` WHERE `id`='".$id."';";
 	if($ownerqueryresult=mysqli_query($conn,$ownerquery)) {
 		$ownerrow=mysqli_fetch_row($ownerqueryresult);
 		if($ownerrow[0]==$_SESSION['username']) {
