@@ -1010,7 +1010,7 @@ function drawTroops() {
 					scheduleRotary(posAdj[0],posAdj[1],mobMod*32,mobMod*96,trpBtns);
 				}
 				if(i==targetArmy) {
-					if(relations[troops[selectedArmy].nation][troops[targetArmy].nation]!=undefined && relations[troops[selectedArmy].nation][troops[targetArmy].nation]<4) {
+					if(troops[selectedArmy].nation==troops[targetArmy].nation || (relations[troops[selectedArmy].nation][troops[targetArmy].nation]!=undefined && relations[troops[selectedArmy].nation][troops[targetArmy].nation]<4)) {
 						var trpBtns=RotaryButton.copyGroup(helpBtns);
 						if(!troops[selectedArmy].owned) {
 							for(var j=0; j<3; j++) {
@@ -1546,7 +1546,7 @@ function setCommanderLists() {
 			if(!viewingmanage && commanders[i].owned) {
 				var armyselecter="<select class=\"comm-army\" commid=\""+commanders[i].id+"\"><option></option>";
 				for(var j=0; j<troops.length; j++) {
-					if(relations[commanders[i].nation][troops[j].nation]<4) {
+					if(commanders[i].nation==troops[j].nation || relations[commanders[i].nation][troops[j].nation]<4) {
 						var isselected="";
 						if(commanders[i].armyid==troops[j].id)
 							isselected=" selected";
@@ -1563,7 +1563,7 @@ function setCommanderLists() {
 			if(commanders[i].owned) {
 				var armyselecter="<select class=\"comm-army\" commid=\""+commanders[i].id+"\"><option></option>";
 				for(var j=0; j<troops.length; j++) {
-					if(relations[commanders[i].nation][troops[j].nation]<4) {
+					if(commanders[i].nation==troops[j].nation || relations[commanders[i].nation][troops[j].nation]<4) {
 						var isselected="";
 						if(commanders[i].armyid==troops[j].id)
 							isselected=" selected";

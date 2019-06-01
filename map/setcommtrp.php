@@ -27,9 +27,9 @@ if($_SESSION['permissions']>0) {
 						if($tarqueryresult=mysqli_query($conn,$tarquery)) {
 							if($tarqueryresult->num_rows>0) {
 								$tarrow=mysqli_fetch_row($tarqueryresult);
-								$relationquery="SELECT `relation`+0 FROM `relations` WHERE (`nation1`='".$ownerrow[1]."' AND `nation2`='".$tarrow[3]."') OR (`nation2`='".$ownerrow[1]."' AND `nation1`='".$tarrow[3]."');";
-								if($relationqueryresult=mysqli_query($conn,$relationquery)) {
-									if(intval(mysqli_fetch_row($relationqueryresult)[0])<4) {
+								$relationquery="SELECT `relation`+0 FROM `mcstuff`.`relations` WHERE (`nation1`='".$ownerrow[1]."' AND `nation2`='".$tarrow[3]."') OR (`nation2`='".$ownerrow[1]."' AND `nation1`='".$tarrow[3]."');";
+								if($ownerrow[1]==$tarrow[3] || $relationqueryresult=mysqli_query($conn,$relationquery)) {
+									if($ownerrow[1]==$tarrow[3] || intval(mysqli_fetch_row($relationqueryresult)[0])<4) {
 										$sql="UPDATE `mcstuff`.`commanders` SET `army`='".$tarrow[0]."' WHERE `id`='".mysqli_real_escape_string($conn,$id)."';";
 										if(mysqli_query($conn,$sql)) {
 											$bonusquery="SELECT `special`,`army` FROM `mcstuff`.`commanders` WHERE `army`='".$tarrow[0]."';";
@@ -63,7 +63,7 @@ if($_SESSION['permissions']>0) {
 									}
 								}
 								else {
-									echo '{"status":1,"text":"An unknown error occurred while checking nations relation.","sql":"'.$relationquery.'"}';
+									echo '{"status":1,"text":"A SQL error occurred while checking nations relation.","sql":"'.$relationquery.'","error":"'.mysqli_error($conn).'"}';
 								}
 							}
 							else {
