@@ -1,6 +1,6 @@
 startYear=1458;
-srvSegments=[0];
-irlSegments=[[1543622400000,1552258560000]];
+srvSegments=[0,518169600000];
+irlSegments=[[1543622400000,1552258560000],[1564617600000,Infinity]];
 rate=60;
 
 for(var i=1; i<irlSegments.length; i++) {
