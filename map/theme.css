@@ -47,7 +47,7 @@ body {
 #tileStorage {
 	display: none;
 }
-#infoTxt {
+#infoTxtBox {
 	padding: 0.33333em 0 1em;
 	width: 100%;
 	position: absolute;
@@ -58,8 +58,25 @@ body {
 	color: #ffffff;
 	font-size: 0.75rem;
 	visibility: hidden;
+	white-space: pre-wrap;
 }
-#infoTxt.shown {
+#infoTxtBox.shown {
+	visibility: visible;
+}
+#infoTxt {
+	width: calc(100% - 10em);
+	margin-left: 5em;
+	margin-top: 1em;
+	display: inline-block;
+}
+#editpin {
+	float: right;
+	margin-right: 1rem;
+	text-decoration: underline;
+	cursor: pointer;
+	visibility: hidden;
+}
+#editpin.shown {
 	visibility: visible;
 }
 #jumpMenu {
@@ -258,6 +275,81 @@ body {
 	background-color: #404040;
 	padding: 1em;
 }
+#pinnMenu {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	background-color: rgba(32,32,32,0.5);
+	visibility: hidden;
+}
+#pinnMenu.shown {
+	visibility: visible;
+}
+#pinnMenu>div:nth-child(1) {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+#pinnMenu>div:nth-child(2) {
+	position: absolute;
+	top: 4rem;
+	left: 4rem;
+	width: calc(100% - 10rem);
+	height: calc(100% - 10rem);
+	background-color: #404040;
+	padding: 1em;
+	overflow-y: scroll;
+}
+#pineMenu {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	background-color: rgba(32,32,32,0.5);
+	visibility: hidden;
+}
+#pineMenu.shown {
+	visibility: visible;
+}
+#pineMenu>div:nth-child(1) {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+#pineMenu>div:nth-child(2) {
+	position: absolute;
+	top: 4rem;
+	left: 4rem;
+	width: calc(100% - 10rem);
+	height: calc(100% - 10rem);
+	background-color: #404040;
+	padding: 1em;
+	overflow-y: scroll;
+}
+#pinnMenu input[type=text], #pineMenu input[type=text] {
+	width: 20em;
+}
+#pinn-desc, #pine-desc {
+	height: 12em;
+	width: 20.25em;
+	resize: none;
+}
+.icondata {
+	display: none;
+}
+.icondata.shown {
+	display: block;
+}
+dt {
+	margin-top: 0.5em;
+}
 #sidemenu {
 	position: absolute;
 	background-color: #202020;
@@ -345,6 +437,11 @@ input[type=number], input[type=text] {
 	background-image: url("img/commander.png");
 	background-size: 100%;
 }
+#sidemenu #loginButton {
+	cursor: pointer;
+	background-image: url("img/login.png");
+	background-size: 100%;
+}
 .mobile #infoTxt {
 	font-size: 1.5rem;
 }
@@ -395,9 +492,8 @@ input[type=number], input[type=text] {
 #spritemenu {
 	position: absolute;
 	z-index: 10;
-	width:calc(4 * 64px + 5 * 16px);
-	height:calc(1.5 * 64px + 16px);
-	padding: 8px;
+	width:calc(4 * 64px);
+	height:calc(1.5 * 64px);
 	background-color: #808080;
 	overflow-y: scroll;
 	display: none;
@@ -407,7 +503,6 @@ input[type=number], input[type=text] {
 }
 #spritemenu canvas {
 	float: left;
-	margin: 8px;
 	cursor: pointer;
 }
 #spritemenu canvas:hover {

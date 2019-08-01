@@ -5,6 +5,10 @@
 		session_destroy();
 	}
 	$_SESSION['last_active']=time();
+	$referer=$_SERVER['HTTP_REFERER'];
+	if(isset($_POST['referer'])) {
+		$referer=$_POST['referer'];
+	}
 ?>
 <html>
 <head>
@@ -45,7 +49,7 @@
 				addBanner('Username is taken.');
 			}
 			else {
-				$allowedUsers=["redstonetardis42","petrok9001","lhibscher349","list","kagetora0","luckyknight68","1999sam1999","enddragon9","lewisthekiller","gentleworks","153norc","sugargizmo","silverleafnight","pharaohcrab","enderninja7","drn21","d_hex","aquatailz","skinz123","thedragonslain","thetotorotacos","greenhouscreeper","thepartygod","smallsmelt300","antraveler","lightningpwr28","patientneutral",”thebiganthony”];
+				$allowedUsers=["redstonetardis42","petrok9001","lhibscher349","list","kagetora0","luckyknight68","1999sam1999","enddragon9","lewisthekiller","gentleworks","153norc","sugargizmo","silverleafnight","pharaohcrab","enderninja7","drn21","d_hex","aquatailz","skinz123","thedragonslain","thetotorotacos","greenhouscreeper","thepartygod","smallsmelt300","antraveler","lightningpwr28","patientneutral","thebiganthony"];
 				$admin='0';
 				if(in_array(strtolower($profile->name), $allowedUsers)) {
 					$admin='1';
@@ -74,7 +78,7 @@
 				$_SESSION['username']=addslashes($_POST['username']);
 				$ipsql="UPDATE `mcstuff`.`users` SET `ip`='".$_SERVER['REMOTE_ADDR']."' WHERE `username`='".$_SESSION['username']."';";
 				mysqli_query($conn,$ipsql);
-				echo  '<meta http-equiv="refresh" content="0; URL=./">';
+				echo  '<meta http-equiv="refresh" content="0; URL='.$referer.'">';
 			}
 			else {
 				addBanner('Invalid Username or Password.');
@@ -88,6 +92,7 @@
 		<input type="text" id="frminuser" placeholder="Username" name="username" required maxlength=16 autocomplete="username"><br>
 		<label for="frminpass">Password:</label><br>
 		<input type="password" id="frminpass" placeholder="Password" name="password" required maxlength=16 autocomplete="current-password"><br>
+		<?php echo '<input type="hidden" name="referer" value="'.$referer.'">'; ?>
 		<input type="submit" value="Sign In" name="signin"><br>
 	</form></div>
 	<div id="rcp" class="cp"><form class="loginform" method="post">
@@ -104,6 +109,7 @@
 			<input type="password" id="frmuppass" placeholder="New Password" name="password" required maxlength=16 autocomplete="new-password"><br>
 			<label for="frmupword">Retype Password:</label><br>
 			<input type="password" id="frmupword" placeholder="Retype Password" name="password2" required maxlength=16 autocomplete="new-password"><br>
+			<?php echo '<input type="hidden" name="referer" value="'.$referer.'">'; ?>
 			<input type="submit" value="Sign Up" name="signup"><br>
 		</div>
 	</form></div>

@@ -1,5 +1,18 @@
 use mcstuff;
 
+CREATE TABLE IF NOT EXISTS `mappoints` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user` varchar(16) NOT NULL,
+  `name` varchar(64) NOT NULL,
+  `desc` text NOT NULL,
+  `x` int(11) NOT NULL,
+  `z` int(11) NOT NULL,
+  `dimension` int(8) NOT NULL DEFAULT '0',
+  `type` enum('default','custom','hidden') NOT NULL DEFAULT 'default',
+  `icondata` varchar(32) NOT NULL DEFAULT 'FF0000',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4
+
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int NOT NULL AUTO_INCREMENT,
   `username` varchar(16) NOT NULL,
@@ -104,7 +117,7 @@ CREATE TABLE IF NOT EXISTS `troops` (
 CREATE TABLE IF NOT EXISTS `sprites` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(32) NOT NULL,
-  `type` enum('army') NOT NULL,
+  `type` enum('army','pin') NOT NULL,
   `width` int NOT NULL,
   `height` int NOT NULL,
   PRIMARY KEY (`id`)

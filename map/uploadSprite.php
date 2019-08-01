@@ -22,7 +22,7 @@ if($_SESSION['permissions']>0) {
 			else {
 				// if everything is ok, try to upload file
 				if (move_uploaded_file($_FILES["sprite"]["tmp_name"], $target_file)) {
-					$sql="INSERT INTO `mcstuff`.`sprites` (`id`,`type`,`name`,`width`,`height`) VALUES ('0','army','".$filename."','".$check[0]."','".$check[1]."');";
+					$sql="INSERT INTO `mcstuff`.`sprites` (`id`,`type`,`name`,`width`,`height`) VALUES ('0','".mysqli_real_escape_string($conn,$_POST['spritetype'])."','".$filename."','".$check[0]."','".$check[1]."');";
 					if(mysqli_query($conn,$sql)) {
 						echo '{"status":0,"text":"The file '.basename($_FILES["sprite"]["name"]).' has been uploaded.","id":'.mysqli_insert_id($conn).',"name":"'.$filename.'"}';
 					}

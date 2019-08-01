@@ -27,6 +27,7 @@ class RotaryButton {
 		return temp;
 	}
 }
+setHashTimeout=-1;
 rotaryQueue=[];
 activeRotaryBtns=[];
 timer=(new Date()).getTime();
@@ -51,6 +52,8 @@ jumpMenuActive=false;
 instMenuActive=false;
 trpMenuActive=[false,false,false];
 commanderMenuActive=false;
+pinnMenuActive=false;
+pineMenuActive=false;
 menuActive=false;
 showMissingTiles=false;
 dragging=false;
@@ -156,25 +159,27 @@ function setup() {
 		troops=data.troops;
 		customspritedata=data.sprites;
 		for(var i=lastCustSprite+1; i<customspritedata.length; i++) {
-			customsprites.push(document.createElement('img'));
-			customsprites[customsprites.length-1].src="img/uploads/"+customspritedata[i].name;customsprites.length-1
-			customsprites[customsprites.length-1].width=customspritedata[i].width;
-			customsprites[customsprites.length-1].height=customspritedata[i].height;
-			spriteoptions.push([document.createElement("canvas")]);
-			spriteoptions[spriteoptions.length-1][0].width=spriteoptions[spriteoptions.length-1][0].height=64;
-			spriteoptions[spriteoptions.length-1][0].i=customsprites.length-1;
-			spriteoptions[spriteoptions.length-1][0].custom=true;
-			spriteoptions[spriteoptions.length-1].push(spriteoptions[spriteoptions.length-1][0].getContext("2d"));
-			spriteoptions[spriteoptions.length-1][1].imageSmoothingEnabled=false;
-			spriteoptions[spriteoptions.length-1][0].addEventListener("click",selectSprite);
-			spriteoptions[spriteoptions.length-1][0].className="sprite-custom";
-			spritemenu.append(spriteoptions[spriteoptions.length-1][0]);
-			customsprites[customsprites.length-1].cnvId=spriteoptions.length-1;
-			customsprites[customsprites.length-1].addEventListener("load",function(e){
-				spriteoptions[e.target.cnvId][1].drawImage(e.target,0,0,64,64)
-			});
-			if(i>lastCustSprite)
-				lastCustSprite=i;
+			if(customspritedata[i].type=="army") {
+				customsprites.push(document.createElement('img'));
+				customsprites[customsprites.length-1].src="img/uploads/"+customspritedata[i].name;customsprites.length-1
+				customsprites[customsprites.length-1].width=customspritedata[i].width;
+				customsprites[customsprites.length-1].height=customspritedata[i].height;
+				spriteoptions.push([document.createElement("canvas")]);
+				spriteoptions[spriteoptions.length-1][0].width=spriteoptions[spriteoptions.length-1][0].height=64;
+				spriteoptions[spriteoptions.length-1][0].i=customsprites.length-1;
+				spriteoptions[spriteoptions.length-1][0].custom=true;
+				spriteoptions[spriteoptions.length-1].push(spriteoptions[spriteoptions.length-1][0].getContext("2d"));
+				spriteoptions[spriteoptions.length-1][1].imageSmoothingEnabled=false;
+				spriteoptions[spriteoptions.length-1][0].addEventListener("click",selectSprite);
+				spriteoptions[spriteoptions.length-1][0].className="sprite-custom";
+				spritemenu.append(spriteoptions[spriteoptions.length-1][0]);
+				customsprites[customsprites.length-1].cnvId=spriteoptions.length-1;
+				customsprites[customsprites.length-1].addEventListener("load",function(e){
+					spriteoptions[e.target.cnvId][1].drawImage(e.target,0,0,64,64)
+				});
+				if(i>lastCustSprite)
+					lastCustSprite=i;
+			}
 		}
 		relations=data.relations;
 		commanders=data.commanders;
@@ -239,26 +244,30 @@ function setup() {
 		troops=data.troops;
 		customspritedata=data.sprites;
 		customsprites=[];
+		var adjustedI=0;
 		for(var i=0; i<customspritedata.length; i++) {
-			customsprites.push(document.createElement('img'));
-			customsprites[i].src="img/uploads/"+customspritedata[i].name;
-			customsprites[i].width=customspritedata[i].width;
-			customsprites[i].height=customspritedata[i].height;
-			spriteoptions.push([document.createElement("canvas")]);
-			spriteoptions[spriteoptions.length-1][0].width=spriteoptions[spriteoptions.length-1][0].height=64;
-			spriteoptions[spriteoptions.length-1][0].i=i;
-			spriteoptions[spriteoptions.length-1][0].custom=true;
-			spriteoptions[spriteoptions.length-1].push(spriteoptions[spriteoptions.length-1][0].getContext("2d"));
-			spriteoptions[spriteoptions.length-1][1].imageSmoothingEnabled=false;
-			spriteoptions[spriteoptions.length-1][0].addEventListener("click",selectSprite);
-			spriteoptions[spriteoptions.length-1][0].className="sprite-custom";
-			spritemenu.append(spriteoptions[spriteoptions.length-1][0]);
-			customsprites[i].cnvId=spriteoptions.length-1;
-			customsprites[i].addEventListener("load",function(e){
-				spriteoptions[e.target.cnvId][1].drawImage(e.target,0,0,64,64)
-			});
-			if(i>lastCustSprite)
-				lastCustSprite=i;
+			if(customspritedata[i].type=="army") {
+				customsprites.push(document.createElement('img'));
+				customsprites[adjustedI].src="img/uploads/"+customspritedata[i].name;
+				customsprites[adjustedI].width=customspritedata[i].width;
+				customsprites[adjustedI].height=customspritedata[i].height;
+				spriteoptions.push([document.createElement("canvas")]);
+				spriteoptions[spriteoptions.length-1][0].width=spriteoptions[spriteoptions.length-1][0].height=64;
+				spriteoptions[spriteoptions.length-1][0].i=i;
+				spriteoptions[spriteoptions.length-1][0].custom=true;
+				spriteoptions[spriteoptions.length-1].push(spriteoptions[spriteoptions.length-1][0].getContext("2d"));
+				spriteoptions[spriteoptions.length-1][1].imageSmoothingEnabled=false;
+				spriteoptions[spriteoptions.length-1][0].addEventListener("click",selectSprite);
+				spriteoptions[spriteoptions.length-1][0].className="sprite-custom";
+				spritemenu.append(spriteoptions[spriteoptions.length-1][0]);
+				customsprites[adjustedI].cnvId=spriteoptions.length-1;
+				customsprites[adjustedI].addEventListener("load",function(e){
+					spriteoptions[e.target.cnvId][1].drawImage(e.target,0,0,64,64)
+				});
+				if(i>lastCustSprite)
+					lastCustSprite=i;
+				adjustedI++;
+			}
 		}
 		relations=data.relations
 		commanders=data.commanders;
@@ -307,6 +316,19 @@ function setup() {
 		$("#pinbutton").toggleClass("active");
 	});
 	if(isAdmin) {
+		document.getElementById("addPinbutton").addEventListener("click",function() {
+			if(!menuActive) {
+				resetPinMenu();
+				$("#pinnMenu").addClass("shown");
+				pinnMenuActive=true;
+				menuActive=true;
+			}
+			else if(pinnMenuActive) {
+				$("#pinnMenu").removeClass("shown");
+				pinnMenuActive=false;
+				menuActive=false;
+			}
+		});
 		document.getElementById("addTroopbutton").addEventListener("click",function() {
 			if(!menuActive) {
 				setTroopMenu(2,0);
@@ -338,8 +360,26 @@ function setup() {
 	});
 	trpncnv[0].addEventListener("click",function() {
 		spritemenu.addClass("show");
+		spritemenu[0].scroll(0,0);
 	});
-	$("#upload").ajaxForm({dataType:"json",success:function(data){
+	$(".pinicon").on("change",function(e) {
+		$(".icondata").removeClass("shown");
+		$(".icon-"+$(e.originalEvent.srcElement).val()).addClass("shown");
+	});
+	document.getElementById("editpin").addEventListener("click",function(e) {
+			if(!menuActive) {
+				setPinMenu();
+				$("#pineMenu").addClass("shown");
+				pineMenuActive=true;
+				menuActive=true;
+			}
+			else if(pinnMenuActive) {
+				$("#pineMenu").removeClass("shown");
+				pineMenuActive=false;
+				menuActive=false;
+			}
+	});
+	$("#uploadarmy").ajaxForm({dataType:"json",success:function(data){
 		console.log(data);
 		addBanner(data.text);
 		newsprite=document.createElement("img");
@@ -687,6 +727,16 @@ function closeCommanderMenu() {
 	commanderMenuActive=false;
 	menuActive=false;
 }
+function closePinnMenu() {
+	$("#pinnMenu").removeClass("shown");
+	pinnMenuActive=false;
+	menuActive=false;
+}
+function closePineMenu() {
+	$("#pineMenu").removeClass("shown");
+	pineMenuActive=false;
+	menuActive=false;
+}
 function highlight(e) {
 	var rawX=e.center.x-offsetPix[0];
 	var rawY=e.center.y-offsetPix[1];
@@ -754,7 +804,7 @@ function highlight(e) {
 				lastTar=[Infinity,Infinity];
 				selectedArmy=whichTrp;
 				$("#infoTxt")[0].innerHTML="<b>"+troops[whichTrp].name+"</b><br>Nation: "+troops[whichTrp].nation+", Size: "+troops[whichTrp].size+", Strength: "+troops[whichTrp].power+", Level: "+parseInt(Math.sqrt(0.25+2*troops[whichTrp].xp)-0.5)+"<br><span onclick=\"viewTrp()\">Details</span>";
-				$("#infoTxt").addClass("shown");
+				$("#infoTxtBox").addClass("shown");
 			}
 		}
 		else {
@@ -785,12 +835,15 @@ function highlight(e) {
 	}
 	else if(clickedMark) {
 		if(selectedPoint!=markers[whichMark].id) {
+			clickedPin=whichMark;
 			selectedArmy=-1;
 			actionState="default";
 			lastTar=[Infinity,Infinity];
 			selectedPoint=markers[whichMark].id;
+			editTxt="";
+			if(markers[whichMark].owned) $("#editpin").addClass("shown");
 			$("#infoTxt")[0].innerHTML="<b>"+markers[whichMark].name+"</b>: "+markers[whichMark].desc;
-			$("#infoTxt").addClass("shown");
+			$("#infoTxtBox").addClass("shown");
 		}
 		else {
 			selectedPoint=0;
@@ -808,7 +861,7 @@ function highlight(e) {
 		boxCtx.lineWidth=4;
 		boxCtx.strokeRect(offsetPix[0]+xf*tileSize, offsetPix[1]+yf*tileSize, tileSize, tileSize);
 		$("#infoTxt")[0].innerHTML="Highlighted tile ("+xCor+", "+yCor+"), centered on ("+(xCor*128)+", "+(yCor*128)+"), coordinates ("+((xCor*128)-64)+", "+((yCor*128)-64)+") to ("+((xCor*128)+63)+", "+((yCor*128)+63)+").<br>Map ID: "+mapIds(xCor,yCor);
-		$("#infoTxt").addClass("shown");
+		$("#infoTxtBox").addClass("shown");
 		drawMain();
 	}
 	else {
@@ -882,7 +935,7 @@ function redrawHighlight() {
 		boxCtx.lineWidth=4;
 		boxCtx.strokeRect(offsetPix[0]+xf*tileSize, offsetPix[1]+yf*tileSize, tileSize, tileSize);
 		$("#infoTxt")[0].innerHTML="Highlighted tile ("+xCor+", "+yCor+"), centered on ("+(xCor*128)+", "+(yCor*128)+"), coordinates ("+((xCor*128)-64)+", "+((yCor*128)-64)+") to ("+((xCor*128)+63)+", "+((yCor*128)+63)+").<br>Map ID: "+mapIds(xCor,yCor);
-		$("#infoTxt").addClass("shown");
+		$("#infoTxtBox").addClass("shown");
 		drawMain();
 	}
 }
@@ -932,8 +985,8 @@ function drawPoints() {
 				}
 				if(isMobile) sizeMod*=2;
 				drawCircle(pinCtx,posAdj[0]+(2*sizeMod),posAdj[1]+(2*sizeMod),10*sizeMod,"#000000");
-				drawCircle(pinCtx,posAdj[0],posAdj[1],10*sizeMod,"#ff0000");
-				drawCircle(pinCtx,posAdj[0]-(3*sizeMod),posAdj[1]-(3*sizeMod),4*sizeMod,"#ff8080");
+				drawCircle(pinCtx,posAdj[0],posAdj[1],10*sizeMod,"#"+markers[i].icondata);
+				drawCircle(pinCtx,posAdj[0]-(3*sizeMod),posAdj[1]-(3*sizeMod),4*sizeMod,"#"+parseInt((256+parseInt(markers[i].icondata.substr(0,2),16))/2).toString(16)+parseInt((256+parseInt(markers[i].icondata.substr(2,2),16))/2).toString(16)+parseInt((256+parseInt(markers[i].icondata.substr(4,2),16))/2).toString(16));
 			}
 		}
 	}
@@ -942,7 +995,8 @@ function drawPoints() {
 }
 function resetStuff() {
 	$("#infoTxt")[0].innerHTML="";
-	$("#infoTxt").removeClass("shown");
+	$("#infoTxtBox").removeClass("shown");
+	$("#editpin").removeClass("shown")
 	selectedPoint=0;
 	selectedArmy=-1;
 	hoverArmy=-1;
@@ -953,7 +1007,8 @@ function resetStuff() {
 	rotaryQueue=[];
 }
 function setHash() {
-	history.replaceState(undefined, undefined, "#x="+(pos[0]+offsetPos[0])+"&z="+(pos[1]+offsetPos[1])+"&zoom="+tileSize/128+"&dimension="+dimension);
+	clearTimeout(setHashTimeout);
+	setHashTimeout=setTimeout(function(){history.replaceState(undefined, undefined, "#x="+(pos[0]+offsetPos[0])+"&z="+(pos[1]+offsetPos[1])+"&zoom="+tileSize/128+"&dimension="+dimension)},1000);
 }
 function drawTroops() {
 	trpCtx.clearRect(0,0,width,height);
@@ -1604,6 +1659,26 @@ function setCommTrp(e) {
 			addBanner(data.response.text);
 		}
 	});
+}
+function setPinMenu() {
+	$("#pine-name").val(markers[clickedPin].name);
+	$("#pine-x").val(markers[clickedPin].x);
+	$("#pine-z").val(markers[clickedPin].z);
+	$("#pine-desc").val(markers[clickedPin].desc);
+	$(".pinicon").val(markers[clickedPin].type);
+	$(".icondata").removeClass("shown");
+	$(".icon-"+markers[clickedPin].type).addClass("shown");
+	if(markers[clickedPin].type=="default") $("#pineColor").val("#"+markers[clickedPin].icondata);
+}
+function resetPinMenu() {
+	$("#pinn-name").val("");
+	$("#pinn-x").val(parseInt((offsetPos[0]+pos[0])*128));
+	$("#pinn-z").val(parseInt((offsetPos[1]+pos[1])*128));
+	$("#pinn-desc").val("");
+	$(".pinicon").val("default");
+	$(".icondata").removeClass("shown");
+	$(".icon-default").addClass("shown");
+	$("#pinnColor").val("#ff0000");
 }
 function addBanner(txt) {
 	$("#bannerholder").append("<div class=\"banner\" id=\"banner-"+bannercount+"\">"+txt+"</div>");

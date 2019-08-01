@@ -45,7 +45,7 @@
 	<div id="bannerholder"></div>
 	<canvas height=640 width=1152 id="mcmap"></canvas>
 	<div id="tileStorage"><img id="default-img" src="img/stone.png"></div>
-	<div id="infoTxt"></div>
+	<div id="infoTxtBox"><div id="infoTxt"></div><div id="editpin">Edit</div></div>
 	<div id="jumpMenu">
 		<div onclick="closeJumpMenu()"></div>
 		<div>
@@ -154,7 +154,7 @@
 				<dt>Sprite:</dt>
 				<dd><div id="spritemenu"></div><canvas height="64" width="64" id="trpnspritecnv"></canvas></dd>
 				<dd>OR</dd>
-				<dd>Upload a new sprite: <form action="uploadArmySprite.php" method="post" enctype="multipart/form-data" id="upload"><input type="file" name="sprite" id="spriteupload"><input type="submit" value="Upload"></form></dd>
+				<dd>Upload a new sprite: <form action="uploadSprite.php" method="post" enctype="multipart/form-data" id="uploadarmy"><input type="file" name="sprite" id="spriteupload"><input type="submit" value="Upload"><input type="hidden" name="spritetype" value="army"></form></dd>
 			</dl>
 			<input type="submit" value="Create" onclick="createTrp()">
 		</div>
@@ -200,15 +200,80 @@
 			</ul>
 		</div>
 	</div>
+	<div id="pinnMenu">
+		<div onclick="closePinnMenu()"></div>
+		<div>
+			<dl>
+				<dt>Location Name:</dt>
+				<dd><input type="text" id="pinn-name"></dd>
+				<dt>X Coordinate:</dt>
+				<dd><input type="number" id="pinn-x"></dd>
+				<dt>Z Coordinate:</dt>
+				<dd><input type="number" id="pinn-z"></dd>
+				<dt>Description:</dt>
+				<dd><textarea id="pinn-desc"></textarea></dd>
+				<dt>Icon Type:</dt>
+				<dd>
+					<select id="pinnicon" class="pinicon">
+						<option>default</option>
+						<option>custom</option>
+						<option>hidden</option>
+					</select>
+				</dd>
+				<dt class="icondata icon-default shown">Color:</dt>
+				<dd class="icondata icon-default shown"><input type="color" id="pinnColor"></dd>
+				<dt class="icondata icon-custom">Sprite:</dt>
+				<dd class="icondata icon-custom"><div class="pinspritemenu"></div><canvas height="64" width="64" class="pinspritecnv"></canvas></dd>
+				<dd class="icondata icon-custom">OR</dd>
+				<dd class="icondata icon-custom">Upload a new sprite: <form action="uploadSprite.php" method="post" enctype="multipart/form-data" class="uploadpin"><input type="file" name="sprite"><input type="submit" value="Upload"><input type="hidden" name="spritetype" value="pin"></form></dd>
+			</dl>
+			<input type="submit" value="Create" onclick="createPin()">
+		</div>
+	</div>
+	<div id="pineMenu">
+		<div onclick="closePineMenu()"></div>
+		<div>
+			<dl>
+				<dt>Location Name:</dt>
+				<dd><input type="text" id="pine-name"></dd>
+				<dt>X Coordinate:</dt>
+				<dd><input type="number" id="pine-x"></dd>
+				<dt>Z Coordinate:</dt>
+				<dd><input type="number" id="pine-z"></dd>
+				<dt>Description:</dt>
+				<dd><textarea id="pine-desc"></textarea></dd>
+				<dt>Icon Type:</dt>
+				<dd>
+					<select id="pineicon" class="pinicon">
+						<option>default</option>
+						<option>custom</option>
+						<option>hidden</option>
+					</select>
+				</dd>
+				<dt class="icondata icon-default shown">Color:</dt>
+				<dd class="icondata icon-default shown"><input type="color" id="pineColor"></dd>
+				<dt class="icondata icon-custom">Sprite:</dt>
+				<dd class="icondata icon-custom"><div class="pinspritemenu"></div><canvas height="64" width="64" class="pinspritecnv"></canvas></dd>
+				<dd class="icondata icon-custom">OR</dd>
+				<dd class="icondata icon-custom">Upload a new sprite: <form action="uploadSprite.php" method="post" enctype="multipart/form-data" class="uploadpin"><input type="file" name="sprite"><input type="submit" value="Upload"><input type="hidden" name="spritetype" value="pin"></form></dd>
+			</dl>
+			<input type="submit" value="Save" onclick="changePin()">
+		</div>
+	</div>
 	<div id="sideMenu">
 		<button id="infobutton" title="Toggle a screen to show hotkeys."></button>
 		<button id="jumpbutton" title="Jump to a coordinate or pin."></button>
 		<button id="pinbutton" title="Toggle pin visibility."></button>
-		<?php if($permissions>0) {
-			echo '<a href="./submit.php" target="blank_" title="Create a new pin."><button id="addPinbutton"></button></a>';
-			echo '<button id="addTroopbutton" title="Create a new Army."></button>';
-			echo '<button id="commanderBtn" title="Manage Comanders."></button>';
-		}?>
+		<?php
+			if($permissions>0) {
+				echo '<button id="addPinbutton" title="Create a new pin."></button>';
+				echo '<button id="addTroopbutton" title="Create a new Army."></button>';
+				echo '<button id="commanderBtn" title="Manage Comanders."></button>';
+			}
+			else if(!isset($_SESSION['username'])) {
+				echo '<a href="../login.php"><button id="loginButton" title="Log In."></button></a>';
+			}
+		?>
 	</div>
 	<div id="jumpMenuMobile">
 		<div onclick="closeJumpMenu()"></div>

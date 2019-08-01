@@ -41,8 +41,12 @@ if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
 	if($i>0) {
 		echo ',';
 	}
-	echo '{"id":'.$row[0].',"user":"'.$row[1].'","name":"'.str_replace('"','\\"',$row[2]).'","desc":"'.str_replace("	","\\t",htmlspecialchars(str_replace(array("\r\n","\r","\n",'
-'), "\\n", $row[3]))).'","x":'.$row[4].',"z":'.$row[5].',"dimension":'.$row[6].'}';
+	$isowned='false';
+	if(strtolower($row[1])==strtolower($_SESSION['username'])) {
+		$isowned='true';
+	}
+	echo '{"id":'.$row[0].',"user":"'.$row[1].'","owned":'.$isowned.',"name":"'.str_replace('"','\\"',$row[2]).'","desc":"'.str_replace("	","\\t",htmlspecialchars(str_replace(array("\r\n","\r","\n",'
+'), "\\n", $row[3]))).'","x":'.$row[4].',"z":'.$row[5].',"dimension":'.$row[6].',"type":"'.$row[7].'","icondata":"'.$row[8].'"}';
 }}
 
 echo '],"troops":[';
