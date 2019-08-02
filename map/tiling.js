@@ -52,9 +52,9 @@ jumpMenuActive=false;
 instMenuActive=false;
 trpMenuActive=[false,false,false];
 commanderMenuActive=false;
-pinnMenuActive=false;
-pineMenuActive=false;
+pinMenuActive=false;
 menuActive=false;
+currentpinmenu="";
 showMissingTiles=false;
 dragging=false;
 didDrag=false;
@@ -75,6 +75,8 @@ isAdmin=false;
 spriteoptions=[];
 trpSprite=0;
 isSpriteCustom=false;
+custompins={};
+pinoptions=[];
 bannercount=0;
 banners=[];
 troops=[];
@@ -86,6 +88,7 @@ actionState="default";
 lastCustSprite=0;
 commanders=[];
 shownCommanders={};
+pinSpritesAcquired=false;
 for(var i=0; i<3; i++) {
 	rotarySprites.push(document.createElement('img'));
 }
@@ -152,7 +155,11 @@ function setup() {
 	});
 	customsprites=[];
 	spritemenu=$("#spritemenu");
+	pinspritemenu=$("#pinspritemenu");
 	trpncnv=$("#trpnspritecnv");
+	pincnv=$("#pinspritecnv");
+	pinctx=pincnv[0].getContext("2d");
+	pinctx.imageSmoothingEnabled=false;
 	trpecnv=$("#trpespritecnv");
 	trpvcnv=$("#trpvspritecnv");
 	setInterval(function(){draw(); $.getJSON("getMarkers.php",function(data){
@@ -245,15 +252,17 @@ function setup() {
 		customspritedata=data.sprites;
 		customsprites=[];
 		var adjustedI=0;
+		var pinI=0;
 		for(var i=0; i<customspritedata.length; i++) {
 			if(customspritedata[i].type=="army") {
 				customsprites.push(document.createElement('img'));
 				customsprites[adjustedI].src="img/uploads/"+customspritedata[i].name;
 				customsprites[adjustedI].width=customspritedata[i].width;
 				customsprites[adjustedI].height=customspritedata[i].height;
+				customsprites[adjustedI].spriteid=customspritedata[i].id;
 				spriteoptions.push([document.createElement("canvas")]);
 				spriteoptions[spriteoptions.length-1][0].width=spriteoptions[spriteoptions.length-1][0].height=64;
-				spriteoptions[spriteoptions.length-1][0].i=i;
+				spriteoptions[spriteoptions.length-1][0].i=adjustedI;
 				spriteoptions[spriteoptions.length-1][0].custom=true;
 				spriteoptions[spriteoptions.length-1].push(spriteoptions[spriteoptions.length-1][0].getContext("2d"));
 				spriteoptions[spriteoptions.length-1][1].imageSmoothingEnabled=false;
@@ -268,7 +277,29 @@ function setup() {
 					lastCustSprite=i;
 				adjustedI++;
 			}
+			else if(customspritedata[i].type=="pin") {
+				var name=customspritedata[i].name;
+				custompins[name]={img:document.createElement('img'),i:pinI};
+				custompins[name].img.src="img/uploads/"+name;
+				custompins[name].img.width=customspritedata[i].width;
+				custompins[name].img.height=customspritedata[i].height;
+				pinoptions.push({cnv:document.createElement("canvas")});
+				pinoptions[pinI].cnv.width=pinoptions[pinI].cnv.height=48;
+				pinoptions[pinI].cnv.i=pinI;
+				pinoptions[pinI].cnv.spritename=name;
+				pinoptions[pinI].ctx=pinoptions[pinI].cnv.getContext("2d");
+				pinoptions[pinI].ctx.imageSmoothingEnabled=false;
+				pinoptions[pinI].cnv.addEventListener("click",selectPinSprite);
+				pinoptions[pinI].cnv.className="sprite-custom sprite-pin";
+				custompins[name].img.cnvId=pinI;
+				pinspritemenu.append(pinoptions[pinI].cnv);
+				custompins[name].img.addEventListener("load",function(e){
+					pinoptions[e.target.cnvId].ctx.drawImage(e.target,0,0,48,48);
+				});
+				pinI++;
+			}
 		}
+		pinSpritesAcquired=true;
 		relations=data.relations
 		commanders=data.commanders;
 		setCommanderLists();
@@ -319,13 +350,13 @@ function setup() {
 		document.getElementById("addPinbutton").addEventListener("click",function() {
 			if(!menuActive) {
 				resetPinMenu();
-				$("#pinnMenu").addClass("shown");
-				pinnMenuActive=true;
+				$("#pinMenu").addClass("shown");
+				pinMenuActive=true;
 				menuActive=true;
 			}
-			else if(pinnMenuActive) {
-				$("#pinnMenu").removeClass("shown");
-				pinnMenuActive=false;
+			else if(pinMenuActive) {
+				$("#pinMenu").removeClass("shown");
+				pinMenuActive=false;
 				menuActive=false;
 			}
 		});
@@ -362,6 +393,13 @@ function setup() {
 		spritemenu.addClass("show");
 		spritemenu[0].scroll(0,0);
 	});
+	pinspritemenu.on("mouseleave",function() {
+		pinspritemenu.removeClass("show");
+	});
+	pincnv.on("click",function() {
+		pinspritemenu.addClass("show");
+		pinspritemenu[0].scroll(0,0);
+	});
 	$(".pinicon").on("change",function(e) {
 		$(".icondata").removeClass("shown");
 		$(".icon-"+$(e.originalEvent.srcElement).val()).addClass("shown");
@@ -369,16 +407,23 @@ function setup() {
 	document.getElementById("editpin").addEventListener("click",function(e) {
 			if(!menuActive) {
 				setPinMenu();
-				$("#pineMenu").addClass("shown");
-				pineMenuActive=true;
+				$("#pinMenu").addClass("shown");
+				pinMenuActive=true;
 				menuActive=true;
 			}
-			else if(pinnMenuActive) {
-				$("#pineMenu").removeClass("shown");
-				pineMenuActive=false;
+			else if(pinMenuActive) {
+				$("#pinMenu").removeClass("shown");
+				pinMenuActive=false;
 				menuActive=false;
 			}
 	});
+	$("#uploadpin").ajaxForm({dataType:"json",success:function(data){
+		console.log(data);
+		addBanner(data.text);
+		if(data.status==0) {
+			resetPinSprites();
+		}
+	}});
 	$("#uploadarmy").ajaxForm({dataType:"json",success:function(data){
 		console.log(data);
 		addBanner(data.text);
@@ -498,7 +543,7 @@ function selectSprite(event){
 	}
 	else {
 		trpnCtx.drawImage(customsprites[event.target.i],0,0,64,64);
-		trpSprite=customspritedata[event.target.i].id;
+		trpSprite=customsprites[event.target.i].spriteid;
 	}
 	isSpriteCustom=event.target.custom;
 	spritemenu.removeClass("show");
@@ -727,14 +772,9 @@ function closeCommanderMenu() {
 	commanderMenuActive=false;
 	menuActive=false;
 }
-function closePinnMenu() {
-	$("#pinnMenu").removeClass("shown");
-	pinnMenuActive=false;
-	menuActive=false;
-}
-function closePineMenu() {
-	$("#pineMenu").removeClass("shown");
-	pineMenuActive=false;
+function closePinMenu() {
+	$("#pinMenu").removeClass("shown");
+	pinMenuActive=false;
 	menuActive=false;
 }
 function highlight(e) {
@@ -984,9 +1024,20 @@ function drawPoints() {
 					sizeMod=Math.sqrt(2);
 				}
 				if(isMobile) sizeMod*=2;
-				drawCircle(pinCtx,posAdj[0]+(2*sizeMod),posAdj[1]+(2*sizeMod),10*sizeMod,"#000000");
-				drawCircle(pinCtx,posAdj[0],posAdj[1],10*sizeMod,"#"+markers[i].icondata);
-				drawCircle(pinCtx,posAdj[0]-(3*sizeMod),posAdj[1]-(3*sizeMod),4*sizeMod,"#"+parseInt((256+parseInt(markers[i].icondata.substr(0,2),16))/2).toString(16)+parseInt((256+parseInt(markers[i].icondata.substr(2,2),16))/2).toString(16)+parseInt((256+parseInt(markers[i].icondata.substr(4,2),16))/2).toString(16));
+				if(markers[i].type=="default") {
+					drawCircle(pinCtx,posAdj[0]+(2*sizeMod),posAdj[1]+(2*sizeMod),10*sizeMod,"#000000");
+					drawCircle(pinCtx,posAdj[0],posAdj[1],10*sizeMod,"#"+markers[i].icondata);
+					drawCircle(pinCtx,posAdj[0]-(3*sizeMod),posAdj[1]-(3*sizeMod),4*sizeMod,"#"+parseInt((256+parseInt(markers[i].icondata.substr(0,2),16))/2).toString(16)+parseInt((256+parseInt(markers[i].icondata.substr(2,2),16))/2).toString(16)+parseInt((256+parseInt(markers[i].icondata.substr(4,2),16))/2).toString(16));
+				}
+				else if(markers[i].type=="custom") {
+					if(pinSpritesAcquired)
+						pinCtx.drawImage(custompins[markers[i].icondata].img,posAdj[0]-15*sizeMod,posAdj[1]-15*sizeMod,30*sizeMod,30*sizeMod);
+					else {
+						drawCircle(pinCtx,posAdj[0]+(2*sizeMod),posAdj[1]+(2*sizeMod),10*sizeMod,"#000000");
+						drawCircle(pinCtx,posAdj[0],posAdj[1],10*sizeMod,"#ff0000");
+						drawCircle(pinCtx,posAdj[0]-(3*sizeMod),posAdj[1]-(3*sizeMod),4*sizeMod,"#ff8080");
+				}
+				}
 			}
 		}
 	}
@@ -1033,8 +1084,8 @@ function drawTroops() {
 				if(!troops[i].customsprite)
 					trpCtx.drawImage(sprites,(troops[i].sprite%8)*16,parseInt(troops[i].sprite/8)*16,16,16,posAdj[0]-16*sizeMod,posAdj[1]-16*sizeMod,32*sizeMod,32*sizeMod);
 				else
-					for(var j=0; j<customspritedata.length; j++)
-						if(troops[i].sprite==customspritedata[j].id)
+					for(var j=0; j<customsprites.length; j++)
+						if(troops[i].sprite==customsprites[j].spriteid)
 							trpCtx.drawImage(customsprites[j],posAdj[0]-16*sizeMod,posAdj[1]-16*sizeMod,32*sizeMod,32*sizeMod);
 				if(troops[i].state>0)
 					trpCtx.drawImage(statusSprites,((troops[i].state-1)%4)*64,parseInt((troops[i].state-1)/4)*64,64,64,posAdj[0],posAdj[1],16*sizeMod,16*sizeMod);
@@ -1422,7 +1473,7 @@ function setTroopMenu(kind,id) {
 		else {
 			var spriteId=0;
 			for(var i=0; i<customsprites.length; i++) {
-				if(customspritedata[i].id==troops[id].sprite)
+				if(customsprites[j].spriteid==troops[id].sprite)
 					spriteId=i;
 			}
 			trpeCtx.drawImage(customsprites[spriteId],0,0,64,64);
@@ -1472,7 +1523,7 @@ function setTroopMenu(kind,id) {
 		else {
 			var spriteId=0;
 			for(var i=0; i<customsprites.length; i++) {
-				if(customspritedata[i].id==troops[id].sprite)
+				if(customsprites[i].spriteid==troops[id].sprite)
 					spriteId=i;
 			}
 			trpvCtx.drawImage(customsprites[spriteId],0,0,64,64);
@@ -1661,24 +1712,133 @@ function setCommTrp(e) {
 	});
 }
 function setPinMenu() {
-	$("#pine-name").val(markers[clickedPin].name);
-	$("#pine-x").val(markers[clickedPin].x);
-	$("#pine-z").val(markers[clickedPin].z);
-	$("#pine-desc").val(markers[clickedPin].desc);
+	currentpinmenu="change";
+	$("#pinMenu").addClass("change");
+	$("#pinMenu").removeClass("create");
+	$("#pin-name").val(markers[clickedPin].name);
+	$("#pin-x").val(markers[clickedPin].x);
+	$("#pin-z").val(markers[clickedPin].z);
+	$("#pin-dimen").val(markers[clickedPin].dimension);
+	$("#pin-desc").val(markers[clickedPin].desc);
 	$(".pinicon").val(markers[clickedPin].type);
 	$(".icondata").removeClass("shown");
 	$(".icon-"+markers[clickedPin].type).addClass("shown");
-	if(markers[clickedPin].type=="default") $("#pineColor").val("#"+markers[clickedPin].icondata);
+	if(markers[clickedPin].type=="default") $("#pinColor").val("#"+markers[clickedPin].icondata);
+	else $("#pinColor").val("#FF0000");
+	if(markers[clickedPin].type=="custom") selectPinSprite({target:{spritename:markers[clickedPin].icondata}});
+	else selectPinSprite({target:{spritename:pinoptions[0].cnv.spritename}});
 }
 function resetPinMenu() {
-	$("#pinn-name").val("");
-	$("#pinn-x").val(parseInt((offsetPos[0]+pos[0])*128));
-	$("#pinn-z").val(parseInt((offsetPos[1]+pos[1])*128));
-	$("#pinn-desc").val("");
+	currentpinmenu="create";
+	$("#pinMenu").addClass("create");
+	$("#pinMenu").removeClass("change");
+	$("#pin-name").val("");
+	$("#pin-x").val(parseInt((offsetPos[0]+pos[0])*128));
+	$("#pin-z").val(parseInt((offsetPos[1]+pos[1])*128));
+	$("#pin-dimen").val(dimension);
+	$("#pin-desc").val("");
 	$(".pinicon").val("default");
 	$(".icondata").removeClass("shown");
 	$(".icon-default").addClass("shown");
-	$("#pinnColor").val("#ff0000");
+	$("#pinColor").val("#ff0000");
+	selectPinSprite({target:{spritename:pinoptions[0].cnv.spritename}});
+}
+function selectPinSprite(e) {
+	selectedPinSprite=e.target.spritename;
+	pinctx.clearRect(0,0,48,48);
+	pinctx.drawImage(custompins[e.target.spritename].img,0,0,48,48);
+	pinspritemenu.removeClass("show");
+}
+function resetPinSprites() {
+	custompins={};
+	pinoptions=[];
+	$.getJSON("getMarkers.php",function (data) {
+		$(".sprite-pin").remove();
+		customspritedata=data.sprites;
+		var pinI=0;
+		for(var i=0; i<customspritedata.length; i++) {
+			if(customspritedata[i].type=="pin") {
+				var name=customspritedata[i].name;
+				custompins[name]={img:document.createElement('img'),i:pinI};
+				custompins[name].img.src="img/uploads/"+name;
+				custompins[name].img.width=customspritedata[i].width;
+				custompins[name].img.height=customspritedata[i].height;
+				pinoptions.push({cnv:document.createElement("canvas")});
+				pinoptions[pinI].cnv.width=pinoptions[pinI].cnv.height=48;
+				pinoptions[pinI].cnv.i=pinI;
+				pinoptions[pinI].cnv.spritename=name;
+				pinoptions[pinI].ctx=pinoptions[pinI].cnv.getContext("2d");
+				pinoptions[pinI].ctx.imageSmoothingEnabled=false;
+				pinoptions[pinI].cnv.addEventListener("click",selectPinSprite);
+				pinoptions[pinI].cnv.className="sprite-custom sprite-pin";
+				custompins[name].img.cnvId=pinI;
+				pinspritemenu.append(pinoptions[pinI].cnv);
+				custompins[name].img.addEventListener("load",function(e){
+					pinoptions[e.target.cnvId].ctx.drawImage(e.target,0,0,48,48);
+				});
+				pinI++;
+			}
+		}
+	});
+}
+function createPin() {
+	if($("#pin-name").val()!="" && $("#pin-x").val()!="" && $("#pin-y").val()!="" && $("#pin-desc").val()!="") {
+		var data={};
+		data.mode="create";
+		data.name=$("#pin-name").val();
+		data.x=$("#pin-x").val();
+		data.z=$("#pin-z").val();
+		data.dimension=$("#pin-dimen").val();
+		data.desc=$("#pin-desc").val();
+		data.type=$("#pinicon").val();
+		if(data.type=="default")
+			data.icondata=$("#pinColor").val();
+		else if(data.type=="custom")
+			data.icondata=selectedPinSprite;
+		else
+			data.icondata="";
+		$.getJSON("controlPins.php",data,checkPinResponse);
+	}
+	else {
+		addBanner("Please fill out all fields.");
+	}
+}
+function deletePin() {
+	var data={};
+	data.mode="delete";
+	data.id=selectedPoint;
+	$.getJSON("controlPins.php",data,checkPinResponse);
+}
+function changePin() {
+	if($("#pin-name").val()!="" && $("#pin-x").val()!="" && $("#pin-y").val()!="" && $("#pin-desc").val()!="") {
+		var data={};
+		data.mode="change";
+		data.id=selectedPoint;
+		data.name=$("#pin-name").val();
+		data.x=$("#pin-x").val();
+		data.z=$("#pin-z").val();
+		data.dimension=$("#pin-dimen").val();
+		data.desc=$("#pin-desc").val();
+		data.type=$("#pinicon").val();
+		if(data.type=="default")
+			data.icondata=$("#pinColor").val();
+		else if(data.type=="custom")
+			data.icondata=selectedPinSprite;
+		else
+			data.icondata="";
+		$.getJSON("controlPins.php",data,checkPinResponse);
+	}
+	else {
+		addBanner("Please fill out all fields.");
+	}
+}
+function checkPinResponse(data) {
+	console.log(data);
+	if(data.output.status==0) {
+		closePinMenu();
+	}
+	addBanner(data.output.text);
+	$.getJSON("getMarkers.php",function(data){markers=data.pins;});
 }
 function addBanner(txt) {
 	$("#bannerholder").append("<div class=\"banner\" id=\"banner-"+bannercount+"\">"+txt+"</div>");

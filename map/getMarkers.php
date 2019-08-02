@@ -107,12 +107,10 @@ $query="SELECT * FROM `mcstuff`.`sprites`;";
 $queryresult=mysqli_query($conn,$query);
 if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
 	$row=mysqli_fetch_row($queryresult);
-	if($row[2]=='army') {
-		if($i>0) {
-			echo ',';
-		}
-		echo '{"id":'.$row[0].',"name":"'.$row[1].'","type":"'.$row[2].'","width":'.$row[3].',"height":'.$row[4].'}';
+	if($i>0) {
+		echo ',';
 	}
+	echo '{"id":'.$row[0].',"name":"'.$row[1].'","type":"'.$row[2].'","width":'.$row[3].',"height":'.$row[4].'}';
 }}
 
 echo '],"commanders":[';

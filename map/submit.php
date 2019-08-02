@@ -74,7 +74,7 @@
 		function addBanner($bannerTxt) {
 			echo '<div class="banner">'.$bannerTxt.'</div>';
 		}
-		require 'db.php';
+		//require 'db.php'; Commented out to effectively disable the now obsolete page.
 		//addBanner('test');
 		if(isset($_POST['name'])) {
 			$_SESSION['name']=mysqli_real_escape_string($conn,$_POST['name']);

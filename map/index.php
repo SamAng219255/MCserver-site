@@ -200,64 +200,44 @@
 			</ul>
 		</div>
 	</div>
-	<div id="pinnMenu">
-		<div onclick="closePinnMenu()"></div>
+	<div id="pinMenu">
+		<div onclick="closePinMenu()"></div>
 		<div>
 			<dl>
 				<dt>Location Name:</dt>
-				<dd><input type="text" id="pinn-name"></dd>
+				<dd><input type="text" id="pin-name"></dd>
 				<dt>X Coordinate:</dt>
-				<dd><input type="number" id="pinn-x"></dd>
+				<dd><input type="number" id="pin-x"></dd>
 				<dt>Z Coordinate:</dt>
-				<dd><input type="number" id="pinn-z"></dd>
+				<dd><input type="number" id="pin-z"></dd>
+				<dt>Dimension Id:</dt>
+				<dd>
+					<select id="pin-dimen">
+						<option value="0">Overworld</option>
+						<option value="-1">Nether</option>
+						<option value="1">The End</option>
+					</select>
+				</dd>
 				<dt>Description:</dt>
-				<dd><textarea id="pinn-desc"></textarea></dd>
+				<dd><textarea id="pin-desc"></textarea></dd>
 				<dt>Icon Type:</dt>
 				<dd>
-					<select id="pinnicon" class="pinicon">
+					<select id="pinicon" class="pinicon">
 						<option>default</option>
 						<option>custom</option>
 						<option>hidden</option>
 					</select>
 				</dd>
 				<dt class="icondata icon-default shown">Color:</dt>
-				<dd class="icondata icon-default shown"><input type="color" id="pinnColor"></dd>
+				<dd class="icondata icon-default shown"><input type="color" id="pinColor"></dd>
 				<dt class="icondata icon-custom">Sprite:</dt>
-				<dd class="icondata icon-custom"><div class="pinspritemenu"></div><canvas height="64" width="64" class="pinspritecnv"></canvas></dd>
+				<dd class="icondata icon-custom"><div id="pinspritemenu"></div><canvas height="48" width="48" id="pinspritecnv"></canvas></dd>
 				<dd class="icondata icon-custom">OR</dd>
-				<dd class="icondata icon-custom">Upload a new sprite: <form action="uploadSprite.php" method="post" enctype="multipart/form-data" class="uploadpin"><input type="file" name="sprite"><input type="submit" value="Upload"><input type="hidden" name="spritetype" value="pin"></form></dd>
+				<dd class="icondata icon-custom">Upload a new sprite: <form action="uploadSprite.php" method="post" enctype="multipart/form-data" id="uploadpin"><input type="file" name="sprite"><input type="submit" value="Upload"><input type="hidden" name="spritetype" value="pin"></form></dd>
 			</dl>
-			<input type="submit" value="Create" onclick="createPin()">
-		</div>
-	</div>
-	<div id="pineMenu">
-		<div onclick="closePineMenu()"></div>
-		<div>
-			<dl>
-				<dt>Location Name:</dt>
-				<dd><input type="text" id="pine-name"></dd>
-				<dt>X Coordinate:</dt>
-				<dd><input type="number" id="pine-x"></dd>
-				<dt>Z Coordinate:</dt>
-				<dd><input type="number" id="pine-z"></dd>
-				<dt>Description:</dt>
-				<dd><textarea id="pine-desc"></textarea></dd>
-				<dt>Icon Type:</dt>
-				<dd>
-					<select id="pineicon" class="pinicon">
-						<option>default</option>
-						<option>custom</option>
-						<option>hidden</option>
-					</select>
-				</dd>
-				<dt class="icondata icon-default shown">Color:</dt>
-				<dd class="icondata icon-default shown"><input type="color" id="pineColor"></dd>
-				<dt class="icondata icon-custom">Sprite:</dt>
-				<dd class="icondata icon-custom"><div class="pinspritemenu"></div><canvas height="64" width="64" class="pinspritecnv"></canvas></dd>
-				<dd class="icondata icon-custom">OR</dd>
-				<dd class="icondata icon-custom">Upload a new sprite: <form action="uploadSprite.php" method="post" enctype="multipart/form-data" class="uploadpin"><input type="file" name="sprite"><input type="submit" value="Upload"><input type="hidden" name="spritetype" value="pin"></form></dd>
-			</dl>
-			<input type="submit" value="Save" onclick="changePin()">
+			<input type="submit" class="submit submit-create" value="Create" onclick="createPin()">
+			<input type="submit" class="submit submit-change" value="Save" onclick="changePin()">
+			<input type="submit" class="submit submit-change" value="Delete" onclick="deletePin()">
 		</div>
 	</div>
 	<div id="sideMenu">

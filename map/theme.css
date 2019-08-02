@@ -275,7 +275,7 @@ body {
 	background-color: #404040;
 	padding: 1em;
 }
-#pinnMenu {
+#pinMenu {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -284,17 +284,17 @@ body {
 	background-color: rgba(32,32,32,0.5);
 	visibility: hidden;
 }
-#pinnMenu.shown {
+#pinMenu.shown {
 	visibility: visible;
 }
-#pinnMenu>div:nth-child(1) {
+#pinMenu>div:nth-child(1) {
 	position: absolute;
 	top: 0;
 	left: 0;
 	width: 100%;
 	height: 100%;
 }
-#pinnMenu>div:nth-child(2) {
+#pinMenu>div:nth-child(2) {
 	position: absolute;
 	top: 4rem;
 	left: 4rem;
@@ -304,39 +304,19 @@ body {
 	padding: 1em;
 	overflow-y: scroll;
 }
-#pineMenu {
-	position: absolute;
-	top: 0;
-	left: 0;
-	height: 100%;
-	width: 100%;
-	background-color: rgba(32,32,32,0.5);
-	visibility: hidden;
-}
-#pineMenu.shown {
-	visibility: visible;
-}
-#pineMenu>div:nth-child(1) {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-}
-#pineMenu>div:nth-child(2) {
-	position: absolute;
-	top: 4rem;
-	left: 4rem;
-	width: calc(100% - 10rem);
-	height: calc(100% - 10rem);
-	background-color: #404040;
-	padding: 1em;
-	overflow-y: scroll;
-}
-#pinnMenu input[type=text], #pineMenu input[type=text] {
+#pinMenu input[type=text] {
 	width: 20em;
 }
-#pinn-desc, #pine-desc {
+#pinMenu input.submit[type=submit] {
+	display: none;
+}
+#pinMenu.create input.submit-create[type=submit] {
+	display: inline-block;
+}
+#pinMenu.change input.submit-change[type=submit] {
+	display: inline-block;
+}
+#pin-desc {
 	height: 12em;
 	width: 20.25em;
 	resize: none;
@@ -506,6 +486,31 @@ input[type=number], input[type=text] {
 	cursor: pointer;
 }
 #spritemenu canvas:hover {
+	background-color: rgba(255,255,255,128);
+}
+#pinspritecnv {
+	cursor: pointer;
+}
+#pinspritecnv:hover {
+	background-color: rgba(128,128,128,128)
+}
+#pinspritemenu {
+	position: absolute;
+	z-index: 10;
+	width:calc(8 * 48px);
+	height:calc(2.5 * 48px);
+	background-color: #808080;
+	overflow-y: scroll;
+	display: none;
+}
+#pinspritemenu.show {
+	display: block;
+}
+#pinspritemenu canvas {
+	float: left;
+	cursor: pointer;
+}
+#pinspritemenu canvas:hover {
 	background-color: rgba(255,255,255,128);
 }
 .banner {
