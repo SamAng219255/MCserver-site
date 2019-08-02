@@ -882,6 +882,7 @@ function highlight(e) {
 			selectedPoint=markers[whichMark].id;
 			editTxt="";
 			if(markers[whichMark].owned) $("#editpin").addClass("shown");
+			else $("#editpin").removeClass("shown");
 			$("#infoTxt")[0].innerHTML="<b>"+markers[whichMark].name+"</b>: "+markers[whichMark].desc;
 			$("#infoTxtBox").addClass("shown");
 		}
@@ -982,7 +983,7 @@ function redrawHighlight() {
 function zoom(e) {
 	if(Math.abs(e.deltaY)>Math.abs(e.deltaX)) {
 		tileSize*=Math.pow(2,-e.deltaY/100);
-		tileSize=Math.max(12.8,tileSize);
+		tileSize=Math.max(38.4,tileSize);
 		offsetPix[0]=-1*offsetPos[0]*tileSize;
 		offsetPix[1]=-1*offsetPos[1]*tileSize;
 		setHash();
