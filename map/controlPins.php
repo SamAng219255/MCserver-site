@@ -10,7 +10,7 @@ if($_SESSION['permissions']>0) {
 		if($ownerqueryresult=mysqli_query($conn,$ownerquery)) {
 			$failed=false;
 			$row=mysqli_fetch_row($ownerqueryresult);
-			$isowned=$row[0]==$_SESSION['username'];
+			$isowned=strtolower($row[0])==strtolower($_SESSION['username']);
 			$deletedname=$row[2];
 		}
 		else {

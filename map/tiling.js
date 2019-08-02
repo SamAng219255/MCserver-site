@@ -1792,7 +1792,7 @@ function createPin() {
 		data.desc=$("#pin-desc").val();
 		data.type=$("#pinicon").val();
 		if(data.type=="default")
-			data.icondata=$("#pinColor").val();
+			data.icondata=$("#pinColor").val().substr(1);
 		else if(data.type=="custom")
 			data.icondata=selectedPinSprite;
 		else
@@ -1821,7 +1821,7 @@ function changePin() {
 		data.desc=$("#pin-desc").val();
 		data.type=$("#pinicon").val();
 		if(data.type=="default")
-			data.icondata=$("#pinColor").val();
+			data.icondata=$("#pinColor").val().substr(1);
 		else if(data.type=="custom")
 			data.icondata=selectedPinSprite;
 		else
