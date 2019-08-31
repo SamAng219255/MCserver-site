@@ -133,7 +133,7 @@ if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
 	$isowned='false';
 	if(isset($_SESSION['username']) && $row[2]==$_SESSION['username'])
 		$isowned='true';
-	echo '{"id":'.$row[0].',"name":"'.$row[1].'","owner":"'.$row[2].'","special":['.$specs.'],"xp":'.$row[4].',"armyid":'.$row[5].',"armyname":"'.isset($troops[$row[5]]) ? $troops[$row[5]] : ''.'","nation":"'.$row[6].'","owned":'.$isowned.'}';
+	echo '{"id":'.$row[0].',"name":"'.$row[1].'","owner":"'.$row[2].'","special":['.$specs.'],"xp":'.$row[4].',"armyid":'.$row[5].',"armyname":"'.arraay_key_exists($row[5],$troops) ? $troops[$row[5]] : ''.'","nation":"'.$row[6].'","owned":'.$isowned.'}';
 }}
 
 echo '],"relations":';
