@@ -42,7 +42,7 @@ if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
 		echo ',';
 	}
 	$isowned='false';
-	if(strtolower($row[1])==strtolower($_SESSION['username'])) {
+	if(isset($_SESSION['username']) && strtolower($row[1])==strtolower($_SESSION['username'])) {
 		$isowned='true';
 	}
 	echo '{"id":'.$row[0].',"user":"'.$row[1].'","owned":'.$isowned.',"name":"'.str_replace('"','\\"',$row[2]).'","desc":"'.str_replace("	","\\t",htmlspecialchars(str_replace(array("\r\n","\r","\n",'
@@ -78,7 +78,7 @@ if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
 	if(isset($colours[$row[2]]))
 		$colour=$colours[$row[2]]['fore'];
 	$isowned='false';
-	if($row[1]==$_SESSION['username'])
+	if(isset($_SESSION['username']) && $row[1]==$_SESSION['username'])
 		$isowned='true';
 	$mobiletxt='false';
 	if($row[12]=='1')
@@ -131,7 +131,7 @@ if($queryresult) {for($i=0; $i<$queryresult->num_rows; $i++) {
 		$specs.='"'.$specdata[$j].'"';
 	}
 	$isowned='false';
-	if($row[2]==$_SESSION['username'])
+	if(isset($_SESSION['username']) && $row[2]==$_SESSION['username'])
 		$isowned='true';
 	echo '{"id":'.$row[0].',"name":"'.$row[1].'","owner":"'.$row[2].'","special":['.$specs.'],"xp":'.$row[4].',"armyid":'.$row[5].',"armyname":"'.$troops[$row[5]].'","nation":"'.$row[6].'","owned":'.$isowned.'}';
 }}
