@@ -5,15 +5,15 @@ require 'db.php';
 $dmgMod=15;
 $luck=0;
 $trpId=intval($_GET['id']);
-$trpquery="SELECT `id`,`owner`,`nation`,`name`,`size`,`power`,`health`,`x`,`y`,`move`,`moveleft`,`sprite`,`mobile`,`ranged`,`state`,`cost`,`origsize`,`bonuses` FROM `mcstuff`.`troops` WHERE `id`=".$trpId.";";
+$trpquery="SELECT `id`,`owner`,`nation`,`name`,`size`,`power`,`health`,`x`,`y`,`move`,`moveleft`,`sprite`,`mobile`,`ranged`,`state`,`cost`,`origsize`,`xp`,`bonuses` FROM `mcstuff`.`troops` WHERE `id`=".$trpId.";";
 $trpcommquery="SELECT `special`,`xp`,`army` FROM `mcstuff`.`commanders` WHERE `army`='".$trpId."';";
 if(isset($_GET['target'])) {
 	$tarId=intval($_GET['target']);
-	$tarquery="SELECT `id`,`owner`,`nation`,`name`,`size`,`power`,`health`,`x`,`y`,`move`,`moveleft`,`sprite`,`mobile`,`ranged`,`state`,`cost`,`origsize` FROM `mcstuff`.`troops` WHERE `id`=".$tarId.";";
+	$tarquery="SELECT `id`,`owner`,`nation`,`name`,`size`,`power`,`health`,`x`,`y`,`move`,`moveleft`,`sprite`,`mobile`,`ranged`,`state`,`cost`,`origsize`,`xp`,`bonuses` FROM `mcstuff`.`troops` WHERE `id`=".$tarId.";";
 	$tarcommquery="SELECT `special`,`xp`,`army` FROM `mcstuff`.`commanders` WHERE `army`='".$tarId."';";
 }
 if($trpqueryresult=mysqli_query($conn,$trpquery)) {
-	if($trpcommqueryresult=mysqli_query($conn,$trpquery)) {
+	if($trpcommqueryresult=mysqli_query($conn,$trpcommquery)) {
 		if(!isset($_GET['target']) || $tarqueryresult=mysqli_query($conn,$tarquery)) {
 			if(!isset($_GET['target']) || $tarcommqueryresult=mysqli_query($conn,$tarcommquery)) {
 				$row=mysqli_fetch_row($trpqueryresult);
