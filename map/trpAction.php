@@ -47,7 +47,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 				for($i=0; $i<$trpcommqueryresult->num_rows; $i++) {
 					$row=mysqli_fetch_row($trpcommqueryresult);
 					foreach(explode(',',$row[0]) as $bonus) {
-						$trp['bonusdata'][$bonus]=max($trp['bonusdata'][$bonus],sqrt(0.25+2*intval($row[1]))-0.5);
+						if(in_array($bonus,$trp['bonuses'])) $trp['bonusdata'][$bonus]=max($trp['bonusdata'][$bonus],sqrt(0.25+2*intval($row[1]))-0.5);
 					}
 				}
 				if(in_array('lucky',$trp['bonuses'])) {
@@ -95,7 +95,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 					for($i=0; $i<$tarcommqueryresult->num_rows; $i++) {
 						$row=mysqli_fetch_row($tarcommqueryresult);
 						foreach(explode(',',$row[0]) as $bonus) {
-							$tar['bonusdata'][$bonus]=max($tar['bonusdata'][$bonus],sqrt(0.25+2*intval($row[1]))-0.5);
+							if(in_array($bonus,$tar['bonuses'])) $tar['bonusdata'][$bonus]=max($tar['bonusdata'][$bonus],sqrt(0.25+2*intval($row[1]))-0.5);
 						}
 					}
 					if($tar['state']==1) {
@@ -141,7 +141,10 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 						}
 						elseif($_GET['action']=='rest') {
 							if($trp['moveleft']>=2) {
-								$newhealth=sprintf("%.3f",min(((1+0.56/(1+exp((3.77-$trp['bonusdata']['healing'])/2.5)))*24/(1.0+$trp['size']/$trp['cost']))+$trp['health'],100));
+								$newhealth=sprintf("%.3f",min((24/(1.0+$trp['size']/$trp['cost']))+$trp['health'],100));
+								if(in_array('healing',$trp['bonuses'])) {
+									$newhealth=sprintf("%.3f",min(((1+0.56/(1+exp((3.77-$trp['bonusdata']['healing'])/2.5)))*24/(1.0+$trp['size']/$trp['cost']))+$trp['health'],100));
+								}
 								$effectsql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-2)."',`health`='".$newhealth."' WHERE `id`=".$trp['id'].";";
 								if(mysqli_query($conn,$effectsql)) {
 									echo '{"action":"'.$_GET['action'].'","status":0,"text":"Army successfully set army health.","sql":"'.$effectsql.'"}';
@@ -480,7 +483,10 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 						}
 						elseif($_GET['action']=='heal') {
 							if($trp['moveleft']>=2) {
-								$newhealth=sprintf("%.3f",min(((1+0.56/(1+exp((3.77-$trp['bonusdata']['healing'])/2.5)))*24/(1.0+$trp['size']/$trp['cost']))+$tar['health'],100));
+								$newhealth=sprintf("%.3f",min((*24/(1.0+$trp['size']/$trp['cost']))+$tar['health'],100));
+								if(in_array('healing',$trp['bonuses'])) {
+									$newhealth=sprintf("%.3f",min(((1+0.56/(1+exp((3.77-$trp['bonusdata']['healing'])/2.5)))*24/(1.0+$trp['size']/$trp['cost']))+$tar['health'],100));
+								}
 								$effectonesql="UPDATE `mcstuff`.`troops` SET `moveleft`='".($trp['moveleft']-2)."' WHERE `id`=".$trp['id'].";";
 								$effecttwosql="UPDATE `mcstuff`.`troops` SET `health`='".$newhealth."' WHERE `id`=".$tar['id'].";";
 								if(mysqli_query($conn,$effectonesql) && mysqli_query($conn,$effecttwosql)) {
