@@ -68,7 +68,7 @@
 
 			<?php
 				$resourcequery="SELECT `nation`,`unit`,`type`,`ntnlwlth`,`ctznwlth`,`ntnlincome`,`ctznincome`,`tax`,`showwlth`,`showncm`,`showntnl`,`showctzn`,`showtax`,`desc`,`hide` FROM `mcstuff`.`resources` WHERE `nation`='".mysqli_real_escape_string($conn,$name)."' AND `hide`=0;";
-				if($_SESSION['username']==$ruler) {
+				if(isset($_SESSION['username']) && $_SESSION['username']==$ruler) {
 					$resourcequery="SELECT `nation`,`unit`,`type`,`ntnlwlth`,`ctznwlth`,`ntnlincome`,`ctznincome`,`tax`,`showwlth`,`showncm`,`showntnl`,`showctzn`,`showtax`,`desc`,`hide` FROM `mcstuff`.`resources` WHERE `nation`='".mysqli_real_escape_string($conn,$name)."';";
 				}
 				$resourcequeryresult=mysqli_query($conn,$resourcequery);
@@ -108,7 +108,7 @@
 	</div>
 	<div class="footer">
 		<?php
-			if($_SESSION['username']==$ruler) {
+			if(isset($_SESSION['username']) && $_SESSION['username']==$ruler) {
 				echo '<a href="./nation_edit.php?nation='.$name.'" class="edit">edit</a>';
 			}
 		?>

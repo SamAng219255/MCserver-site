@@ -5,7 +5,10 @@
 		session_destroy();
 	}
 	$_SESSION['last_active']=time();
-	$referer=$_SERVER['HTTP_REFERER'];
+	$referer='./';
+	if(isset($_SERVER['HTTP_REFERER'])) {
+		$referer=$_SERVER['HTTP_REFERER'];
+	}
 	if(isset($_POST['referer'])) {
 		$referer=$_POST['referer'];
 	}

@@ -79,19 +79,21 @@ def main():
 					shaMul=shades[shade]
 					imgData.append((((r*shaMul)//255),(g*shaMul)//255,(b*shaMul)//255,a))
 					j+=1
+				completeness/=2**nbt["data"]["scale"].value;
 				if showNeg and len(negatives)>0: print("Negatives "+json.dumps(negatives)+" found on "+str(i)+" at ("+str(nbt["data"]["dimension"].value//128)+", "+str(nbt["data"]["xCenter"].value//128)+", "+str(nbt["data"]["zCenter"].value//128)+").")
 				key=str(nbt["data"]["dimension"].value)+"_"+str(nbt["data"]["xCenter"].value//128)+'_'+str(nbt["data"]["zCenter"].value//128)
 				if nbt["data"]["scale"].value!=0: key+="_"+str(nbt["data"]["scale"].value)
 				if modeLrg:
-					if showDup and nbt["data"]["dimension"].value==0 and key in regionsDone: print("Duplicate of "+key+" found.")
-					if showBla and completeness==0: print("Blank Found: "+str(i))
-					if i not in exclusions and (((key in regionsDone) and completeness>=regionsDone[key]) or (key not in regionsDone)):
-						img.putdata(imgData)
-						regionsDone[key]=completeness
-						tilesUsed[key]=i
-						xOffset=nbt["data"]["xCenter"].value-(lowest[0]*128)
-						zOffset=nbt["data"]["zCenter"].value-(lowest[1]*128)
-						if not (modeInd or modeOut) and nbt["data"]["dimension"].value==0: finImg.paste(img,box=(xOffset,zOffset))
+					if nbt["data"]["scale"].value==0:
+						if showDup and nbt["data"]["dimension"].value==0 and key in regionsDone: print("Duplicate of "+key+" found.")
+						if showBla and completeness==0: print("Blank Found: "+str(i))
+						if i not in exclusions and (((key in regionsDone) and completeness>=regionsDone[key]) or (key not in regionsDone)):
+							img.putdata(imgData)
+							regionsDone[key]=completeness
+							tilesUsed[key]=i
+							xOffset=nbt["data"]["xCenter"].value-(lowest[0]*128)
+							zOffset=nbt["data"]["zCenter"].value-(lowest[1]*128)
+							if not (modeInd or modeOut) and nbt["data"]["dimension"].value==0: finImg.paste(img,box=(xOffset,zOffset))
 				else:
 					img.putdata(imgData)
 					scaleExt=""

@@ -25,6 +25,16 @@
 			$loggedin=true;
 		}
 	}
+	else {
+		$uuid=0;
+		$_SESSION['permissions']=$permissions=0;
+		$forecolor="000000";
+		$backcolor="404040";
+		$nation="";
+		$character="";
+		$prefix="";
+		$suffix="";
+	}
 ?>
 <html>
 <head>

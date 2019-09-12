@@ -1086,8 +1086,13 @@ function drawTroops() {
 					trpCtx.drawImage(sprites,(troops[i].sprite%8)*16,parseInt(troops[i].sprite/8)*16,16,16,posAdj[0]-16*sizeMod,posAdj[1]-16*sizeMod,32*sizeMod,32*sizeMod);
 				else
 					for(var j=0; j<customsprites.length; j++)
-						if(troops[i].sprite==customsprites[j].spriteid)
+						if(troops[i].sprite==customsprites[j].spriteid) {
+							if(customsprites[j].width*customsprites[j].height>1024*sizeMod*sizeMod)
+								trpCtx.imageSmoothingEnabled=true;
+							else
+								trpCtx.imageSmoothingEnabled=false;
 							trpCtx.drawImage(customsprites[j],posAdj[0]-16*sizeMod,posAdj[1]-16*sizeMod,32*sizeMod,32*sizeMod);
+						}
 				if(troops[i].state>0)
 					trpCtx.drawImage(statusSprites,((troops[i].state-1)%4)*64,parseInt((troops[i].state-1)/4)*64,64,64,posAdj[0],posAdj[1],16*sizeMod,16*sizeMod);
 				if(i==selectedArmy) {

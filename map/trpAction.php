@@ -483,7 +483,7 @@ if($trpqueryresult=mysqli_query($conn,$trpquery)) {
 						}
 						elseif($_GET['action']=='heal') {
 							if($trp['moveleft']>=2) {
-								$newhealth=sprintf("%.3f",min((*24/(1.0+$trp['size']/$trp['cost']))+$tar['health'],100));
+								$newhealth=sprintf("%.3f",min((24/(1.0+$trp['size']/$trp['cost']))+$tar['health'],100));
 								if(in_array('healing',$trp['bonuses'])) {
 									$newhealth=sprintf("%.3f",min(((1+0.56/(1+exp((3.77-$trp['bonusdata']['healing'])/2.5)))*24/(1.0+$trp['size']/$trp['cost']))+$tar['health'],100));
 								}
