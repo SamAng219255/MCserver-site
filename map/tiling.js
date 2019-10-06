@@ -89,6 +89,7 @@ lastCustSprite=0;
 commanders=[];
 shownCommanders={};
 pinSpritesAcquired=false;
+idsRetrieved=false;
 for(var i=0; i<3; i++) {
 	rotarySprites.push(document.createElement('img'));
 }
@@ -125,11 +126,11 @@ helpBtns=[
 		menuActive=true;
 	})
 ];
-specials={name:['combat','defense','open','mobility','ranged','healing','fortify','helpful','nomanleft','lucky'],title:['Combat','Defense','Honor','Mobility','Ranged','Healing','Fortification','Helpful','"No Man Left Behind"','Lucky'],desc:['Bonus to attack strength.','Bonus to defense strength.','Higher bonus to standard Attacks.','Higher bonus to Hit & Run.','Higher bonus to Shooting.','Increase healing effectiveness.','Increase bonus from being Fortified','Grants additional strength when aiding another army.','Less likely to lose troops when taking damage.','The tides of battle tend more to your favor.']};
+specials={name:['combat','defense','open','mobility','ranged','healing','fortify','helpful','nomanleft','lucky'],title:['Combat','Defense','Honor','Mobility','Ranged','Healing','Fortification','Helpful','"No Man Left Behind"','Lucky'],desc:['Bonus to attack strength.','Bonus to defense strength.','Higher bonus to standard Attacks.','Higher bonus to Hit & Run.','Higher bonus to Shooting.','Increased healing effectiveness.','Increased bonus from being Fortified','Grants additional strength when aiding another army.','Less likely to lose troops when taking damage.','The tides of battle tend more to your favor.']};
 tooltip=new RotaryButton(-1,"","",function(){});
 tooltip.active=-1;
 document.addEventListener("keydown", move);
-$.getJSON("tileIds.json",function (data) {tileIds=data});
+$.getJSON("tileIds.json",function (data) {tileIds=data; idsRetrieved=true;});
 window.onresize = function(e) {
 	canvasResize();
 	moving();
@@ -627,7 +628,7 @@ function draw() {
 			var x=(Math.floor(pos[0])+i);
 			var y=(Math.floor(pos[1])+j);
 			var key="d"+dimension+"x"+x+"y"+y;
-			if(tileIds[dimension+"_"+x+"_"+y]==undefined) {
+			if(!idsRetrieved || tileIds[dimension+"_"+x+"_"+y]==undefined) {
 				if(!showMissingTiles) {
 					mapCtx.drawImage(defaultTile,offsetPix[0]+(Math.floor(i)+tileDelta[0])*tileSize,offsetPix[1]+(Math.floor(j)+tileDelta[1])*tileSize,tileSize,tileSize);
 				}
@@ -1072,22 +1073,24 @@ function drawTroops() {
 				var sizeMod=1;
 				var mobMod=1;
 				if(i==hoverArmy) {
-					sizeMod=Math.sqrt(Math.SQRT2);
+					sizeMod=1.25;
 				}
 				if(i==selectedArmy || i==targetArmy) {
-					sizeMod=Math.SQRT2;
+					sizeMod=1.5;
 				}
 				if(isMobile) {
 					sizeMod*=2;
 					mobMod=2;
 				}
 				drawCircle(trpCtx,posAdj[0],posAdj[1],18*sizeMod,"#"+troops[i].color);
-				if(!troops[i].customsprite)
+				if(!troops[i].customsprite) {
+					trpCtx.imageSmoothingEnabled=false;
 					trpCtx.drawImage(sprites,(troops[i].sprite%8)*16,parseInt(troops[i].sprite/8)*16,16,16,posAdj[0]-16*sizeMod,posAdj[1]-16*sizeMod,32*sizeMod,32*sizeMod);
+				}
 				else
 					for(var j=0; j<customsprites.length; j++)
 						if(troops[i].sprite==customsprites[j].spriteid) {
-							if(customsprites[j].width*customsprites[j].height>1024*sizeMod*sizeMod)
+							if(customsprites[j].width*customsprites[j].height>4096*sizeMod*sizeMod)
 								trpCtx.imageSmoothingEnabled=true;
 							else
 								trpCtx.imageSmoothingEnabled=false;
