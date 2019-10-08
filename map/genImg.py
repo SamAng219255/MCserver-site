@@ -11,7 +11,7 @@ shades=[180,220,255,135]
 while(len(palette)<64):
 	palette.append((255,255,255,0))
 
-exclusions=[390,517,81,455,456,77,64,265,869,1298,759,780,468,153,157,172,398,406,417,422,423,424,795,921,922,1410,2129,2164,1426,1425,1433,920,919,69,2264,19,13,620,2621,5,353,2400,33,878,2829,758]
+exclusions=[390,517,81,455,456,77,64,265,869,1298,759,780,468,153,157,172,398,406,417,422,423,424,795,921,922,1410,2129,2164,1426,1425,1433,920,919,69,2264,19,13,620,2621,5,353,2400,33,878,2829,758,232,2690]
 pictures=[1349]
 exclusions.extend(pictures)
 allNegatives=[]
@@ -20,8 +20,13 @@ allNegativeCoords=[]
 def main():
 	print(argv)
 	path='/home/sam/minecraftServer/world/data/'
+	path2='/home/sam/minecraftServer/world/data_old/'
+	hasBackup=False
 	if(len(argv)>3):
 		path=argv[3]
+	if(len(argv)>4):
+		path2=argv[4]
+		hasBackup=True
 	
 	regionsDone={}
 	tilesUsed={};
@@ -80,6 +85,33 @@ def main():
 					imgData.append((((r*shaMul)//255),(g*shaMul)//255,(b*shaMul)//255,a))
 					j+=1
 				completeness/=2**nbt["data"]["scale"].value;
+				if hasBackup:
+					if completeness==0:
+						with open(path2+'map_'+str(i)+'.dat', 'rb') as f:
+							nbt=pynbt.NBTFile(gzip.GzipFile(mode='r', fileobj=f))
+							imgData=[]
+							negatives=[]
+							j=0
+							for colId in nbt["data"]["colors"].value:
+								if colId<0 and colId not in negatives: negatives.append(colId)
+								if colId>4: completeness+=1
+								color,shade=divmod(colId,4)
+								if color<0 and color not in allNegatives:
+									allNegatives.append(color)
+									x=nbt["data"]["xCenter"].value+(j%128-64)
+									z=nbt["data"]["zCenter"].value+(j//128-64)
+									allNegativeCoords.append((color,x,z))
+								r,g,b,a=palette[color]
+								shaMul=shades[shade]
+								imgData.append((((r*shaMul)//255),(g*shaMul)//255,(b*shaMul)//255,a))
+								j+=1
+							completeness/=2**nbt["data"]["scale"].value;
+					else:
+						f1=open(path+'map_'+str(i)+'.dat', 'rb')
+						f2=open(path2+'map_'+str(i)+'.dat', 'wb')
+						f2.write(f1.read())
+						f1.close()
+						f2.close()
 				if showNeg and len(negatives)>0: print("Negatives "+json.dumps(negatives)+" found on "+str(i)+" at ("+str(nbt["data"]["dimension"].value//128)+", "+str(nbt["data"]["xCenter"].value//128)+", "+str(nbt["data"]["zCenter"].value//128)+").")
 				key=str(nbt["data"]["dimension"].value)+"_"+str(nbt["data"]["xCenter"].value//128)+'_'+str(nbt["data"]["zCenter"].value//128)
 				if nbt["data"]["scale"].value!=0: key+="_"+str(nbt["data"]["scale"].value)
@@ -108,8 +140,8 @@ def main():
 						if not (modeInd or modeOut): img.save('img/tile.'+str(nbt["data"]["dimension"].value)+'.'+str(nbt["data"]["xCenter"].value//128)+'.'+str(nbt["data"]["zCenter"].value//128)+scaleExt+'.png')
 					if i in exclusions:
 						if not (modeInd or modeOut): img.save('img/excluded/tile_'+str(i)+'.'+str(nbt["data"]["dimension"].value)+'.'+str(nbt["data"]["xCenter"].value//128)+'.'+str(nbt["data"]["zCenter"].value//128)+scaleExt+'.png')
-		except FileNotFoundError:
-			if showErr: print('File Not Found on '+str(i))
+		except FileNotFoundError as not_found:
+			if showErr: print('File Not Found on '+str(i)+'. File: '+not_found.filename)
 		if(floor(i%unit)==0):
 			if showPer: print(argv[1]+":	"+str(percent)+"% Complete.")
 			percent+=1
