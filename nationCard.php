@@ -61,7 +61,7 @@
 					if($showruler) echo '<dt>Ruler:</dt><dd>'.$prefix.' '.$character.' '.$suffix.' ('.$ruler.')</dd>';
 					if($showparent) echo '<dt>Parent Country:</dt><dd>'.$parentcountry.'</dd>';
 					if($showflag) echo '<dt>Flag:</dt><dd><img id="flag" src="./img/flags/'.$name.'"></dd>';
-					if($showpopul) echo '<dt>Population:</dt><dd>'.$population.'</dd>';
+					if($showpopul) echo '<dt>Population:</dt><dd>'.comma($population).'</dd>';
 					echo '</dl>';
 				}
 			?>
@@ -80,13 +80,13 @@
 						$tablerow2="";
 						$tablerow3="";
 						if(($row[3]!='0' || $row[5]!='0' || $row[11]=='show') && $row[11]!='hide') {
-							$tablerow1.='<th>Citizen Wealth:</th><td>'.$row[4].$row[1].'</td>';
-							$tablerow2.='<th>Citizen Income:</th><td>'.$row[6].$row[1].'</td>';
-							$tablerow3.='<th>Tax:</th><td>'.$row[7].$row[1].'</td></tr>';
+							$tablerow1.='<th>Citizen Wealth:</th><td>'.comma($row[4]).$row[1].'</td>';
+							$tablerow2.='<th>Citizen Income:</th><td>'.comma($row[6]).$row[1].'</td>';
+							$tablerow3.='<th>Tax:</th><td>'.comma($row[7]).$row[1].'</td></tr>';
 						}
 						if(($row[3]!='0' || $row[5]!='0' || $row[10]=='show') && $row[10]!='hide') {
-							$tablerow1='<th>National Wealth:</th><td>'.$row[3].$row[1].'</td>'.$tablerow1;
-							$tablerow2='<th>National Income:</th><td>'.$row[5].$row[1].'</td>'.$tablerow2;
+							$tablerow1='<th>National Wealth:</th><td>'.comma($row[3]).$row[1].'</td>'.$tablerow1;
+							$tablerow2='<th>National Income:</th><td>'.comma($row[5]).$row[1].'</td>'.$tablerow2;
 							if($tablerow3!='') $tablerow3='<th></th><td></td>'.$tablerow3;
 						}
 						echo '<div class="card"><div class="postmeta"><div class="h">';

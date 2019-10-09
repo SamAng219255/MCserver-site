@@ -48,4 +48,6 @@
 			addBanner("File is not an image.");
 		}
 	}
+
+	echo '<meta http-equiv="refresh" content="0; URL=nations.php?nation='.$_POST['name'].'">';
 ?>

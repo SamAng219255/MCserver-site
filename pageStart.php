@@ -66,6 +66,9 @@
 		}
 	}
 	require 'dailyrefresh.php';
+	function comma($str) {
+		return strrev(preg_replace('/\d{3}(?=\d)/','$0,',strrev($str)));
+	}
 ?>
 <html>
 <head>
