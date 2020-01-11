@@ -85,8 +85,53 @@
 	?>
 	<script src="jquery.js"></script>
 	<script src="pxem.jQuery.js"></script>
+	<script src="getTimeOnServerOld.js"></script>
 	<script src="getTimeOnServer.js"></script>
 	<script src="loadposts.js"></script>
+	<script src="mobileDetect.js"></script>
+	<script>
+		function showMenu(targetMenu) {
+			$("#"+targetMenu+"Menu.mobilemenu").addClass("shown");
+		}
+		function hideMenu(targetMenu) {
+			$("#"+targetMenu+"Menu.mobilemenu").removeClass("shown");
+		}
+		function setupMobile() {
+			wasSmall=true;
+			menuButton=document.createElement("span");
+			$("#pages").prepend(menuButton);
+			menuButton.onclick=function(){showMenu("navigation")};
+			$(".mobilemenu>a").click(function(){hideMenu('navigation')});
+			$("#tagchoice>div.dropdown.dropdown-left").addClass("dropdown-right");
+			$("#tagchoice>div.dropdown.dropdown-left").removeClass("dropdown-left");
+		}
+		windowMoving=false;
+		window.onresize = function(e) {
+			if(windowMoving) {
+				clearInterval(movingWindow);
+			}
+			else {
+				windowMoving=true;
+			}
+			movingWindow=setTimeout(function() {
+				windowMoving=false;
+				smallScreen=$(innerWidth).toEm()<49.625;
+				if(smallScreen && !wasSmall) {
+					setupMobile();
+				}
+				else if(!smallScreen) {
+					menuButton.remove();
+					wasSmall=false;
+					$("#tagchoice>div.dropdown.dropdown-right").addClass("dropdown-left");
+					$("#tagchoice>div.dropdown.dropdown-right").removeClass("dropdown-right");
+				}
+			},100);
+		};
+		smallScreen=$(innerWidth).toEm()<49.625;
+		wasSmall=smallScreen;
+		if(isNaN($(innerWidth).toEm())) screenCheck=setInterval(function(){if(!isNaN($(innerWidth).toEm())) {clearInterval(screenCheck); smallScreen=$(innerWidth).toEm()<49.625; wasSmall=smallScreen; if(smallScreen) {setupMobile()}}},0);
+		else setupMobile();
+	</script>
 	<script src="april_first.js"></script>
 	<?php if($loggedin) {echo '<script>username="'.$_SESSION['username'].'"; loggedin=true; isAdmin='.($loggedin && $permissions>0 ? 'true' : 'false').';</script>';} else {echo '<script>loggedin=false; isAdmin='.($loggedin && $permissions>0 ? 'true' : 'false').';</script>';}?>
 	<style>#profile{cursor: initial;}</style>
@@ -128,6 +173,7 @@
 						<div class="dropdown">
 							<?php
 								if($loggedin) {
+									echo '<a href="post.php">Create Post</a>';
 									echo '<a href="profile.php">Profile</a>';
 									echo '<a><form method="POST"><input name="logout" type="submit" value="Log Out"></form></a>';
 								}
@@ -137,7 +183,7 @@
 							?>
 						</div>
 					</div>
-					<?php if($loggedin && $permissions>0) {echo '<div id="postbutton"><a href="post.php"><div class="lighten"></div></a></div>';}?>
+					<?php //if($loggedin && $permissions>0) {echo '<div id="postbutton"><a href="post.php"><div class="lighten"></div></a></div>';}?>
 				</div>
 			</div><?php
 			if($loggedin && $permissions>0) require 'statusBar.php';

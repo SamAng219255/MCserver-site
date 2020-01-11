@@ -324,9 +324,9 @@ input[type=submit], input[type=button] {
 	right: 0px;
 	padding: 0.5rem;
 	height: 5rem;
-	width: 11rem;
+	width: 5rem;
 }
-#postbutton {
+#postbutton {/* No longer in use. */
 	position: relative;
 	top: -5rem;
 	left: 0rem;
@@ -341,7 +341,7 @@ input[type=submit], input[type=button] {
 	cursor: pointer;
 	position: relative;
 	top: 0rem;
-	left: 6rem;
+	left: 0rem;/* change to 6 if using #postbutton */
 	height: 5rem;
 	width: 5rem;
 	background-image: url("./img/steve.png"), url("./img/steve.png");
@@ -516,4 +516,68 @@ div:hover>.dropdown, span:hover>.dropdown {
 	width:0.5em;
 	margin-right: 0.125em;
 	image-rendering: initial;
+}
+.mobilemenu {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-color: #0C0C10;
+	top: 0px;
+	right: 0px;
+	visibility: hidden;
+	font-size: 2em;
+}
+.mobilemenu>a {
+	display: block;
+	width: 100%;
+	font-size: 0.75em;
+	color: inherit;
+	text-decoration: none;
+}
+.mobilemenu>a:nth-child(odd) {
+	background-color: #303040
+}
+.mobilemenu>p:nth-child(1) {
+	font-size: 0.5em;
+}
+.mobilemenu>a>div {
+	padding: 0.25em;
+}
+.mobilemenu.shown {
+	visibility: visible;
+}
+.mobilemenu a, .mobilemenu *[onclick] {
+	cursor: pointer;
+}
+
+@media (max-width: 49.625em) {
+	#pages>a {
+		display: none;
+	}
+	#pages {
+		width: 10rem;
+	}
+	#sort, #nationpages {
+		height: 2rem;
+	}
+	#sort>a, #sort>span, #nationpages>a, #nationpages>span {
+		font-size: 1.5rem;
+		height: 2rem;
+		padding: 0;
+		width: 32.25%;
+		text-align: center;
+		padding-left: 0 !important;
+	}
+	#sort>a>*, #sort>span>*, #nationpages>a>*, #nationpages>span>* {
+		text-align: left;
+	}
+	#stars1 {
+		display: none;
+	}
+	#stars2 {
+		display: none;
+	}
+	#stars3 {
+		display: none;
+	}
 }

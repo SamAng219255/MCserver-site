@@ -4,6 +4,8 @@ import gzip
 from PIL import Image
 import json
 from math import floor
+from datetime import datetime
+import time
 
 palette=[(0,0,0,0),(127, 178, 56,255),(247, 233, 163,255),(199, 199, 199,255),(255, 0, 0,255),(160, 160, 255,255),(167, 167, 167,255),(0, 124, 0,255),(255, 255, 255,255),(164, 168, 184,255),(151, 109, 77,255),(112, 112, 112,255),(64, 64, 255,255),(143, 119, 72,255),(255, 252, 245,255),(216, 127, 51,255),(178, 76, 216,255),(102, 153, 216,255),(229, 229, 51,255),(127, 204, 25,255),(242, 127, 165,255),(76, 76, 76,255),(153, 153, 153,255),(76, 127, 153,255),(127, 63, 178,255),(51, 76, 178,255),(102, 76, 51,255),(102, 127, 51,255),(153, 51, 51,255),(25, 25, 25,255),(250, 238, 77,255),(92, 219, 213,255),(74, 128, 255,255),(0, 217, 58,255),(129, 86, 49,255),(112, 2, 0,255),(209, 177, 161,255),(159, 82, 36,255),(149, 87, 108,255),(112, 108, 138,255),(186, 133, 36,255),(103, 117, 53,255),(160, 77, 78,255),(57, 41, 35,255),(135, 107, 98,255),(87, 92, 92,255),(122, 73, 88,255),(76, 62, 92,255),(76, 50, 35,255),(76, 82, 42,255),(142, 60, 46,255),(37, 22, 16,255)]
 shades=[180,220,255,135]
@@ -11,13 +13,15 @@ shades=[180,220,255,135]
 while(len(palette)<64):
 	palette.append((255,255,255,0))
 
-exclusions=[390,517,81,455,456,77,64,265,869,1298,759,780,468,153,157,172,398,406,417,422,423,424,795,921,922,1410,2129,2164,1426,1425,1433,920,919,69,2264,19,13,620,2621,5,353,2400,33,878,2829,758,232,2690]
+exclusions=[390,517,81,455,456,77,64,265,869,1298,759,780,468,153,157,172,398,406,417,422,423,424,795,921,922,1410,2129,2164,1426,1425,1433,920,919,69,2264,19,13,620,2621,5,353,2400,33,878,2829,758,232,2690,3457,3325,1527,2113,2112,2105,2114,3195,3269,3264,3210,3212,3464,2104,3360]
 pictures=[1349]
 exclusions.extend(pictures)
 allNegatives=[]
 allNegativeCoords=[]
+logData={'date':datetime.now().strftime("%d/%m/%y %H:%M:%S"),'blanks':0,'missing':0,'files':0,'excluded':len(exclusions),'time':('{0:0>2}:{1:0>2}:{2:0>6.3F}').format(0,0,0),'tiles':0,'duplicates':0,'missing':0,'negatives':0,'arguments':argv}
 
 def main():
+	datetime.now
 	print(argv)
 	path='/home/sam/minecraftServer/world/data/'
 	path2='/home/sam/minecraftServer/world/data_old/'
@@ -65,6 +69,7 @@ def main():
 			f=open(path+'map_'+str(i)+'.dat', 'rb')
 			nbt=pynbt.NBTFile(gzip.GzipFile(mode='r', fileobj=f))
 			f.close()
+			logData['files']+=1
 			if (modeSin and str(nbt["data"]["xCenter"].value//128)+'_'+str(nbt["data"]["zCenter"].value//128)==argv[4]) or not modeSin:
 				img=Image.new("RGBA",(128,128),(0,0,0,0))
 				imgData=[]
@@ -113,12 +118,16 @@ def main():
 						f1.close()
 						f2.close()
 				if showNeg and len(negatives)>0: print("Negatives "+json.dumps(negatives)+" found on "+str(i)+" at ("+str(nbt["data"]["dimension"].value//128)+", "+str(nbt["data"]["xCenter"].value//128)+", "+str(nbt["data"]["zCenter"].value//128)+").")
+				if len(negatives): logData['negatives']+=1
 				key=str(nbt["data"]["dimension"].value)+"_"+str(nbt["data"]["xCenter"].value//128)+'_'+str(nbt["data"]["zCenter"].value//128)
 				if nbt["data"]["scale"].value!=0: key+="_"+str(nbt["data"]["scale"].value)
 				if modeLrg:
 					if nbt["data"]["scale"].value==0:
 						if showDup and nbt["data"]["dimension"].value==0 and key in regionsDone: print("Duplicate of "+key+" found.")
+						if nbt["data"]["dimension"].value==0 and key in regionsDone: logData['duplicates']+=1
+						if not nbt["data"]["dimension"].value==0 and key in regionsDone: logData['tiles']+=1
 						if showBla and completeness==0: print("Blank Found: "+str(i))
+						if completeness==0: logData['blanks']+=1
 						if i not in exclusions and (((key in regionsDone) and completeness>=regionsDone[key]) or (key not in regionsDone)):
 							img.putdata(imgData)
 							regionsDone[key]=completeness
@@ -131,7 +140,10 @@ def main():
 					scaleExt=""
 					if nbt["data"]["scale"].value!=0: scaleExt+="."+str(nbt["data"]["scale"].value)
 					if showDup and nbt["data"]["dimension"].value==0 and key in regionsDone: print("Duplicate of "+key+" found.")
+					if nbt["data"]["dimension"].value==0 and key in regionsDone: logData['duplicates']+=1
+					if not nbt["data"]["dimension"].value==0 and key in regionsDone: logData['tiles']+=1
 					if showBla and completeness==0: print("Blank Found: "+str(i))
+					if completeness==0: logData['blanks']+=1
 					if i not in exclusions and (((key in regionsDone) and completeness>=regionsDone[key]) or (key not in regionsDone)):
 						regionsDone[key]=completeness
 						tilesUsed[key]=i
@@ -142,6 +154,7 @@ def main():
 						if not (modeInd or modeOut): img.save('img/excluded/tile_'+str(i)+'.'+str(nbt["data"]["dimension"].value)+'.'+str(nbt["data"]["xCenter"].value//128)+'.'+str(nbt["data"]["zCenter"].value//128)+scaleExt+'.png')
 		except FileNotFoundError as not_found:
 			if showErr: print('File Not Found on '+str(i)+'. File: '+not_found.filename)
+			logData['missing']+=1
 		if(floor(i%unit)==0):
 			if showPer: print(argv[1]+":	"+str(percent)+"% Complete.")
 			percent+=1
@@ -158,37 +171,48 @@ def main():
 		tileF.close();
 
 if __name__=='__main__':
-	showDup="d" in argv[1]
-	showErr="e" in argv[1]
-	showNeg="n" in argv[1]
-	showPer="p" in argv[1]
-	showTot="t" in argv[1]
-	showBla="b" in argv[1]
-	modeInd="i" in argv[1]
-	modeOut="o" in argv[1]
-	modeSin="s" in argv[1]
-	modeLrg="l" in argv[1]
-	modeHlp="h" in argv[1]
-	if not modeHlp:
-		main()
+	if(len(argv)<2):
+		modeHlp=True
 	else:
-		print("Syntax:",
-			"python3 genImg.py [arguments] [numberOfMapFiles] [path]",
-			"python3 genImg.py [arguments] [numberOfMapFiles] [path] [tileKey]",
+		showDup="d" in argv[1]
+		showErr="e" in argv[1]
+		showNeg="n" in argv[1]
+		showPer="p" in argv[1]
+		showTot="t" in argv[1]
+		showBla="b" in argv[1]
+		modeInd="i" in argv[1]
+		modeOut="o" in argv[1]
+		modeSin="s" in argv[1]
+		modeLrg="l" in argv[1]
+		modeHlp="H" in argv[1] or "h" in argv[1]
+		modeExc="E" in argv[1]
+	if modeHlp:
+		print("	Syntax:",
+			"		python3 genImg.py [arguments] [numberOfMapFiles] [path]",
+			"		python3 genImg.py [arguments] [numberOfMapFiles] [path] [tileKey]",
 			"",
-			"Arguments:",
-			"b - Show Blank Map Files",
-			"d - Show Duplicates",
-			"e - Show Missing Files",
-			"h - Show This Dialogue",
-			"i - Only Create Index",
-			"l - Generate Single Map Image Instead Of Multiple Tiles. Including t As Well Will Cause It To Output Dimension Of Image In Tiles",
-			"n - Show Maps With Negative Palette Indexes",
-			"o - Output Only, Doesn't Save Anything. Does Nothing Without b, d, e, p, or t Selected",
-			"p - Show Percentage Complete",
-			"s - Only Update A Specified Tile Which Is Specified Using The 'tileKey' Parameter",
-			"t - Show Total Tiles Generated After Completion",
+			"	Arguments:",
+			"		b - Show Blank Map Files",
+			"		d - Show Duplicates",
+			"		e - Show Missing Files",
+			"		E - Show A List of Excluded Map Files (Prevents Normal Operation)",
+			"		h - Show This Dialogue (Prevents Normal Operation)",
+			"		H - Same As h",
+			"		i - Only Create Index",
+			"		l - Generate Single Map Image Instead Of Multiple Tiles. Including t As Well Will Cause It To Output Dimension Of Image In Tiles",
+			"		n - Show Maps With Negative Palette Indexes",
+			"		o - Output Only, Doesn't Save Anything. Does Nothing Without b, d, e, p, or t Selected",
+			"		p - Show Percentage Complete",
+			"		s - Only Update A Specified Tile Which Is Specified Using The 'tileKey' Parameter",
+			"		t - Show Total Tiles Generated After Completion",
 			"",
-			"Description:",
-			"Generates images (\"tiles\") for each mappable region from map_n.dat files found at [path]. It will read all such files up to map_[numberOfMapFiles].dat.",
+			"	Description:",
+			"		Generates images (\"tiles\") for each mappable region from map_n.dat files found at [path]. It will read all such files up to map_[numberOfMapFiles].dat.",
 			sep="\n")
+	elif modeExc:
+		import os
+		rows, columns = os.popen('stty size', 'r').read().split()
+		for i in range(0,len(exclusions),int(columns)//8):
+			print(("{:4}    "*min(int(columns)//8,len(exclusions)-i)).format(*exclusions[i:]))
+	else:
+		main()

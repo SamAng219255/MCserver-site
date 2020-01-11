@@ -43,7 +43,7 @@
 	<script src="../pxem.jQuery.js"></script>
 	<script src="../jquery.form.min.js"></script>
 	<script src="hammer.min.js"></script>
-	<script src="mobileDetect.js"></script>
+	<script src="../mobileDetect.js"></script>
 	<script src="tiling.js"></script>
 	<title>Map - AmospiaCraft</title>
 	<link href="../img/icon.png" rel="shortcut icon">
