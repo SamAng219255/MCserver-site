@@ -23,8 +23,7 @@ input[type=hidden] {
 	display: none;
 }
 #wrapper {
-	height: 100%;
-	position: relative;
+	height: calc(100% - 6rem);
 	overflow-y: auto;
 	overflow-x: hidden;
 	perspective: 1000000rem;
@@ -37,13 +36,8 @@ input[type=hidden] {
 }
 #navbarwrapper {
 	width: 100%;
-	position: absolute;
 	z-index: 1;
 	top: 0;
-}
-#navbarspacer {
-	width: 100%;
-	height: 6rem;
 }
 #text, #postoptions, #settings, #people, #body, #nations {
 	margin: 1rem auto 1rem;
@@ -130,6 +124,9 @@ table {
 	position: absolute;
 	bottom: 0;
 	right: 1rem;
+}
+.card td .stuffing {
+	width: calc(100% - 3.8rem)
 }
 .card .stuffing{
 	white-space: pre-wrap;
@@ -289,12 +286,11 @@ input[type=submit], input[type=button] {
 }
 #status {
 	width: 100%;
-	height: 1.5rem;
 	background-color: #909090;
 }
 #serverstatus {
 	display: inline-block;
-	height: 1em;
+	min-height: 1.5em;
 	min-width: 1em;
 	text-indent: 2em;
 	background-image: url("./img/status_yellow.png");
@@ -579,5 +575,46 @@ div:hover>.dropdown, span:hover>.dropdown {
 	}
 	#stars3 {
 		display: none;
+	}
+	.card .postmeta {
+		position: relative;
+		text-align: left;
+		padding: 0 1rem;
+		height: auto;
+	}
+	.card .h {
+		display: block;
+		position: static;
+		font-size: 1.5rem;
+		font-weight: bold;
+		text-decoration: none;
+	}
+	.card .topic {
+		display: none;
+		position: static;
+		transform: none;
+	}
+	.card .time, .card .unit {
+		display: none;
+		position: static;
+	}
+	.card .postmeta.extended .topic {
+		display: block;
+	}
+	.card .postmeta.extended .time, .card .postmeta.extended .unit {
+		display: block;
+	}
+}
+@media (max-width: 28em) {
+	#text, #postoptions, #settings, #people, #body, #nations {
+		margin: 1rem 5vw;
+		width: 90vw;
+	}
+	.card {
+		margin: 3.5714285714285716vw;
+		border-radius: 3.5714285714285716vw;
+	}
+	.card .h {
+		font-size: 5.357142857142857vw;
 	}
 }

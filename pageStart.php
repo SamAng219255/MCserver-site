@@ -144,51 +144,50 @@
 			//echo '<div id="blocker" onclick="hideBlocker()">Do you like TNT?<br>(Click anywhere to continue to the page.)</div>';
 		}
 	?>
+	<div id="navbarwrapper">
+		<div id="navigation">
+			<div id="pages">
+				<a href="./">
+					<span>AmsopiaCraft</span>
+				</a>
+				<a href="./blog.php">
+					<span>Posts</span>
+				</a>
+				<a href="./map/" target="_blank">
+					<span>Map</span>
+				</a>
+				<a href="./people.php">
+					<span>People</span>
+				</a>
+				<a href="./nations.php">
+					<span>Nations</span>
+				</a>
+			</div>
+			<div id="options">
+				<div id="profile">
+					<div class="lighten"></div>
+					<div class="dropdown">
+						<?php
+							if($loggedin) {
+								echo '<a href="post.php">Create Post</a>';
+								echo '<a href="profile.php">Profile</a>';
+								echo '<a><form method="POST"><input name="logout" type="submit" value="Log Out"></form></a>';
+							}
+							else {
+								echo '<a href="login.php">Log In</a>';
+							}
+						?>
+					</div>
+				</div>
+				<?php //if($loggedin && $permissions>0) {echo '<div id="postbutton"><a href="post.php"><div class="lighten"></div></a></div>';}?>
+			</div>
+		</div><?php
+		if($loggedin && $permissions>0) require 'statusBar.php';
+		if(in_array($currentPage,$hasSort)) require 'sortBar.php';
+		if(in_array($currentPage,$hasNations)) require 'nationBar.php';
+		?>
+	</div>
 	<div id="wrapper"><div id="wrapper2">
 		<div id="stars1"></div>
 		<div id="stars2"></div>
 		<div id="stars3"></div>
-		<div id="navbarwrapper">
-			<div id="navigation">
-				<div id="pages">
-					<a href="./">
-						<span>AmsopiaCraft</span>
-					</a>
-					<a href="./blog.php">
-						<span>Posts</span>
-					</a>
-					<a href="./map/" target="_blank">
-						<span>Map</span>
-					</a>
-					<a href="./people.php">
-						<span>People</span>
-					</a>
-					<a href="./nations.php">
-						<span>Nations</span>
-					</a>
-				</div>
-				<div id="options">
-					<div id="profile">
-						<div class="lighten"></div>
-						<div class="dropdown">
-							<?php
-								if($loggedin) {
-									echo '<a href="post.php">Create Post</a>';
-									echo '<a href="profile.php">Profile</a>';
-									echo '<a><form method="POST"><input name="logout" type="submit" value="Log Out"></form></a>';
-								}
-								else {
-									echo '<a href="login.php">Log In</a>';
-								}
-							?>
-						</div>
-					</div>
-					<?php //if($loggedin && $permissions>0) {echo '<div id="postbutton"><a href="post.php"><div class="lighten"></div></a></div>';}?>
-				</div>
-			</div><?php
-			if($loggedin && $permissions>0) require 'statusBar.php';
-			if(in_array($currentPage,$hasSort)) require 'sortBar.php';
-			if(in_array($currentPage,$hasNations)) require 'nationBar.php';
-			?>
-		</div>
-		<div id="navbarspacer"></div>

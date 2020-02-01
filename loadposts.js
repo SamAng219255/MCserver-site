@@ -23,6 +23,7 @@ function setupNoPosts() {
 	document.getElementById("tagSearch").addEventListener('keypress',function(e){if(e.which==13||e.keyCode==13){tagSearch()}});
 }
 function setupGeneral() {
+	isThin=window.innerWidth<$(49.625).toPx();
 	if(loggedin) {
 		profileIcon=document.getElementById("profile");
 		$.getJSON("getSkin.php",function(data) {
@@ -39,8 +40,8 @@ function setupGeneral() {
 	for(var i=0; i<setFuncs.length; i++) {
 		(setFuncs[i])();
 	}
-	$("#navbarspacer")[0].style="height: "+$("#navbarwrapper")[0].offsetHeight+"px;";
-	wrapper.addEventListener("scroll",function(){$("#navbarwrapper")[0].style="top: "+wrapper.scrollTop+"px;"},{passive:true});
+	//$("#navbarspacer")[0].style="height: "+$("#navbarwrapper")[0].offsetHeight+"px;";
+	//wrapper.addEventListener("scroll",function(){$("#navbarwrapper")[0].style="top: "+wrapper.scrollTop+"px;"},{passive:true});isThin=window.innerWidth<$(49.625).toPx();
 }
 function tagSearch() {
 	var gotten=$("#tagSearch").val();
@@ -70,7 +71,7 @@ function updatePosts() {
 			styleStr+="\n.card[user="+data.styles[i].username+"] {\n	color: #"+data.styles[i].forecolor+";\n	background-color: #"+data.styles[i].backcolor+";\n}";
 		}
 		styleStr+="\n";
-		styleBox.innerHTML=styleStr;
+		if(styleBox.innerHTML!==styleStr) styleBox.innerHTML=styleStr;
 	});
 }
 function checkBottom(e) {
@@ -109,16 +110,29 @@ function showPost(i,data,side) {
 	}
 	var t=data.posts[i].time.split(/[- :]/);
 	var d=Date.UTC(t[0], t[1]-1, t[2], t[3], t[4], t[5]);
-	var edit="";
-	if(data.posts[i].owned) edit='<div class="delete" card="'+data.posts[i].id+'">delete</div>&nbsp<a href="./edit.php?id='+data.posts[i].id+'" class="edit">edit</a>';
-	textBox[side]('<div class="card" user="'+data.posts[i].username+'" card="'+data.posts[i].id+'"><div class="postmeta"><a class="h" href="./people.php?target='+data.posts[i].username+'">'+data.posts[i].username+'</a> <div class="topic">'+data.posts[i].topic+'</div> <div class="time">'+sentTime+', '+getTimeOnServer(d).yr+'</div></div><div class="stuffing">'+data.posts[i].content.replace(urlRegEx,linkRegEx)+'</div><div class="footer">'+edit+'</div></div>');
+	textBox[side](genCard(data.posts[i].username,data.posts[i].id,'./people.php?target='+data.posts[i].username,data.posts[i].username,data.posts[i].topic,sentTime+', '+getTimeOnServer(d).yr,data.posts[i].content.replace(urlRegEx,linkRegEx),data.posts[i].owned));
 	$(".delete[card="+data.posts[i].id+"]").click(deletePost);
 	var stuffing=$(".card[card="+data.posts[i].id+"] .stuffing");
-	if($(stuffing.height()).toEm()>10) {
-		stuffing.addClass("long");
+	if($(stuffing.height()).toEm()>10 || isThin) {
 		stuffing.after("<div class=\"show\">Show More</div>");
 		$(".card[card="+data.posts[i].id+"] .show").click(toggleShow);
 	}
+	if($(stuffing.height()).toEm()>10) {
+		stuffing.addClass("long");
+	}
+}
+function genCard(styleUser,cardId,href,title,topic,time,content,canEdit) {
+	var edit="";
+	if(canEdit) edit='<div class="delete" card="'+cardId+'">delete</div>&nbsp<a href="./edit.php?id='+cardId+'" class="edit">edit</a>';
+	return '<div class="card" user="'+styleUser+'" card="'+cardId+'">\
+		<div class="postmeta">\
+			<a class="h" href="'+href+'">'+title+'</a> \
+			<div class="time">'+time+'</div>\
+			<div class="topic">'+topic+'</div> \
+		</div>\
+		<div class="stuffing">'+content+'</div>\
+		<div class="footer">'+edit+'</div>\
+	</div>';
 }
 function deletePost(e) {
 	var target=e.target.attributes.card.value;
@@ -127,7 +141,8 @@ function deletePost(e) {
 	}
 }
 function toggleShow(e) {
-	$(".card[card="+e.target.parentElement.attributes.card.value+"] .stuffing").toggleClass("extended");
+	$(".card[card="+e.target.parentElement.attributes.card.value+"] .stuffing.long").toggleClass("extended");
+	if(isThin) $(".card[card="+e.target.parentElement.attributes.card.value+"] .postmeta").toggleClass("extended");
 	if(e.target.innerHTML=="Show More") {
 		e.target.innerHTML="Show Less"
 	}
