@@ -6,7 +6,7 @@ require 'pageStart.php';
 		<div class="body">
 			<div class="card">
 				<div class="postmeta">
-					<div class="time" id="time"></div>
+					<div class="time" id="time" style="display: inline-block"></div>
 					<script>
 						timeElem=document.getElementById("time");
 						timeObj=getTimeOnServer();
