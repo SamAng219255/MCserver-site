@@ -6,6 +6,7 @@ import json
 from math import floor
 from datetime import datetime
 import time
+import re
 
 palette=[(0,0,0,0),(127, 178, 56,255),(247, 233, 163,255),(199, 199, 199,255),(255, 0, 0,255),(160, 160, 255,255),(167, 167, 167,255),(0, 124, 0,255),(255, 255, 255,255),(164, 168, 184,255),(151, 109, 77,255),(112, 112, 112,255),(64, 64, 255,255),(143, 119, 72,255),(255, 252, 245,255),(216, 127, 51,255),(178, 76, 216,255),(102, 153, 216,255),(229, 229, 51,255),(127, 204, 25,255),(242, 127, 165,255),(76, 76, 76,255),(153, 153, 153,255),(76, 127, 153,255),(127, 63, 178,255),(51, 76, 178,255),(102, 76, 51,255),(102, 127, 51,255),(153, 51, 51,255),(25, 25, 25,255),(250, 238, 77,255),(92, 219, 213,255),(74, 128, 255,255),(0, 217, 58,255),(129, 86, 49,255),(112, 2, 0,255),(209, 177, 161,255),(159, 82, 36,255),(149, 87, 108,255),(112, 108, 138,255),(186, 133, 36,255),(103, 117, 53,255),(160, 77, 78,255),(57, 41, 35,255),(135, 107, 98,255),(87, 92, 92,255),(122, 73, 88,255),(76, 62, 92,255),(76, 50, 35,255),(76, 82, 42,255),(142, 60, 46,255),(37, 22, 16,255)]
 shades=[180,220,255,135]
@@ -19,6 +20,16 @@ exclusions.extend(pictures)
 allNegatives=[]
 allNegativeCoords=[]
 logData={'date':datetime.now().strftime("%d/%m/%y %H:%M:%S"),'blanks':0,'missing':0,'files':0,'excluded':len(exclusions),'time':('{0:0>2}:{1:0>2}:{2:0>6.3F}').format(0,0,0),'tiles':0,'duplicates':0,'missing':0,'negatives':0,'arguments':argv}
+
+def assignDim(strDim):
+	if type(strDim) == str:
+		switcher = { 
+			"minecraft:overworld": 0, 
+			"minecraft:the_nether": -1, 
+			"minecraft:the_end": 1, 
+		}
+		return switcher.get(strDim, strDim.split(":")[1])
+	return strDim
 
 def main():
 	datetime.now
@@ -46,7 +57,8 @@ def main():
 				f=open(path+'map_'+str(i)+'.dat', 'rb')
 				nbt=pynbt.NBTFile(gzip.GzipFile(mode='r', fileobj=f))
 				f.close()
-				if nbt["data"]["scale"].value==0 and i not in exclusions and nbt["data"]["dimension"].value==0:
+				dimension=assignDim(nbt["data"]["dimension"].value);
+				if nbt["data"]["scale"].value==0 and i not in exclusions and dimension==0:
 					x=(nbt["data"]["xCenter"].value//128)
 					z=(nbt["data"]["zCenter"].value//128)
 					if lowest[0]>x: lowest[0]=x
@@ -70,6 +82,7 @@ def main():
 			nbt=pynbt.NBTFile(gzip.GzipFile(mode='r', fileobj=f))
 			f.close()
 			logData['files']+=1
+			dimension=assignDim(nbt["data"]["dimension"].value);
 			if (modeSin and str(nbt["data"]["xCenter"].value//128)+'_'+str(nbt["data"]["zCenter"].value//128)==argv[4]) or not modeSin:
 				img=Image.new("RGBA",(128,128),(0,0,0,0))
 				imgData=[]
@@ -94,6 +107,7 @@ def main():
 					if completeness==0:
 						with open(path2+'map_'+str(i)+'.dat', 'rb') as f:
 							nbt=pynbt.NBTFile(gzip.GzipFile(mode='r', fileobj=f))
+							dimension=assignDim(nbt["data"]["dimension"].value);
 							imgData=[]
 							negatives=[]
 							j=0
@@ -117,15 +131,15 @@ def main():
 						f2.write(f1.read())
 						f1.close()
 						f2.close()
-				if showNeg and len(negatives)>0: print("Negatives "+json.dumps(negatives)+" found on "+str(i)+" at ("+str(nbt["data"]["dimension"].value//128)+", "+str(nbt["data"]["xCenter"].value//128)+", "+str(nbt["data"]["zCenter"].value//128)+").")
+				if showNeg and len(negatives)>0: print("Negatives "+json.dumps(negatives)+" found on "+str(i)+" at ("+str(dimension//128)+", "+str(nbt["data"]["xCenter"].value//128)+", "+str(nbt["data"]["zCenter"].value//128)+").")
 				if len(negatives): logData['negatives']+=1
-				key=str(nbt["data"]["dimension"].value)+"_"+str(nbt["data"]["xCenter"].value//128)+'_'+str(nbt["data"]["zCenter"].value//128)
+				key=str(dimension)+"_"+str(nbt["data"]["xCenter"].value//128)+'_'+str(nbt["data"]["zCenter"].value//128)
 				if nbt["data"]["scale"].value!=0: key+="_"+str(nbt["data"]["scale"].value)
 				if modeLrg:
 					if nbt["data"]["scale"].value==0:
-						if showDup and nbt["data"]["dimension"].value==0 and key in regionsDone: print("Duplicate of "+key+" found.")
-						if nbt["data"]["dimension"].value==0 and key in regionsDone: logData['duplicates']+=1
-						if not nbt["data"]["dimension"].value==0 and key in regionsDone: logData['tiles']+=1
+						if showDup and dimension==0 and key in regionsDone: print("Duplicate of "+key+" found.")
+						if dimension==0 and key in regionsDone: logData['duplicates']+=1
+						if not dimension==0 and key in regionsDone: logData['tiles']+=1
 						if showBla and completeness==0: print("Blank Found: "+str(i))
 						if completeness==0: logData['blanks']+=1
 						if i not in exclusions and (((key in regionsDone) and completeness>=regionsDone[key]) or (key not in regionsDone)):
@@ -134,24 +148,24 @@ def main():
 							tilesUsed[key]=i
 							xOffset=nbt["data"]["xCenter"].value-(lowest[0]*128)
 							zOffset=nbt["data"]["zCenter"].value-(lowest[1]*128)
-							if not (modeInd or modeOut) and nbt["data"]["dimension"].value==0: finImg.paste(img,box=(xOffset,zOffset))
+							if not (modeInd or modeOut) and dimension==0: finImg.paste(img,box=(xOffset,zOffset))
 				else:
 					img.putdata(imgData)
 					scaleExt=""
 					if nbt["data"]["scale"].value!=0: scaleExt+="."+str(nbt["data"]["scale"].value)
-					if showDup and nbt["data"]["dimension"].value==0 and key in regionsDone: print("Duplicate of "+key+" found.")
-					if nbt["data"]["dimension"].value==0 and key in regionsDone: logData['duplicates']+=1
-					if not nbt["data"]["dimension"].value==0 and key in regionsDone: logData['tiles']+=1
+					if showDup and dimension==0 and key in regionsDone: print("Duplicate of "+key+" found.")
+					if dimension==0 and key in regionsDone: logData['duplicates']+=1
+					if not dimension==0 and key in regionsDone: logData['tiles']+=1
 					if showBla and completeness==0: print("Blank Found: "+str(i))
 					if completeness==0: logData['blanks']+=1
 					if i not in exclusions and (((key in regionsDone) and completeness>=regionsDone[key]) or (key not in regionsDone)):
 						regionsDone[key]=completeness
 						tilesUsed[key]=i
-						if not (modeInd or modeOut): img.save('img/tile.'+str(nbt["data"]["dimension"].value)+'.'+str(nbt["data"]["xCenter"].value//128)+'.'+str(nbt["data"]["zCenter"].value//128)+scaleExt+'.png')
-					elif i not in exclusions and nbt["data"]["dimension"].value!=0:
-						if not (modeInd or modeOut): img.save('img/tile.'+str(nbt["data"]["dimension"].value)+'.'+str(nbt["data"]["xCenter"].value//128)+'.'+str(nbt["data"]["zCenter"].value//128)+scaleExt+'.png')
+						if not (modeInd or modeOut): img.save('img/tile.'+str(dimension)+'.'+str(nbt["data"]["xCenter"].value//128)+'.'+str(nbt["data"]["zCenter"].value//128)+scaleExt+'.png')
+					elif i not in exclusions and dimension!=0:
+						if not (modeInd or modeOut): img.save('img/tile.'+str(dimension)+'.'+str(nbt["data"]["xCenter"].value//128)+'.'+str(nbt["data"]["zCenter"].value//128)+scaleExt+'.png')
 					if i in exclusions:
-						if not (modeInd or modeOut): img.save('img/excluded/tile_'+str(i)+'.'+str(nbt["data"]["dimension"].value)+'.'+str(nbt["data"]["xCenter"].value//128)+'.'+str(nbt["data"]["zCenter"].value//128)+scaleExt+'.png')
+						if not (modeInd or modeOut): img.save('img/excluded/tile_'+str(i)+'.'+str(dimension)+'.'+str(nbt["data"]["xCenter"].value//128)+'.'+str(nbt["data"]["zCenter"].value//128)+scaleExt+'.png')
 		except FileNotFoundError as not_found:
 			if showErr: print('File Not Found on '+str(i)+'. File: '+not_found.filename)
 			logData['missing']+=1
