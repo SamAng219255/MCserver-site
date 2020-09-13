@@ -110,7 +110,7 @@ function showPost(i,data,side) {
 	}
 	var t=data.posts[i].time.split(/[- :]/);
 	var d=Date.UTC(t[0], t[1]-1, t[2], t[3], t[4], t[5]);
-	textBox[side](genCard(data.posts[i].username,data.posts[i].id,'./people.php?target='+data.posts[i].username,data.posts[i].username,data.posts[i].topic,sentTime+', '+getTimeOnServer(d).yr,data.posts[i].content.replace(urlRegEx,linkRegEx),data.posts[i].owned));
+	textBox[side](genCard(data.posts[i].username,data.posts[i].id,'./people.php?target='+data.posts[i].username,data.posts[i].username,data.posts[i].topic,sentTime,data.posts[i].content.replace(urlRegEx,linkRegEx),data.posts[i].owned));
 	$(".delete[card="+data.posts[i].id+"]").click(deletePost);
 	var stuffing=$(".card[card="+data.posts[i].id+"] .stuffing");
 	if($(stuffing.height()).toEm()>10 || isThin) {

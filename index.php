@@ -9,12 +9,10 @@ require 'pageStart.php';
 					<div class="time" id="time" style="display: inline-block"></div>
 					<script>
 						timeElem=document.getElementById("time");
-						timeObj=getTimeOnServer();
-						timeElem.innerHTML="In-Game Date: "+timeObj.day+" "+timeObj.monStr+" "+timeObj.yr;
-						timeInter=setInterval(function(){
-							timeObj=getTimeOnServer();
+						getTimeOnServer(function(date) {
+							timeObj=date;
 							timeElem.innerHTML="In-Game Date: "+timeObj.day+" "+timeObj.monStr+" "+timeObj.yr;
-						},1000);
+						});
 					</script>
 				</div>
 				<div class="stuffing">	AmospiaCraft, found at adventure.amospia.com:25564, is an occsionally laggy vanilla minecraft server where me, my friends and my friends' friends build many things from massive empires with eleborate cultures, histories, and international relations to random chess boards in a black void, a sword in a stone, and a decent city built to 1/4 scale.
