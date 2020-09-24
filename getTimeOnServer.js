@@ -51,7 +51,7 @@ function getTimeOnServer(arg) {
 	const type=typeof arg;
 	if(type == "number") return getTimeOnServerLegacy(arg);
 	else if(type == "function") {
-		$.getJSON("date.json",function(data) {
+		$.getJSON("date.json?t="+Date.now(),function(data) {
 			const time={};
 			time.yr=data.yr;
 			time.mon=data.mon;
