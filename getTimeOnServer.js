@@ -11,6 +11,9 @@ const monthLen=[31,28,31,30,31,30,31,31,30,31,30,31,Infinity];
 const monName=["January","February","March","April","May","June","July","August","September","October","November","December","Error"];
 const wkdName=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
+const tzolkinName=["Imix","Ik'","Ak'b'al","K'an","Chikchan","Kimi","Manik'","Lamat","Muluk","Ok","Chuwen","Eb'","B'en","Ix","Men","K'ib'","Kab'an","Etz'nab'","Kawak","Ajaw"];
+const haabName=["Pop","Wo'","Sip","Sotz'","Sek","Xul","Yaxk'in","Mol","Ch'en","Yax","Sak","Keh","Mak","K'ank'in","Muwan","Pax","K'ayab","Kumk'u","Wayeb'"]
+
 function getTimeOnServerLegacy(forTime) {
 	var now=(new Date()).getTime();
 	var activeSegment=irlSegments.length;
@@ -35,6 +38,7 @@ function getTimeOnServerLegacy(forTime) {
 	time.hr%=24;
 	time.wkd=time.day%7+1;
 	time.yr=parseInt(time.day/365.25+startYear);
+	time.maya=getMayaDate(time.day);
 	time.day-=parseInt((time.yr-startYear)*365.25-1);
 	if(time.yr%4==0) { monthLen[1]=29; }
 	time.mon=1;
@@ -66,8 +70,21 @@ function getTimeOnServer(arg) {
 				days+=monthLen[i];
 			}
 			time.mil=1000*(time.sec+60*(time.min+60*(time.hr+24*days)));
+			time.maya=getMayaDate(days);
 
 			arg(time);
 		});
 	}
+}
+
+function getMayaDate(euroDay) {
+	const day=euroDay+1640703;
+	const maya={longCount:day,roundDay:day%18980};
+	maya.tzolk_in={number:(day%13)+1,name:(day%20)+1,day:(day%260)+1};
+	maya.tzolk_in.nameStr=tzolkinName[maya.tzolk_in.name-1];
+	maya.haab_={day:(day%365)};
+	maya.haab_.number=maya.haab_.day%20;
+	maya.haab_.month=parseInt(maya.haab_.day/20);
+	maya.haab_.monthStr=haabName[maya.haab_.month];
+	return maya;
 }
