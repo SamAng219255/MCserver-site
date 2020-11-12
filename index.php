@@ -11,7 +11,7 @@ require 'pageStart.php';
 						timeElem=document.getElementById("time");
 						getTimeOnServer(function(date) {
 							timeObj=date;
-							timeElem.innerHTML="In-Game Date: "+timeObj.day+" "+timeObj.monStr+" "+timeObj.yr;
+							timeElem.innerHTML=`In-Game Date: ${timeObj} / ${timeObj.maya}`;
 						});
 					</script>
 				</div>

@@ -13,6 +13,8 @@ const wkdName=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Satu
 
 const tzolkinName=["Imix","Ik'","Ak'b'al","K'an","Chikchan","Kimi","Manik'","Lamat","Muluk","Ok","Chuwen","Eb'","B'en","Ix","Men","K'ib'","Kab'an","Etz'nab'","Kawak","Ajaw"];
 const haabName=["Pop","Wo'","Sip","Sotz'","Sek","Xul","Yaxk'in","Mol","Ch'en","Yax","Sak","Keh","Mak","K'ank'in","Muwan","Pax","K'ayab","Kumk'u","Wayeb'"]
+const mayaUnitNames=["k'in","winal","tun","k'atun","bakʼtun","piktun","kalabtun","kinchiltun","alawtun"];
+const mayaUnitSizes=[1,20,18,20,20,20,20,20,20];
 
 function getTimeOnServerLegacy(forTime) {
 	var now=(new Date()).getTime();
@@ -65,12 +67,18 @@ function getTimeOnServer(arg) {
 			time.sec=0;
 			time.monStr=monName[time.mon-1];
 			time.wkdStr=wkdName[time.wkd-1];
-			let days=time.days+parseInt(365.25*(time.yr-1460)+470);
+			let days=time.day+parseInt(365.25*(time.yr-1460)+470);
+			let daysAlt=time.day+parseInt(365.25*time.yr);
 			for(var i=0; i<time.mon-1; i++) {
 				days+=monthLen[i];
+				daysAlt+=monthLen[i];
 			}
 			time.mil=1000*(time.sec+60*(time.min+60*(time.hr+24*days)));
-			time.maya=getMayaDate(days);
+			time.maya=getMayaDate(daysAlt);
+
+			time.toString=function() {
+				return `${this.monStr} ${numSuffix(this.day)}, ${this.yr}`
+			}
 
 			arg(time);
 		});
@@ -82,9 +90,47 @@ function getMayaDate(euroDay) {
 	const maya={longCount:day,roundDay:day%18980};
 	maya.tzolk_in={number:(day%13)+1,name:(day%20)+1,day:(day%260)+1};
 	maya.tzolk_in.nameStr=tzolkinName[maya.tzolk_in.name-1];
+	maya.tzolk_in.toString=function() {
+		return `${this.number} ${this.nameStr}`;
+	}
 	maya.haab_={day:(day%365)};
 	maya.haab_.number=maya.haab_.day%20;
 	maya.haab_.month=parseInt(maya.haab_.day/20);
 	maya.haab_.monthStr=haabName[maya.haab_.month];
+	maya.haab_.toString=function() {
+		return `${this.number} ${this.monthStr}`;
+	}
+	maya.unitCounts={};
+	maya.units={};
+	let unit=1;
+	for(let i=0; i<mayaUnitNames.length; i++) {
+		unit*=mayaUnitSizes[i];
+		maya.unitCounts[mayaUnitNames[i]]=parseInt(day/unit);
+		maya.units[mayaUnitNames[i]]=unit;
+	}
+	maya.toString=function() {
+		return `${this.tzolk_in} ${this.haab_}, k'atun ${this.unitCounts["k'atun"]}`;
+	}
 	return maya;
+}
+
+function numSuffix(num) {
+	if(num>10 && num<20) {
+		return num+"th";
+	}
+	let suffix;
+	switch(num%10) {
+		case 1:
+			suffix="st";
+			break;
+		case 2:
+			suffix="nd";
+			break;
+		case 3:
+			suffix="rd";
+			break;
+		default:
+			suffix="th";
+	}
+	return num+suffix;
 }
