@@ -374,6 +374,12 @@ img#flag, img#flagimg {
 div:hover>.lighten {
 	visibility: visible;
 }
+body:not(.show-maya) .maya {
+	display: none;
+}
+body.show-maya .non-maya {
+	display: none;
+}
 .dropdown {
 	display: none;
 	position: absolute;

@@ -9,9 +9,12 @@ require 'pageStart.php';
 					<div class="time" id="time" style="display: inline-block"></div>
 					<script>
 						timeElem=document.getElementById("time");
+						timeElem.onclick=function(e) {
+							$("body").toggleClass("show-maya");
+						}
 						getTimeOnServer(function(date) {
 							timeObj=date;
-							timeElem.innerHTML=`In-Game Date: ${timeObj} / ${timeObj.maya}`;
+							timeElem.innerHTML=`In-Game Date: <span class="non-maya">${timeObj}</span><span class="maya">${timeObj.maya}</span>`;
 						});
 					</script>
 				</div>

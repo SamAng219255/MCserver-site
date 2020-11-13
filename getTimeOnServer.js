@@ -87,13 +87,14 @@ function getTimeOnServer(arg) {
 
 function getMayaDate(euroDay) {
 	const day=euroDay+1640703;
-	const maya={longCount:day,roundDay:day%18980};
-	maya.tzolk_in={number:(day%13)+1,name:(day%20)+1,day:(day%260)+1};
+	const roundDay=day+2538;
+	const maya={longCount:day,roundNum:parseInt(day/18980),roundDay:day%18980};
+	maya.tzolk_in={number:(roundDay%13)+1,name:((roundDay+1)%20)+1,day:(roundDay%260)+1};
 	maya.tzolk_in.nameStr=tzolkinName[maya.tzolk_in.name-1];
 	maya.tzolk_in.toString=function() {
 		return `${this.number} ${this.nameStr}`;
 	}
-	maya.haab_={day:(day%365)};
+	maya.haab_={day:(roundDay%365)};
 	maya.haab_.number=maya.haab_.day%20;
 	maya.haab_.month=parseInt(maya.haab_.day/20);
 	maya.haab_.monthStr=haabName[maya.haab_.month];
@@ -109,7 +110,7 @@ function getMayaDate(euroDay) {
 		maya.units[mayaUnitNames[i]]=unit;
 	}
 	maya.toString=function() {
-		return `${this.tzolk_in} ${this.haab_}, k'atun ${this.unitCounts["k'atun"]}`;
+		return `${this.tzolk_in} ${this.haab_} of the ${numSuffix(this.roundNum)} Calender Round`;
 	}
 	return maya;
 }
