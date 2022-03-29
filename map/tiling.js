@@ -552,16 +552,16 @@ function selectSprite(event){
 function canvasResize() {
 	canvas=document.getElementById("mcmap");
 	if(typeof mapCnv != "undefined") {
-		width=mapCnv.width=boxCnv.width=pinCnv.width=trpCnv.width=uiCnv.width=canvas.width=$(window).width();
-		height=mapCnv.height=boxCnv.height=pinCnv.height=trpCnv.height=uiCnv.height=canvas.height=$(window).height();
+		width=mapCnv.width=boxCnv.width=pinCnv.width=trpCnv.width=uiCnv.width=canvas.width=window.innerWidth;
+		height=mapCnv.height=boxCnv.height=pinCnv.height=trpCnv.height=uiCnv.height=canvas.height=window.innerHeight;
 		mapCtx.imageSmoothingEnabled=false;
 		boxCtx.imageSmoothingEnabled=false;
 		pinCtx.imageSmoothingEnabled=false;
 		trpCtx.imageSmoothingEnabled=false;
 	}
 	else {
-		width=canvas.width=$(window).width();
-		height=canvas.height=$(window).height();
+		width=canvas.width=window.innerWidth;
+		height=canvas.height=window.innerHeight;
 	}
 	ctx=canvas.getContext('2d');
 	ctx.imageSmoothingEnabled=false;
