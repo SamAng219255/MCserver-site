@@ -1,6 +1,12 @@
 <?php
 	session_set_cookie_params(['samesite' => 'Secure']);
-	session_start();
+	try {
+		session_start();
+	}
+	catch(Exception $e) {
+		session_unset();
+		session_destroy();
+	}
 	if ((isset($_SESSION['last_active']) && (time() - $_SESSION['last_active'] > 1800)) || (!isset($_SESSION['last_active']) && isset($_SESSION['loggedin']))) {
 		unset($_SESSION['last_active']);
 		unset($_SESSION['loggedin']);
