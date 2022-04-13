@@ -2163,7 +2163,7 @@ function setCommanderLists() {
 			if(!viewingmanage && commanders[i].owned) {
 				var armyselecter="<select class=\"comm-army\" commid=\""+commanders[i].id+"\"><option></option>";
 				for(var j=0; j<troops.length; j++) {
-					if(commanders[i].nation==troops[j].nation || relations[commanders[i].nation][troops[j].nation]<4) {
+					if(commanders[i].nation==troops[j].nation || relations[commanders[i].nation]===undefined || relations[commanders[i].nation][troops[j].nation]<4) {
 						var isselected="";
 						if(commanders[i].armyid==troops[j].id)
 							isselected=" selected";
@@ -2180,7 +2180,7 @@ function setCommanderLists() {
 			if(commanders[i].owned) {
 				var armyselecter="<select class=\"comm-army\" commid=\""+commanders[i].id+"\"><option></option>";
 				for(var j=0; j<troops.length; j++) {
-					if(commanders[i].nation==troops[j].nation || relations[commanders[i].nation][troops[j].nation]<4) {
+					if(commanders[i].nation==troops[j].nation || relations[commanders[i].nation]===undefined || relations[commanders[i].nation][troops[j].nation]<4) {
 						var isselected="";
 						if(commanders[i].armyid==troops[j].id)
 							isselected=" selected";

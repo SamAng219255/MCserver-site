@@ -45,7 +45,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<link rel="stylesheet" type="text/css" href="./theme.css">
+	<link rel="stylesheet" type="text/css" href="./theme.css?v=1">
 	<script src="../jquery.js"></script>
 	<script src="../pxem.jQuery.js"></script>
 	<script src="../jquery.form.min.js"></script>
