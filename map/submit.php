@@ -6,6 +6,7 @@
 	}
 	$_SESSION['last_active']=time();
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 	<link rel="stylesheet" type="text/css" href="./theme.css">

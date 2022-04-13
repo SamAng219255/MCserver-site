@@ -53,6 +53,7 @@ instMenuActive=false;
 trpMenuActive=[false,false,false];
 commanderMenuActive=false;
 pinMenuActive=false;
+genericMenuActive=false;
 menuActive=false;
 currentpinmenu="";
 showMissingTiles=false;
@@ -66,6 +67,8 @@ dragEvent=new MouseEvent("mousemove");
 lastButtonPress=(new Date()).getTime();
 tiles={};
 empty=[];
+updateBattleHealths=[];
+currentBattleHealths=[];
 tileDest={};
 defaultTile=document.createElement('img');
 defaultTile.src='img/default.png';
@@ -80,6 +83,7 @@ pinoptions=[];
 bannercount=0;
 banners=[];
 troops=[];
+battles={};
 troopshandelling=false;
 troopsaction="";
 newsprite=document.createElement("img");
@@ -98,13 +102,13 @@ rotarySprites[1].src="./img/rotarySpriteShadows.png";
 rotarySprites[2].src="./img/rotarySpritesBlack.png";
 buffSprites=document.createElement('img');
 buffSprites.src="./img/buff.png";
-controlBtns=[
+controlBtns_old=[
 	new RotaryButton(0,"Fortify","Costs 2 moves.\nMove the army into defensive position giving an advantage against attackers.",trpAction),
 	new RotaryButton(1,"Rest","Costs 2 moves.\nSpend some time healing up. Recovers HP.",trpAction),
 	new RotaryButton(2,"Move","Costs 1 move.\nRelocate army.",trpAction),
 	new RotaryButton(3,"View","View the army's information.",viewTrp)
 ];
-attackBtns=[
+attackBtns_old=[
 	new RotaryButton(4,"Attack","Costs 2 moves.\nEngage in combat.",trpAction),
 	new RotaryButton(5,"Hit & Run","Costs 4 moves.\nCharge up and attack then pull back avoiding damage.",trpAction),
 	new RotaryButton(6,"Shoot","Costs 2 moves.\nLaunch a long range attack.",trpAction),
@@ -115,7 +119,7 @@ attackBtns=[
 		menuActive=true;
 	})
 ];
-helpBtns=[
+helpBtns_old=[
 	new RotaryButton(0,"Aid","Costs 2 moves.\nMove your army to aid the target army temporarily granting it half your strength.",trpAction),
 	new RotaryButton(1,"Heal","Costs 2 moves.\nSpend some time healing the target army.",trpAction),
 	new RotaryButton(2,"Merge","Merge the your army with the target army.",trpAction),
@@ -125,6 +129,84 @@ helpBtns=[
 		trpMenuActive[0]=true;
 		menuActive=true;
 	})
+];
+controlBtns=[
+	new RotaryButton(3,"View","View the army's information.",viewTrp,{story:true}),
+	new RotaryButton(0,"Fortify","Move the army into defensive position giving an advantage against attackers.",trpAction,{story:true}),
+	new RotaryButton(1,"Rest","Spend some time healing up.",function(data){
+		createPrompt(["Please set the army's new health value."],"Set",function(newHealth,data){
+			data.health=parseFloat(newHealth);
+			trpAction(data);
+		},[data],[troops[selectedArmy].health]);
+	},{story:true}),
+	new RotaryButton(2,"Move","Relocate army.",trpAction,{story:true})
+];
+controlBattleBtns=[
+	new RotaryButton(3,"View","View the army's information.",viewTrp,{story:true}),
+	new RotaryButton(4,"Update Health","Update the current health of the involved armies.",function(data){
+		createVariedCountPrompt(updateBattleHealths,"Set",function(newHealths,data){
+			for(let i=0; i<newHealths.length; i++) {
+				newHealths[i]=parseFloat(newHealths[i]);
+			}
+			data.healths=newHealths;
+			data.armies=[];
+			for(let i=0; i<battles[troops[selectedArmy].battle].length; i++) {
+				data.armies.push(troops[battles[troops[selectedArmy].battle][i]].name);
+			}
+			trpAction(data);
+		},[data],currentBattleHealths);
+	},{story:true}),
+	new RotaryButton(4,"Exit Battle","Finish battle and set the final health values of the involved armies.",function(data){
+		createVariedCountPrompt(updateBattleHealths,"Set",function(newHealths,data){
+			for(let i=0; i<newHealths.length; i++) {
+				newHealths[i]=parseFloat(newHealths[i]);
+			}
+			data.healths=newHealths;
+			data.armies=[];
+			for(let i=0; i<battles[troops[selectedArmy].battle].length; i++) {
+				data.armies.push(troops[battles[troops[selectedArmy].battle][i]].name);
+			}
+			trpAction(data);
+		},[data],currentBattleHealths);
+	},{story:true})
+];
+attackBtns=[
+	new RotaryButton(7,"Spy","View the army's information.",function(){
+		setTroopMenu(0,targetArmy);
+		$("#trpvMenu").addClass("shown");
+		trpMenuActive[0]=true;
+		menuActive=true;
+	},{story:true}),
+	new RotaryButton(4,"Enter Battle","Engage in combat.",trpAction,{story:true}),
+	new RotaryButton(5,"Attack","Engage in combat, completing immediately, and update the health of the your army and the target army. (Aiding armies will not be affected.)",function(data){
+		createPrompt(["Please set the attacking army's new health value.","Please set the attacked army's new health value."],"Set",function(newHealth1,newHealth2,data){
+			data.attackerHealth=parseFloat(newHealth1);
+			data.targetHealth=parseFloat(newHealth2);
+			trpAction(data);
+		},[data],[troops[selectedArmy].health,troops[targetArmy].health]);
+	},{story:true}),
+	new RotaryButton(6,"Shoot","Launch a long range attack and set the target's new health.",function(data){
+		createPrompt(["Please set the attacked army's new health value."],"Set",function(newHealth,data){
+			data.health=parseFloat(newHealth);
+			trpAction(data);
+		},[data],[troops[selectedArmy].health]);
+	},{story:true})
+];
+helpBtns=[
+	new RotaryButton(0,"Aid","Move your army to aid the target army. (Will follow and join battles with the target army.)",trpAction,{story:true}),
+	new RotaryButton(1,"Heal","Spend some time healing the target army.",function(data){
+		createPrompt(["Please set the healed army's new health value."],"Set",function(newHealth,data){
+			data.health=parseFloat(newHealth);
+			trpAction(data);
+		},[data],[troops[selectedArmy].health]);
+	},{story:true}),
+	new RotaryButton(2,"Merge","Merge the your army with the target army.",trpAction,{story:true}),
+	new RotaryButton(3,"View","View the army's information.",function(){
+		setTroopMenu(0,targetArmy);
+		$("#trpvMenu").addClass("shown");
+		trpMenuActive[0]=true;
+		menuActive=true;
+	},{story:true})
 ];
 specials={name:['combat','defense','open','mobility','ranged','healing','fortify','helpful','nomanleft','lucky'],title:['Combat','Defense','Honor','Mobility','Ranged','Healing','Fortification','Helpful','"No Man Left Behind"','Lucky'],desc:['Bonus to attack strength.','Bonus to defense strength.','Higher bonus to standard Attacks.','Higher bonus to Hit & Run.','Higher bonus to Shooting.','Increased healing effectiveness.','Increased bonus from being Fortified','Grants additional strength when aiding another army.','Less likely to lose troops when taking damage.','The tides of battle tend more to your favor.']};
 tooltip=new RotaryButton(-1,"","",function(){});
@@ -147,11 +229,13 @@ function setup() {
 		$("#body").addClass("mobile");
 		$("infoButton").addClass("hide");
 	}
+	NumberFormat=Intl.NumberFormat();
 	sprites=document.createElement("img");
 	sprites.src="./img/sprites.png";
 	sprites.addEventListener("load",function(){
 		for(var i=0; i<spriteoptions.length; i++) {
-			spriteoptions[i][1].drawImage(sprites,(i%8)*16,parseInt(i/8)*16,16,16,0,0,64,64);
+			//spriteoptions[i][1].drawImage(sprites,(i%8)*16,parseInt(i/8)*16,16,16,0,0,64,64);
+			drawSpriteFromMap(spriteoptions[i][1],0,0,sprites,i,16,64);
 		}
 	});
 	customsprites=[];
@@ -165,6 +249,17 @@ function setup() {
 	trpvcnv=$("#trpvspritecnv");
 	setInterval(function(){draw(); $.getJSON("getMarkers.php",function(data){
 		troops=data.troops;
+		if(selectedArmy!==-1)
+			$("#infoTxt")[0].innerHTML="<b>"+troops[selectedArmy].name+"</b><br>Nation: "+troops[selectedArmy].nation+", Size: "+NumberFormat.format(troops[selectedArmy].size)+", Health: "+troops[selectedArmy].health+"%<br><span onclick=\"viewTrp()\">Details</span>";
+		battles={};
+		for(let i=0; i<troops.length; i++) {
+			if(troops[i].state!==6) 
+				continue;
+			if(battles[troops[i].battle]===undefined)
+				battles[troops[i].battle]=[i];
+			else
+				battles[troops[i].battle].push(i);
+		}
 		customspritedata=data.sprites;
 		for(var i=lastCustSprite+1; i<customspritedata.length; i++) {
 			if(customspritedata[i].type=="army") {
@@ -209,16 +304,12 @@ function setup() {
 			data[dataArr[i].split("=")[0]]=dataArr[i].split("=")[1];
 		}
 		if(data["x"]!==undefined && data["z"]!==undefined) {
-			pos[0]=parseFloat(data["x"]);
-			pos[1]=parseFloat(data["z"]);
-			if(pos[0]%1!=0) {
-				offsetPos[0]=pos[0]-Math.floor(pos[0]);
-				pos[0]=Math.floor(pos[0]);
-			}
-			if(pos[1]%1!=0) {
-				offsetPos[1]=pos[1]-Math.floor(pos[1]);
-				pos[1]=Math.floor(pos[1]);
-			}
+			tempPos[0]=parseFloat(data["x"]);
+			tempPos[1]=parseFloat(data["z"]);
+			pos[0]=Math.floor(tempPos[0]);
+			offsetPos[0]=tempPos[0]-pos[0];
+			pos[1]=Math.floor(tempPos[1]);
+			offsetPos[1]=tempPos[1]-pos[1];
 		}
 		else if(data["pin"]!==undefined) {
 			gotoPin(data["pin"]);
@@ -250,6 +341,17 @@ function setup() {
 			drawPoints();
 		}
 		troops=data.troops;
+		if(selectedArmy!==-1)
+			$("#infoTxt")[0].innerHTML="<b>"+troops[selectedArmy].name+"</b><br>Nation: "+troops[selectedArmy].nation+", Size: "+NumberFormat.format(troops[selectedArmy].size)+", Health: "+troops[selectedArmy].health+"%<br><span onclick=\"viewTrp()\">Details</span>";
+		battles={};
+		for(let i=0; i<troops.length; i++) {
+			if(troops[i].state!==6) 
+				continue;
+			if(battles[troops[i].battle]===undefined)
+				battles[troops[i].battle]=[i];
+			else
+				battles[troops[i].battle].push(i);
+		}
 		customspritedata=data.sprites;
 		customsprites=[];
 		var adjustedI=0;
@@ -310,7 +412,7 @@ function setup() {
 	});
 	draw();
 	if(!isMobile)
-	document.getElementById("infobutton").addEventListener("click",function() {
+	document.getElementById("infoButton").addEventListener("click",function() {
 		if(!menuActive) {
 			$("#instr").removeClass("hide");
 			instMenuActive=true;
@@ -322,7 +424,7 @@ function setup() {
 			menuActive=false;
 		}
 	});
-	document.getElementById("jumpbutton").addEventListener("click",function() {
+	document.getElementById("jumpButton").addEventListener("click",function() {
 		if(!menuActive) {
 			if(isMobile)
 				$("#jumpMenuMobile").addClass("shown");
@@ -340,7 +442,7 @@ function setup() {
 			menuActive=false;
 		}
 	});
-	document.getElementById("pinbutton").addEventListener("click",function() {
+	document.getElementById("pinButton").addEventListener("click",function() {
 		if(pointsVis && selectedPoint!=0) {
 			resetStuff();
 		}
@@ -348,7 +450,7 @@ function setup() {
 		$("#pinbutton").toggleClass("active");
 	});
 	if(isAdmin) {
-		document.getElementById("addPinbutton").addEventListener("click",function() {
+		document.getElementById("addPinButton").addEventListener("click",function() {
 			if(!menuActive) {
 				resetPinMenu();
 				$("#pinMenu").addClass("shown");
@@ -361,7 +463,7 @@ function setup() {
 				menuActive=false;
 			}
 		});
-		document.getElementById("addTroopbutton").addEventListener("click",function() {
+		document.getElementById("addTroopButton").addEventListener("click",function() {
 			if(!menuActive) {
 				setTroopMenu(2,0);
 				$("#trpnMenu").addClass("shown");
@@ -437,6 +539,153 @@ function setup() {
 		isSpriteCustom=true;
 		trpSprite=data.id;
 	}});
+	setupControls();
+	$("#comm-ntn").val(nation);
+}
+
+panMouseDown=false;
+clickMouseDown=false;
+mouseLastPos={x:0,y:0};
+freshZoom=true;
+lastZoom=1;
+function setupControls() {
+	$(".trpn-calc").on("change",setTroopCalcs);
+	$(".trpn-calc").on("keyup",setTroopCalcs);
+	$(".tab-tab").on("click",function(e){
+		$(e.target.parentElement.parentElement.children).removeClass("active");
+		$(e.target.parentElement).addClass("active");
+	});
+	//Setup mouse controls
+	document.addEventListener('click', event => event.preventDefault());
+	document.addEventListener('contextmenu', event => event.preventDefault());
+	document.getElementById('mcmap').addEventListener('mousedown',function (e) {
+		const newX=e.x;
+		const newY=e.y;
+		if(e.button==2) {
+			panMouseDown=true; 
+		}
+		else if(e.button==0) {
+			clickMouseDown=true;
+			control_click(newX, newY);
+		}
+		mouseLastPos={x:newX, y:newY};
+		e.preventDefault();
+		return false;
+	}, false);
+	const mouseupFunc=function (e) {
+		if(e.button==2) {
+			panMouseDown=false;
+		}
+		else if(e.button==0) {
+			clickMouseDown=false;
+		}
+		e.preventDefault();
+		return false;
+	};
+	document.getElementById('mcmap').addEventListener('mouseup',mouseupFunc, false);
+	document.getElementById('mcmap').addEventListener('mouseleave',mouseupFunc, false);
+	document.getElementById('mcmap').addEventListener('mousemove',function (e) {
+		const newX=e.x;
+		const newY=e.y;
+		if(panMouseDown) {
+			control_pan(newX - mouseLastPos.x, newY - mouseLastPos.y); 
+			mouseLastPos={x:newX, y:newY};
+		}
+		else if(clickMouseDown) {
+			control_drag(newX, newY);
+		}
+		else {
+			highlighttroops(e);
+		}
+		e.preventDefault();
+		return false;
+	}, false);
+	document.getElementById('mcmap').addEventListener('wheel',function (e) {
+		if(e.ctrlKey || e.shiftKey)
+			control_zoom(Math.pow(2,e.wheelDelta/256), e.x, e.y);
+		else {
+			control_pan(e.wheelDeltaX,e.wheelDeltaY);
+		}
+		e.preventDefault();
+		return false;
+	}, false);
+
+	//Setup gesture controls
+	hammertime = new Hammer(document.getElementById('mcmap'), {
+		recognizers: [
+			[Hammer.Pan, {pointers: 2, threshold: 0, direction: Hammer.DIRECTION_ALL}],
+			[Hammer.Pinch, {enable: true}, ['pan']],
+			[Hammer.Tap],
+			[Hammer.Pan, {event: "drag", pointers: 1, threshold: 0, direction: Hammer.DIRECTION_ALL}, ['tap']],
+			[Hammer.Press, {event: "startpan", pointers: 2, time: 0}, ['pan']]
+		]
+	});
+	hammertime.on('startpan', function(e) {
+		mouseLastPos={x:e.center.x,y:e.center.y};
+	});
+	hammertime.on('pan', function(e) {
+		control_pan(e.center.x - mouseLastPos.x, e.center.y - mouseLastPos.y);
+		mouseLastPos={x:e.center.x,y:e.center.y};
+	});
+	hammertime.on('pinch', function(e) {
+		control_setZoom(e.scale, e.center.x, e.center.y);
+		if(e.eventType==4)
+			freshZoom=true;
+		console.log('zoom', e.scale, e.center.x, e.center.y, e.eventType);
+	});
+	hammertime.on('tap', function(e) {if(e.pointerType!='mouse') control_click(e.center.x, e.center.y);});
+	hammertime.on('drag', function(e) {if(e.pointerType!='mouse') control_drag(e.center.x, e.center.y);});
+}
+function control_pan(x,y) {// x: delta x, y: delta y
+	var delta=[x,y];
+	var tempPos=[pos[0]+offsetPos[0],pos[1]+offsetPos[1]];
+	for(var i=0; i<2; i++) {
+		tempPos[i]-=delta[i]/tileSize;
+		pos[i]=Math.floor(tempPos[i]);
+		offsetPos[i]=tempPos[i]-pos[i];
+		offsetPix[i]=-1*offsetPos[i]*tileSize;
+	}
+	setHash();
+	cornerPos=[pos[0]-width/(2*tileSize)+0.5,pos[1]-height/(2*tileSize)+0.5];
+	draw();
+	redrawHighlight();
+}
+function control_zoom(x, xPos, yPos) {// distance zoomed
+	const zoom=tileSize/128;
+	const newZoom=Math.max(zoom*x,0.3);
+	const zoomDiff=newZoom/zoom - 1;
+	tileSize=newZoom*128;
+	const tempPos=[pos[0]+offsetPos[0],pos[1]+offsetPos[1]];
+	tempPos[0]+=(xPos-width/2)*zoomDiff/tileSize;
+	tempPos[1]+=(yPos-height/2)*zoomDiff/tileSize;
+	pos[0]=Math.floor(tempPos[0]);
+	pos[1]=Math.floor(tempPos[1]);
+	offsetPos[0]=tempPos[0]-pos[0];
+	offsetPos[1]=tempPos[1]-pos[1];
+	offsetPix[0]=-1*offsetPos[0]*tileSize;
+	offsetPix[1]=-1*offsetPos[1]*tileSize;
+	setHash();
+	cornerPos=[pos[0]-width/(2*tileSize)+0.5,pos[1]-height/(2*tileSize)+0.5];
+	draw();
+	redrawHighlight();
+}
+function control_setZoom(x, xPos, yPos) {
+	if(freshZoom) {
+		freshZoom=false;
+		lastZoom=1;
+	}
+	zoom(lastZoom/x, xPos, yPos);
+	lastZoom=x;
+}
+function control_click(x,y) {// x: x position, y: y position
+	highlight(x,y);
+}
+function control_drag(x,y) {// x: x position, y: y position
+	control_pan(x - mouseLastPos.x, y - mouseLastPos.y); 
+	mouseLastPos={x:x, y:y};
+}
+
+function setupControls_old() {
 	$(".trpn-calc").on("change",setTroopCalcs);
 	$(".trpn-calc").on("keyup",setTroopCalcs);
 	$(".tab-tab").on("click",function(e){
@@ -462,9 +711,8 @@ function setup() {
 	});
 	hammertime.on("panstart", dragStart);
 	hammertime.on("panmove", drag);
-	hammertime.on("singletap", highlight);
+	hammertime.on("singletap", highlight_old);
 	document.getElementById('mcmap').addEventListener("mousemove",highlighttroops);
-	$("#comm-ntn").val(nation);
 }
 function dragStart(e) {
 	mousePos[0]=e.center.x;
@@ -491,7 +739,7 @@ function drag(e) {
 }
 function canvasSetup() {
 	canvasResize();
-	canvas.addEventListener('wheel', function(event) {zoom(event); return false;}, {passive:false});
+	//canvas.addEventListener('wheel', function(event) {zoom(event); return false;}, {passive:false});
 	mapCnv=document.createElement('canvas');
 	mapCnv.width=width;
 	mapCnv.height=height;
@@ -539,7 +787,8 @@ function canvasSetup() {
 function selectSprite(event){
 	trpnCtx.clearRect(0,0,64,64);
 	if(!event.target.custom) {
-		trpnCtx.drawImage(sprites,(event.target.i%8)*16,parseInt(event.target.i/8)*16,16,16,0,0,64,64);
+		//trpnCtx.drawImage(sprites,(event.target.i%8)*16,parseInt(event.target.i/8)*16,16,16,0,0,64,64);
+		drawSpriteFromMap(trpnCtx,0,0,sprites,event.target.i,16,64);
 		trpSprite=event.target.i;
 	}
 	else {
@@ -571,12 +820,11 @@ function gotoPin(pinName) {
 	if(pinsFound) {
 		for(var i=0; i<markers.length; i++) {
 			if(markers[i].name==pinName) {
-				pos[0]=(markers[i].x+0.5)/128;
-				pos[1]=(markers[i].z+0.5)/128;
-				offsetPos[0]=pos[0]-Math.floor(pos[0]);
-				offsetPos[1]=pos[1]-Math.floor(pos[1]);
-				pos[0]=Math.floor(pos[0]);
-				pos[1]=Math.floor(pos[1]);
+				const tempPos=[(markers[i].x+0.5)/128,(markers[i].z+0.5)/128]
+				pos[0]=Math.floor(tempPos[0]);
+				pos[1]=Math.floor(tempPos[1]);
+				offsetPos[0]=tempPos[0]-pos[0];
+				offsetPos[1]=tempPos[1]-pos[1];
 				offsetPix[0]=-1*offsetPos[0]*tileSize;
 				offsetPix[1]=-1*offsetPos[1]*tileSize;
 				cornerPos=[pos[0]-width/(2*tileSize)+0.5,pos[1]-height/(2*tileSize)+0.5];
@@ -614,7 +862,7 @@ function jumpPinFunc(e) {
 	}
 }
 function jumpCoordFunc(e) {
-	if(jumpMenuActive && e.path[1].id=="jumpCoordForm"+mobilePinCheck && e.keyCode==13) {
+	if(jumpMenuActive && e.srcElement.parentElement.id=="jumpCoordForm"+mobilePinCheck && e.keyCode==13) {
 		gotoPoint((parseFloat($("#jumpCoordX"+mobilePinCheck).val())/128),(parseFloat($("#jumpCoordZ"+mobilePinCheck).val())/128),(parseInt($("#jumpCoordD"+mobilePinCheck).val())));
 		setTimeout(function(){jumpMenuActive=false; menuActive=false;},1);
 		$("#jumpMenu"+mobilePinCheck).removeClass("shown");
@@ -622,7 +870,7 @@ function jumpCoordFunc(e) {
 }
 function draw() {
 	mapCtx.clearRect(0,0,width,height);
-	tileDelta=[pos[0]-cornerPos[0],pos[1]-cornerPos[1]];
+	tileDelta=[width/(2*tileSize)+0.5,height/(2*tileSize)+0.5];
 	for(var i=-Math.ceil(tileDelta[0]); i<=Math.ceil(tileDelta[0])+1; i++) {
 		for(var j=-Math.ceil(tileDelta[1]); j<=Math.ceil(tileDelta[1])+1; j++) {
 			var x=(Math.floor(pos[0])+i);
@@ -634,23 +882,24 @@ function draw() {
 				}
 			}
 			else if(tiles[key]==undefined) {
-				tileDest[key]=[i,j];
 				tiles[key]=document.createElement('img');
-				tiles[key].src="img/tile."+dimension+"."+x+"."+y+".png";
 				tiles[key].onerror=function() {
 					empty.push(key);
 					if (this.src != 'img/default.png') {
 						this.src = 'img/default.png'
 					};
 					preventDefault();
-				}
+				};
 				tiles[key].onload=function () {
-					var foo=this.src.split(".");
-					var bar=tileDest["d"+dimension+"x"+foo[foo.length-3]+"y"+foo[foo.length-2]];
-					delete tileDest["d"+dimension+"x"+foo[foo.length-3]+"y"+foo[foo.length-2]];
-					mapCtx.drawImage(this,offsetPix[0]+(Math.floor(bar[0])+tileDelta[0])*tileSize,offsetPix[1]+(Math.floor(bar[1])+tileDelta[1])*tileSize,tileSize,tileSize);
+					tileDelta=[width/(2*tileSize)+0.5,height/(2*tileSize)+0.5];
+					const foo=this.src.split(".");
+					const x=parseInt(foo[foo.length-3]);
+					const y=parseInt(foo[foo.length-2]);
+					const key="d"+foo[foo.length-4]+"x"+x+"y"+y;
+					mapCtx.drawImage(this,offsetPix[0]+(x-pos[0]+tileDelta[0])*tileSize,offsetPix[1]+(y-pos[1]+tileDelta[1])*tileSize,tileSize,tileSize);
 					drawMain();
-				}
+				};
+				tiles[key].src="img/tile."+dimension+"."+x+"."+y+".png";
 			}
 			else {
 				mapCtx.drawImage(tiles[key],offsetPix[0]+(i+tileDelta[0])*tileSize,offsetPix[1]+(j+tileDelta[1])*tileSize,tileSize,tileSize);
@@ -661,55 +910,55 @@ function draw() {
 }
 function drawMain() {
 	ctx.clearRect(0,0,width,height);
-	ctx.drawImage(mapCnv,0,0);
-	ctx.drawImage(boxCnv,0,0);
-	ctx.drawImage(trpCnv,0,0);
-	ctx.drawImage(pinCnv,0,0);
-	ctx.drawImage(uiCnv,0,0);
+	ctx.drawImage(mapCnv,0,0);// Copy map to view
+	ctx.drawImage(boxCnv,0,0);// Copy highlight box to view
+	ctx.drawImage(trpCnv,0,0);// Copy troops to view
+	ctx.drawImage(pinCnv,0,0);// Copy pins to view
+	ctx.drawImage(uiCnv,0,0);// Copy ui elements (rotary menus) to view
 }
 function move(e) {
 	var allowNormalExecution=true;
 	var time=(new Date()).getTime();
 	if(time-lastButtonPress>100) {
 		if(!menuActive) {
-			if((e.keyCode>36 && e.keyCode<41) || e.keyCode==87 || e.keyCode==65 || e.keyCode==83 || e.keyCode==68) {
+			if(e.key=='ArrowLeft' || e.key=='ArrowUp' || e.key=='ArrowRight' || e.key=='ArrowDown' || e.key=='w' || e.key=='a' || e.key=='s' || e.key=='d') {
 				boxCtx.clearRect(0,0,width,height);
 				resetStuff();
 			}
-			if(e.keyCode==37 || e.keyCode==65) {
+			if(e.key=='ArrowLeft' || e.key=='a') {
 				pos[0]-=Math.max(Math.floor(startingTileSize/tileSize),1);
 				Object.keys(tileDest).forEach(function(key){tileDest[key][0]++});
 			}
-			else if(e.keyCode==38 || e.keyCode==87) {
+			else if(e.key=='ArrowUp' || e.key=='w') {
 				pos[1]-=Math.max(Math.floor(startingTileSize/tileSize),1);
 				Object.keys(tileDest).forEach(function(key){tileDest[key][1]++});
 			}
-			else if(e.keyCode==39 || e.keyCode==68) {
+			else if(e.key=='ArrowRight' || e.key=='d') {
 				pos[0]+=Math.max(Math.floor(startingTileSize/tileSize),1);
 				Object.keys(tileDest).forEach(function(key){tileDest[key][0]--});
 			}
-			else if(e.keyCode==40 || e.keyCode==83) {
+			else if(e.key=='ArrowDown' || e.key=='s') {
 				pos[1]+=Math.max(Math.floor(startingTileSize/tileSize),1);
 				Object.keys(tileDest).forEach(function(key){tileDest[key][1]--});
 			}
-			else if(e.keyCode==13) {
+			else if(e.key=='p') {
 				if(pointsVis && selectedPoint!=0) {
 					resetStuff();
 				}
 				pointsVis=!pointsVis;
 			}
-			else if(e.keyCode==16) {
+			else if(e.key=='j') {
 				$("#jumpMenu").addClass("shown");
 				jumpMenuActive=true;
 				menuActive=true;
 			}
-			else if(e.keyCode==9) {
+			else if(e.key=='i') {
 				$("#instr").removeClass("hide");
 				instMenuActive=true;
 				menuActive=true;
 				allowNormalExecution=false;
 			}
-			else if(e.keyCode==81) {
+			else if(e.key=='q') {
 				dimension--;
 				while(dimension<-1) {
 					dimension+=3
@@ -717,7 +966,7 @@ function move(e) {
 				setHash();
 				draw();
 			}
-			else if(e.keyCode==69) {
+			else if(e.key=='e') {
 				dimension++;
 				while(dimension>1) {
 					dimension-=3
@@ -726,25 +975,25 @@ function move(e) {
 				draw();
 			}
 			else {
-				console.log(e.keyCode);
+				//console.log(e.key);
 			}
-			if((e.keyCode>36 && e.keyCode<41) || e.keyCode==87 || e.keyCode==65 || e.keyCode==83 || e.keyCode==68) {
+			if(e.key=='ArrowLeft' || e.key=='ArrowUp' || e.key=='ArrowRight' || e.key=='ArrowDown' || e.key=='w' || e.key=='a' || e.key=='s' || e.key=='d') {
 				cornerPos=[pos[0]-width/(2*tileSize)+0.5,pos[1]-height/(2*tileSize)+0.5];
 				setHash();
 				draw();
 			}
 			drawPoints();
 		}
-		else if(jumpMenuActive && e.keyCode==27) {
+		else if(jumpMenuActive && e.key=='Escape') {
 			$("#jumpMenu").removeClass("shown");
 			jumpMenuActive=false;
 			menuActive=false;
 		}
-		else if(instMenuActive && (e.keyCode==27 || e.keyCode==9)) {
+		else if(instMenuActive && (e.key=='Escape' || e.key=='i')) {
 			$("#instr").addClass("hide");
 			instMenuActive=false;
 			menuActive=false;
-			if(e.keyCode==9) {allowNormalExecution=false;}
+			//if(e.key=='Tab') {allowNormalExecution=false;}
 		}
 	}
 	lastButtonPress=time;
@@ -778,7 +1027,163 @@ function closePinMenu() {
 	pinMenuActive=false;
 	menuActive=false;
 }
-function highlight(e) {
+function closeGenericMenu() {
+	$("#genericMenu").removeClass("shown");
+	genericMenuActive=false;
+	menuActive=false;
+}
+function highlight(inX,inY) {
+	var rawX=inX-offsetPix[0];
+	var rawY=inY-offsetPix[1];
+	var xf = Math.floor((rawX-width/2)/tileSize+0.5)-cornerPos[0]+pos[0];
+	var yf = Math.floor((rawY-height/2)/tileSize+0.5)-cornerPos[1]+pos[1];
+	var x = Math.floor(xf);
+	var y = Math.floor(yf);
+	var xCor=Math.floor(xf+cornerPos[0]);
+	var yCor=Math.floor(yf+cornerPos[1]);
+	var xXct=rawX+(cornerPos[0]*tileSize);
+	var yXct=rawY+(cornerPos[1]*tileSize);
+	var newX=Math.floor(((rawX-width/2)/tileSize+pos[0])*128);
+	var newZ=Math.floor(((rawY-height/2)/tileSize+pos[1])*128);
+	boxCtx.clearRect(0,0,width,height);
+	var clickedMark=false;
+	var whichMark=-1;
+	var markDist=Infinity;
+	var clickedTrp=false;
+	var whichTrp=-1;
+	var trpDist=Infinity;
+	var clickedBtn=false;
+	var whichBtn=-1;
+	var btnDist=Infinity;
+	if(pointsVis) {
+		for(var i=0; i<markers.length; i++) {
+			var dist=Math.sqrt(Math.pow(xXct-(markers[i].x+0.5)/128*tileSize-tileSize/2,2)+Math.pow(yXct-(markers[i].z+0.5)/128*tileSize-tileSize/2,2));
+			if(dist<markDist && (((dist<15 && selectedPoint==markers[i].id) || dist<10)) || (((dist<60 && selectedPoint==markers[i].id) || dist<40) && isMobile)) {
+				clickedMark=true;
+				whichMark=i;
+				markDist=dist;
+			}
+		}
+		for(var i=0; i<troops.length; i++) {
+			var dist=Math.sqrt(Math.pow(xXct-(troops[i].x+0.5)/128*tileSize-tileSize/2,2)+Math.pow(yXct-(troops[i].z+0.5)/128*tileSize-tileSize/2,2));
+			if(dist<trpDist && (((dist<26 && (selectedArmy==troops[i].id || targetArmy==troops[i].id)) || (dist<22 && hoverArmy==troops[i].id) || dist<18)) || (((dist<102 && (selectedArmy==troops[i].id || targetArmy==troops[i].id)) || (dist<85 && hoverArmy==troops[i].id) || dist<72) && isMobile)) {
+				clickedTrp=true;
+				whichTrp=i;
+				trpDist=dist;
+			}
+		}
+	}
+	for(var i=0; i<activeRotaryBtns.length; i++) {
+		//drawCircle(ctx,activeRotaryBtns[i].x,activeRotaryBtns[i].y,activeRotaryBtns[i].radius,"#ffff00");
+		var dist=Math.sqrt(Math.pow(inX-activeRotaryBtns[i].x,2)+Math.pow(inY-activeRotaryBtns[i].y,2));
+		if(dist<btnDist && dist<activeRotaryBtns[i].radius) {
+			clickedBtn=true;
+			whichBtn=i;
+			btnDist=dist;
+		}
+	}
+	//drawCircle(ctx,x,y,16,"#0000ff");
+	if(clickedBtn) {
+		activeRotaryBtns[whichBtn].action(activeRotaryBtns[whichBtn].data);
+	}
+	else if(clickedTrp && ((actionState!="move" && actionState!="move_story") || selectedArmy==whichTrp)) {
+		if(selectedArmy!=whichTrp) {
+			if(selectedArmy!=-1) {
+				if(targetArmy!=whichTrp)
+					targetArmy=whichTrp;
+				else
+					targetArmy=-1;
+			}
+			else {
+				selectedPoint=0;
+				lastTar=[Infinity,Infinity];
+				selectedArmy=whichTrp;
+				if(troops[selectedArmy].state==6) {		
+					updateBattleHealths.length=0;
+					currentBattleHealths.length=0;
+					var battle=battles[troops[selectedArmy].battle];
+					for(let i=0; i<battle.length; i++) {
+						updateBattleHealths.push('Please enter the new health for the army "'+troops[battle[i]].name+'".');
+						currentBattleHealths.push(troops[battle[i]].health);
+					}
+				}
+				$("#infoTxt")[0].innerHTML="<b>"+troops[whichTrp].name+"</b><br>Nation: "+troops[whichTrp].nation+", Size: "+NumberFormat.format(troops[whichTrp].size)+", Health: "+troops[whichTrp].health+"%<br><span onclick=\"viewTrp()\">Details</span>";
+				$("#infoTxtBox").addClass("shown");
+			}
+		}
+		else {
+			if((actionState!="move" && actionState!="move_story")) {
+				selectedArmy=-1;
+				resetStuff();
+			}
+			else {
+				actionState="default";
+				drawUI();
+			}
+		}
+		drawPoints();
+	}
+	else if(actionState=="move" && Math.pow(newX-troops[selectedArmy].x,2)+Math.pow(newZ-troops[selectedArmy].z,2)<=4096) {
+		console.log("Passed",newX,newZ,",",troops[selectedArmy].x,troops[selectedArmy].z);
+		sendTrpAction({id:troops[selectedArmy].id,x:newX,z:newZ,action:"move"});
+		troops[selectedArmy].x=newX;
+		troops[selectedArmy].z=newZ;
+		selectedArmy=-1;
+		actionState="default";
+		drawUI();
+		resetStuff();
+	}
+	else if(actionState=="move") {
+		console.log("Failed",newX,newZ,",",troops[selectedArmy].x,troops[selectedArmy].z);
+		addBanner("Too far away.");
+	}
+	else if(actionState=="move_story") {
+		console.log("Passed",newX,newZ,",",troops[selectedArmy].x,troops[selectedArmy].z);
+		sendAltTrpAction({id:troops[selectedArmy].id,x:newX,z:newZ,action:"move"});
+		troops[selectedArmy].x=newX;
+		troops[selectedArmy].z=newZ;
+		selectedArmy=-1;
+		actionState="default";
+		drawUI();
+		resetStuff();
+	}
+	else if(clickedMark) {
+		if(selectedPoint!=markers[whichMark].id) {
+			clickedPin=whichMark;
+			selectedArmy=-1;
+			actionState="default";
+			lastTar=[Infinity,Infinity];
+			selectedPoint=markers[whichMark].id;
+			editTxt="";
+			if(markers[whichMark].owned) $("#editpin").addClass("shown");
+			else $("#editpin").removeClass("shown");
+			$("#infoTxt")[0].innerHTML="<b>"+markers[whichMark].name+"</b>: "+markers[whichMark].desc;
+			$("#infoTxtBox").addClass("shown");
+		}
+		else {
+			selectedPoint=0;
+			resetStuff();
+		}
+		drawPoints();
+	}
+	else if(lastTar[0]!=xCor || lastTar[1]!=yCor) {
+		resetStuff();
+		lastTar=[xCor,yCor];
+		boxCtx.strokeStyle="#000000";
+		boxCtx.lineWidth=8;
+		boxCtx.strokeRect(offsetPix[0]+xf*tileSize, offsetPix[1]+yf*tileSize, tileSize, tileSize);
+		boxCtx.strokeStyle="#FFFFFF";
+		boxCtx.lineWidth=4;
+		boxCtx.strokeRect(offsetPix[0]+xf*tileSize, offsetPix[1]+yf*tileSize, tileSize, tileSize);
+		$("#infoTxt")[0].innerHTML="Highlighted tile ("+xCor+", "+yCor+"), centered on ("+(xCor*128)+", "+(yCor*128)+"), coordinates ("+((xCor*128)-64)+", "+((yCor*128)-64)+") to ("+((xCor*128)+63)+", "+((yCor*128)+63)+").<br>Map ID: "+mapIds(xCor,yCor);
+		$("#infoTxtBox").addClass("shown");
+		drawMain();
+	}
+	else {
+		resetStuff();
+	}
+}
+function highlight_old(e) {
 	var rawX=e.center.x-offsetPix[0];
 	var rawY=e.center.y-offsetPix[1];
 	var xf = Math.floor((rawX-width/2)/tileSize+0.5)-cornerPos[0]+pos[0];
@@ -925,7 +1330,7 @@ function highlighttroops(e) {
 	var clickedBtn=false;
 	var whichBtn=-1;
 	var btnDist=Infinity;
-	if(pointsVis && actionState!="move") {
+	if(pointsVis && actionState!="move" && actionState!="move_story") {
 		for(var i=0; i<troops.length; i++) {
 			var dist=Math.sqrt(Math.pow(xXct-(troops[i].x+0.5)/128*tileSize-tileSize/2,2)+Math.pow(yXct-(troops[i].z+0.5)/128*tileSize-tileSize/2,2));
 			if(dist<trpDist && (((dist<26 && hoverArmy==troops[i].id) || dist<18)) || (((dist<102 && hoverArmy==troops[i].id) || dist<72) && isMobile)) {
@@ -946,7 +1351,7 @@ function highlighttroops(e) {
 	var trpPos;
 	if(selectedArmy>-1)
 		trpPos=[offsetPix[0]+(troops[selectedArmy].x+0.5)/128*tileSize-cornerPos[0]*tileSize+tileSize/2,offsetPix[1]+(troops[selectedArmy].z+0.5)/128*tileSize-cornerPos[1]*tileSize+tileSize/2];
-	if(clickedTrp || clickedBtn || (actionState=="move" && Math.sqrt(Math.pow(trpPos[0]-e.x,2)+Math.pow(trpPos[1]-e.y,2))<=64*tileSize/128))
+	if(clickedTrp || clickedBtn || (actionState=="move" && Math.sqrt(Math.pow(trpPos[0]-e.x,2)+Math.pow(trpPos[1]-e.y,2))<=64*tileSize/128) || actionState=="move_story")
 		$("#mcmap").addClass("pointer");
 	else
 		$("#mcmap").removeClass("pointer");
@@ -1060,8 +1465,8 @@ function resetStuff() {
 	rotaryQueue=[];
 }
 function setHash() {
-	clearTimeout(setHashTimeout);
-	setHashTimeout=setTimeout(function(){history.replaceState(undefined, undefined, "#x="+(pos[0]+offsetPos[0])+"&z="+(pos[1]+offsetPos[1])+"&zoom="+tileSize/128+"&dimension="+dimension)},1000);
+	/*clearTimeout(setHashTimeout);
+	setHashTimeout=setTimeout(function(){history.replaceState(undefined, undefined, "#x="+(pos[0]+offsetPos[0])+"&z="+(pos[1]+offsetPos[1])+"&zoom="+tileSize/128+"&dimension="+dimension)},1000);*/
 }
 function drawTroops() {
 	trpCtx.clearRect(0,0,width,height);
@@ -1085,7 +1490,8 @@ function drawTroops() {
 				drawCircle(trpCtx,posAdj[0],posAdj[1],18*sizeMod,"#"+troops[i].color);
 				if(!troops[i].customsprite) {
 					trpCtx.imageSmoothingEnabled=false;
-					trpCtx.drawImage(sprites,(troops[i].sprite%8)*16,parseInt(troops[i].sprite/8)*16,16,16,posAdj[0]-16*sizeMod,posAdj[1]-16*sizeMod,32*sizeMod,32*sizeMod);
+					//trpCtx.drawImage(sprites,(troops[i].sprite%8)*16,parseInt(troops[i].sprite/8)*16,16,16,posAdj[0]-16*sizeMod,posAdj[1]-16*sizeMod,32*sizeMod,32*sizeMod);
+					drawSpriteFromMap(trpCtx,posAdj[0]-16*sizeMod,posAdj[1]-16*sizeMod,sprites,troops[i].sprite,16,32*sizeMod);
 				}
 				else
 					for(var j=0; j<customsprites.length; j++)
@@ -1096,33 +1502,47 @@ function drawTroops() {
 								trpCtx.imageSmoothingEnabled=false;
 							trpCtx.drawImage(customsprites[j],posAdj[0]-16*sizeMod,posAdj[1]-16*sizeMod,32*sizeMod,32*sizeMod);
 						}
-				if(troops[i].state>0)
-					trpCtx.drawImage(statusSprites,((troops[i].state-1)%4)*64,parseInt((troops[i].state-1)/4)*64,64,64,posAdj[0],posAdj[1],16*sizeMod,16*sizeMod);
+				if(troops[i].state>0) {
+					//trpCtx.drawImage(statusSprites,((troops[i].state-1)%4)*64,parseInt((troops[i].state-1)/4)*64,64,64,posAdj[0],posAdj[1],16*sizeMod,16*sizeMod);
+					drawSpriteFromMap(trpCtx,posAdj[0],posAdj[1],statusSprites,troops[i].state-1,64,16*sizeMod);
+				}
 				if(i==selectedArmy) {
-					var trpBtns=RotaryButton.copyGroup(controlBtns);
-					if(!troops[i].owned) {
-						for(var j=0; j<3; j++) {
-							trpBtns[j].active=1;
-							trpBtns[j].data.owned=false;
+					if(troops[selectedArmy].state==6) {
+						var trpBtns=RotaryButton.copyGroup(controlBattleBtns);
+						if(!troops[i].owned) {
+							for(var j=0; j<3; j++) {
+								trpBtns[j].active=1;
+								trpBtns[j].data.owned=false;
+							}
 						}
+						scheduleRotary(posAdj[0],posAdj[1],mobMod*32,mobMod*96,trpBtns);
 					}
-					if(troops[selectedArmy].moveleft<1) {
-						trpBtns[2].active=1;
-						trpBtns[2].data.moveless=true;
+					else {
+						var trpBtns=RotaryButton.copyGroup(controlBtns);
+						if(!troops[i].owned) {
+							for(var j=0; j<3; j++) {
+								trpBtns[j].active=1;
+								trpBtns[j].data.owned=false;
+							}
+						}
+						/*if(troops[selectedArmy].moveleft<1) {
+							trpBtns[2].active=1;
+							trpBtns[2].data.moveless=true;
+						}
+						if(troops[selectedArmy].moveleft<2) {
+							trpBtns[0].active=1;
+							trpBtns[0].data.moveless=true;
+							trpBtns[1].active=1;
+							trpBtns[1].data.moveless=true;
+						}*/
+						if(troops[selectedArmy].bonuses.indexOf("fortify")>-1) {
+							trpBtns[0].buff++;
+						}
+						if(troops[selectedArmy].bonuses.indexOf("healing")>-1) {
+							trpBtns[1].buff++;
+						}
+						scheduleRotary(posAdj[0],posAdj[1],mobMod*32,mobMod*96,trpBtns);
 					}
-					if(troops[selectedArmy].moveleft<2) {
-						trpBtns[0].active=1;
-						trpBtns[0].data.moveless=true;
-						trpBtns[1].active=1;
-						trpBtns[1].data.moveless=true;
-					}
-					if(troops[selectedArmy].bonuses.indexOf("fortify")>-1) {
-						trpBtns[0].buff++;
-					}
-					if(troops[selectedArmy].bonuses.indexOf("healing")>-1) {
-						trpBtns[1].buff++;
-					}
-					scheduleRotary(posAdj[0],posAdj[1],mobMod*32,mobMod*96,trpBtns);
 				}
 				if(i==targetArmy) {
 					if(troops[selectedArmy].nation==troops[targetArmy].nation || (relations[troops[selectedArmy].nation][troops[targetArmy].nation]!=undefined && relations[troops[selectedArmy].nation][troops[targetArmy].nation]<4)) {
@@ -1133,18 +1553,18 @@ function drawTroops() {
 								trpBtns[j].data.owned=false;
 							}
 						}
-						if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)>4096) {
+						/*if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)>4096) {
 							for(var j=0; j<3; j++) {
 								trpBtns[j].active=1;
 								trpBtns[j].data.toofar=true;
 							}
-						}
-						if(troops[selectedArmy].moveleft<2) {
+						}*/
+						/*if(troops[selectedArmy].moveleft<2) {
 							trpBtns[0].active=1;
 							trpBtns[0].data.moveless=true;
 							trpBtns[1].active=1;
 							trpBtns[1].data.moveless=true;
-						}
+						}*/
 						if(troops[selectedArmy].bonuses.indexOf("healing")>-1) {
 							trpBtns[1].buff++;
 						}
@@ -1158,13 +1578,13 @@ function drawTroops() {
 								trpBtns[j].data.owned=false;
 							}
 						}
-						if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)>4096) {
+						/*if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)>4096) {
 							for(var j=0; j<3; j++) {
 								trpBtns[j].active=1;
 								trpBtns[j].data.toofar=true;
 							}
-						}
-						if(troops[selectedArmy].moveleft<2) {
+						}*/
+						/*if(troops[selectedArmy].moveleft<2) {
 							trpBtns[0].active=1;
 							trpBtns[0].data.moveless=true;
 							trpBtns[2].active=1;
@@ -1173,7 +1593,7 @@ function drawTroops() {
 						if(troops[selectedArmy].moveleft<4) {
 							trpBtns[1].active=1;
 							trpBtns[1].data.moveless=true;
-						}
+						}*/
 						if(troops[selectedArmy].bonuses.indexOf("open")>-1) {
 							trpBtns[0].buff+=2;
 						}
@@ -1224,11 +1644,11 @@ function drawUI() {
 	uiCtx.clearRect(0,0,width,height);
 	//uiCnv.width=uiCnv.width; // Hack way of clearing it cause bugs.
 	activeRotaryBtns=[];
-	while(rotaryQueue.length>0 && actionState!="move") {
+	while(rotaryQueue.length>0 && actionState!="move" && actionState!="move_story") {
 		var stuff=rotaryQueue.splice(0,1)[0];
 		drawRotary(stuff[0],stuff[1],stuff[2],stuff[3],stuff[4]);
 	}
-	if(tooltip.active>-1 && actionState!="move") {
+	if(tooltip.active>-1 && actionState!="move" && actionState!="move_story") {
 		var fontSize=16;
 		uiCtx.font=fontSize+"px pixel";
 		uiCtx.fillStyle="#808080";
@@ -1304,86 +1724,131 @@ function drawRotary(x,y,iRadius,oRadius,btns) {
 	uiCtx.arc(x, y, radius, 0, 2*Math.PI, true);
 	uiCtx.stroke();
 	for(var i=0; i<btns.length; i++) {
-		btns[i].x=x-radius*Math.sin(Math.TAU*i/4);
-		btns[i].y=y-radius*Math.cos(Math.TAU*i/4);
+		btns[i].x=x+radius*Math.cos(Math.TAU*i/btns.length);
+		btns[i].y=y-radius*Math.sin(Math.TAU*i/btns.length);
 		btns[i].radius=menuwidth/2;
-		uiCtx.drawImage(rotarySprites[btns[i].active],(btns[i].icon%4)*128,parseInt(btns[i].icon/4)*128,128,128,btns[i].x-btnSize/2,btns[i].y-btnSize/2,btnSize,btnSize);
-		if(btns[i].buff>=0)
-			uiCtx.drawImage(buffSprites,(btns[i].buff%4)*64,parseInt(btns[i].buff/4)*64,64,64,btns[i].x,btns[i].y,btnSize/2,btnSize/2);
+		//uiCtx.drawImage(rotarySprites[btns[i].active],(btns[i].icon%4)*128,parseInt(btns[i].icon/4)*128,128,128,btns[i].x-btnSize/2,btns[i].y-btnSize/2,btnSize,btnSize);
+		drawSpriteFromMap(uiCtx,btns[i].x-btnSize/2,btns[i].y-btnSize/2,rotarySprites[btns[i].active],btns[i].icon,128,btnSize);
+		if(btns[i].buff>=0) {
+			//uiCtx.drawImage(buffSprites,(btns[i].buff%4)*64,parseInt(btns[i].buff/4)*64,64,64,btns[i].x,btns[i].y,btnSize/2,btnSize/2);
+			drawSpriteFromMap(uiCtx,btns[i].x,btns[i].y,buffSprites,btns[i].buff,64,btnSize/2);
+		}
 		activeRotaryBtns.push(btns[i]);
 	}
 }
 function trpAction(data) {
 	console.log("trpAction",data);
-	if(data.name=="Fortify") {
-		if(troops[selectedArmy].moveleft>=1)
-			sendTrpAction({id:troops[selectedArmy].id,action:"fortify"});
-		else
-			addBanner("That unit does not have enough movement left to perform that action.");
+	if(data.story) {
+		switch(data.name) {
+			case "Fortify":
+				sendAltTrpAction({id:troops[selectedArmy].id,action:"fortify"});
+				break;
+			case "Rest":
+				sendAltTrpAction({id:troops[selectedArmy].id,newHealth:data.health,action:"rest"});
+				break;
+			case "Move":
+				actionState="move_story";//action:"move"
+				drawUI();
+				break;
+			case "Update Health":
+				sendAltTrpAction({id:troops[selectedArmy].id,health_values:data.healths,armies:data.armies,action:"update_battle"});
+				break;
+			case "Exit Battle":
+				sendAltTrpAction({id:troops[selectedArmy].id,health_values:data.healths,armies:data.armies,action:"exit_battle"});
+				break;
+			case "Enter Battle":
+				sendAltTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"enter_battle"});
+				break;
+			case "Attack":
+				sendAltTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,newHealth0:data.attackerHealth,newHealth1:data.targetHealth,action:"attack"});
+				break;
+			case "Shoot":
+				sendAltTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,newHealth:data.health,action:"shoot"});
+				break;
+			case "Aid":
+				sendAltTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"aid"});
+				break;
+			case "Heal":
+				sendAltTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,newHealth:data.health,action:"heal"});
+				break;
+			case "Merge":
+				sendAltTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"merge"});
+				break;
+		}
 	}
-	else if(data.name=="Rest") {
-		if(troops[selectedArmy].moveleft>=1)
-			sendTrpAction({id:troops[selectedArmy].id,action:"rest"});
-		else
-			addBanner("That unit does not have enough movement left to perform that action.");
-	}
-	else if(data.name=="Move") {
-		actionState="move";
-		drawUI();
-	}
-	else if(data.name=="Attack") {
-		if(troops[selectedArmy].moveleft>=1)
-			if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
-				sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"attack"});
-			else
-				addBanner("Too far away.");
-		else
-			addBanner("That unit does not have enough movement left to perform that action.");
-	}
-	else if(data.name=="Hit & Run") {
-		if(troops[selectedArmy].moveleft>=2)
-			if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
-				sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"hitrun"});
-			else
-				addBanner("Too far away.");
-		else
-			addBanner("That unit does not have enough movement left to perform that action.");
-	}
-	else if(data.name=="Shoot") {
-		if(troops[selectedArmy].moveleft>=1)
-			if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
-				sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"shoot"});
-			else
-				addBanner("Too far away.");
-		else
-			addBanner("That unit does not have enough movement left to perform that action.");
-	}
-	else if(data.name=="Aid") {
-		if(troops[selectedArmy].moveleft>=1)
-			if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
-				sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"aid"});
-			else
-				addBanner("Too far away.");
-		else
-			addBanner("That unit does not have enough movement left to perform that action.");
-	}
-	else if(data.name=="Heal") {
-		if(troops[selectedArmy].moveleft>=2)
-			if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
-				sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"heal"});
-			else
-				addBanner("Too far away.");
-		else
-			addBanner("That unit does not have enough movement left to perform that action.");
-	}
-	else if(data.name=="Merge") {
-		if(troops[selectedArmy].moveleft>=1)
-			if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
-				sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"merge"});
-			else
-				addBanner("Too far away.");
-		else
-			addBanner("That unit does not have enough movement left to perform that action.");
+	else {
+		switch(data.name) {
+			case "Fortify":
+				if(troops[selectedArmy].moveleft>=1)
+					sendTrpAction({id:troops[selectedArmy].id,action:"fortify"});
+				else
+					addBanner("That unit does not have enough movement left to perform that action.");
+				break;
+			case "Rest":
+				if(troops[selectedArmy].moveleft>=1)
+					sendTrpAction({id:troops[selectedArmy].id,action:"rest"});
+				else
+					addBanner("That unit does not have enough movement left to perform that action.");
+				break;
+			case "Move":
+				actionState="move";
+				drawUI();
+				break;
+			case "Attack":
+				if(troops[selectedArmy].moveleft>=1)
+					if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
+						sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"attack"});
+					else
+						addBanner("Too far away.");
+				else
+					addBanner("That unit does not have enough movement left to perform that action.");
+				break;
+			case "Hit & Run":
+				if(troops[selectedArmy].moveleft>=2)
+					if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
+						sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"hitrun"});
+					else
+						addBanner("Too far away.");
+				else
+					addBanner("That unit does not have enough movement left to perform that action.");
+				break;
+			case "Shoot":
+				if(troops[selectedArmy].moveleft>=1)
+					if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
+						sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"shoot"});
+					else
+						addBanner("Too far away.");
+				else
+					addBanner("That unit does not have enough movement left to perform that action.");
+				break;
+			case "Aid":
+				if(troops[selectedArmy].moveleft>=1)
+					if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
+						sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"aid"});
+					else
+						addBanner("Too far away.");
+				else
+					addBanner("That unit does not have enough movement left to perform that action.");
+				break;
+			case "Heal":
+				if(troops[selectedArmy].moveleft>=2)
+					if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
+						sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"heal"});
+					else
+						addBanner("Too far away.");
+				else
+					addBanner("That unit does not have enough movement left to perform that action.");
+				break;
+			case "Merge":
+				if(troops[selectedArmy].moveleft>=1)
+					if(Math.pow(troops[selectedArmy].x-troops[targetArmy].x,2)+Math.pow(troops[selectedArmy].z-troops[targetArmy].z,2)<=4096)
+						sendTrpAction({id:troops[selectedArmy].id,target:troops[targetArmy].id,action:"merge"});
+					else
+						addBanner("Too far away.");
+				else
+					addBanner("That unit does not have enough movement left to perform that action.");
+				break;
+		}
 	}
 	if(data.name!="Move") {
 		selectedArmy=-1;
@@ -1403,6 +1868,27 @@ function sendTrpAction(data) {
 		if(data.status2>0) {
 			addBanner(data.text2);
 		}
+	});
+}
+function sendAltTrpAction(data) {
+	console.log('sendAltTrpAction','trpActionStory.php',data);
+	$.getJSON("trpActionStory.php",data,function (data) {
+		console.log(data);
+		if(data.status>0) {
+			addBanner(data.text);
+		}
+		if(data.status1>0) {
+			addBanner(data.text1);
+		}
+		if(data.status2>0) {
+			addBanner(data.text2);
+		}
+	})
+	.done(function(data) {
+		console.log('getJSON done');
+	})
+	.fail(function(data) {
+		console.log('getJSON fail',data);
 	});
 }
 function viewTrp() {
@@ -1434,7 +1920,8 @@ function setTroopMenu(kind,id) {
 		$("#trpn-x").val(parseInt((offsetPos[0]+pos[0])*128));
 		$("#trpn-z").val(parseInt((offsetPos[1]+pos[1])*128));
 		trpnCtx.clearRect(0,0,64,64);
-		trpnCtx.drawImage(sprites,(0%8)*16,parseInt(0/8)*16,16,16,0,0,64,64);
+		//trpnCtx.drawImage(sprites,(0%8)*16,parseInt(0/8)*16,16,16,0,0,64,64);
+		drawSpriteFromMap(trpnCtx,0,0,sprites,0,16,64);
 		trpSprite=0;
 		spritemenu.removeClass("show");
 		setTroopCalcs();
@@ -1442,9 +1929,9 @@ function setTroopMenu(kind,id) {
 	else if(kind==1) {
 		$("#trpe-name").val(troops[id].name);
 		$("#trpe-owner").val(troops[id].nation);
-		$(".trp-size").text(troops[id].size);
+		$("#trpe-size").val(troops[id].size);
 		$(".trp-power").text(troops[id].power);
-		$(".trp-health").text(troops[id].health+"%");
+		$("#trpe-health").val(troops[id].health);
 		$(".trp-lvl").text(parseInt(Math.sqrt(0.25+2*troops[id].xp)-0.5));
 		var type="";
 		if(troops[id].mobile) {
@@ -1461,7 +1948,7 @@ function setTroopMenu(kind,id) {
 			type="Basic";
 		}
 		$(".trp-type").text(type);
-		$(".trp-position").text("X: "+troops[id].x+", Z: "+troops[id].z);
+		$(".trp-position").text("X: "+NumberFormat.format(troops[id].x)+", Z: "+NumberFormat.format(troops[id].z));
 		var spectxt="";
 		for(var j=0; j<troops[id].bonuses.length; j++) {
 			if(troops[id].bonuses[j]!="") {
@@ -1476,7 +1963,8 @@ function setTroopMenu(kind,id) {
 		$(".trp-moveleft").text(troops[id].moveleft);
 		trpeCtx.clearRect(0,0,64,64);
 		if(!troops[id].customsprite) {
-			trpeCtx.drawImage(sprites,(troops[id].sprite%8)*16,parseInt(troops[id].sprite/8)*16,16,16,0,0,64,64);
+			//trpeCtx.drawImage(sprites,(troops[id].sprite%8)*16,parseInt(troops[id].sprite/8)*16,16,16,0,0,64,64);
+			drawSpriteFromMap(trpeCtx,0,0,sprites,troops[id].sprite,16,64);
 			trpSprite=troops[id].sprite;
 		}
 		else {
@@ -1492,7 +1980,7 @@ function setTroopMenu(kind,id) {
 	else if(kind==0) {
 		$(".trp-name").text(troops[id].name);
 		$(".trp-owner").text(troops[id].nation);
-		$(".trp-size").text(troops[id].size);
+		$(".trp-size").text(NumberFormat.format(troops[id].size));
 		$(".trp-power").text(troops[id].power);
 		$(".trp-health").text(troops[id].health+"%");
 		$(".trp-lvl").text(parseInt(Math.sqrt(0.25+2*troops[id].xp)-0.5));
@@ -1511,7 +1999,7 @@ function setTroopMenu(kind,id) {
 			type="Basic";
 		}
 		$(".trp-type").text(type);
-		$(".trp-position").text("X: "+troops[id].x+", Z: "+troops[id].z);
+		$(".trp-position").text("X: "+NumberFormat.format(troops[id].x)+", Z: "+NumberFormat.format(troops[id].z));
 		var spectxt="";
 		for(var j=0; j<troops[id].bonuses.length; j++) {
 			if(troops[id].bonuses[j]!="") {
@@ -1526,7 +2014,8 @@ function setTroopMenu(kind,id) {
 		$(".trp-moveleft").text(troops[id].moveleft);
 		trpvCtx.clearRect(0,0,64,64);
 		if(!troops[id].customsprite) {
-			trpvCtx.drawImage(sprites,(troops[id].sprite%8)*16,parseInt(troops[id].sprite/8)*16,16,16,0,0,64,64);
+			//trpvCtx.drawImage(sprites,(troops[id].sprite%8)*16,parseInt(troops[id].sprite/8)*16,16,16,0,0,64,64);
+			drawSpriteFromMap(trpvCtx,0,0,sprites,troops[id].sprite,16,64);
 			trpSprite=troops[id].sprite;
 		}
 		else {
@@ -1573,7 +2062,9 @@ function editTrp() {
 	var data={id:activeTrpId};
 	data.name=$("#trpe-name").val();
 	data.owner=$("#trpe-owner").val();
-	$.getJSON("editTrp.php",data,checkTrpResponse);
+	data.size=$("#trpe-size").val();
+	data.health=$("#trpe-health").val();
+	$.getJSON("editTrpStory.php",data,checkTrpResponse);
 }
 function deleteTrp() {
 	var data={id:activeTrpId};
@@ -1597,6 +2088,17 @@ function checkTrpResponse(data) {
 		addBanner(data.text);
 	$.getJSON("getMarkers.php",function (data) {
 		troops=data.troops;
+		if(selectedArmy!==-1)
+			$("#infoTxt")[0].innerHTML="<b>"+troops[selectedArmy].name+"</b><br>Nation: "+troops[selectedArmy].nation+", Size: "+NumberFormat.format(troops[selectedArmy].size)+", Health: "+troops[selectedArmy].health+"%<br><span onclick=\"viewTrp()\">Details</span>";
+		battles={};
+		for(let i=0; i<troops.length; i++) {
+			if(troops[i].state!==6) 
+				continue;
+			if(battles[troops[i].battle]===undefined)
+				battles[troops[i].battle]=[i];
+			else
+				battles[troops[i].battle].push(i);
+		}
 	});
 }
 commChecks=[];
@@ -1857,6 +2359,62 @@ function addBanner(txt) {
 }
 function removeBanner() {
 	$("#banner-"+banners.splice(0,1)[0]).remove();
+}
+
+function drawSpriteFromMap(CTX,x,y,img,ind,sWidth,sHeightOpt,fWidthOpt,fHeightOpt) {
+	const sHeight=(fWidthOpt===undefined?sWidth:sHeightOpt);
+	const fWidth=(sHeightOpt===undefined?sWidth:(fWidthOpt===undefined?sHeightOpt:fWidthOpt));
+	const fHeight=(sHeightOpt===undefined?sWidth:(fWidthOpt===undefined?sHeightOpt:(fHeightOpt===undefined?(fWidthOpt*sHeightOpt/sWidth):fHeightOpt)));
+	const spriteRowLen=parseInt(img.width/sWidth);
+	CTX.drawImage(img,(ind%spriteRowLen)*sWidth,parseInt(ind/spriteRowLen)*sHeight,sWidth,sHeight,x,y,fWidth,fHeight);
+}
+
+promptFunc=function(){};
+promptArgs=[];
+questionsCount=0;
+variedCountPrompt=false;
+function createPromptAbstract(questionTxts,buttonTxt,respFunc,extraArgs,defaultTxtsOpt) {
+	promptFunc=respFunc;
+	promptArgs=extraArgs;
+	questionsCount=questionTxts.length;
+	const questionsDiv=$("#genericQuestions");
+	questionsDiv.empty();
+	for(let i=0; i<questionsCount; i++) {
+		const newLabel=document.createElement('label');
+		newLabel.setAttribute('id','gnrc-question-'+i);
+		newLabel.setAttribute('for','gnrc-answer-'+i);
+		newLabel.innerHTML=questionTxts[i];
+		questionsDiv.append(newLabel);
+		const newInput=document.createElement('input');
+		newInput.setAttribute('id','gnrc-answer-'+i);
+		newInput.setAttribute('name','gnrc-answer-'+i);
+		if(defaultTxtsOpt!==undefined)
+			newInput.value=defaultTxtsOpt[i];
+		questionsDiv.append(newInput);
+	}
+	document.getElementById('gnrc-submit').value=buttonTxt;
+	$("#genericMenu").addClass("shown");
+	genericMenuActive=true;
+	menuActive=true;
+}
+function createPrompt(questionTxts,buttonTxt,respFunc,extraArgs,defaultTxtsOpt) {
+	variedCountPrompt=false;
+	createPromptAbstract(questionTxts,buttonTxt,respFunc,extraArgs,defaultTxtsOpt);
+}
+function createVariedCountPrompt(questionTxts,buttonTxt,respFunc,extraArgs,defaultTxtsOpt) {
+	variedCountPrompt=true;
+	createPromptAbstract(questionTxts,buttonTxt,respFunc,extraArgs,defaultTxtsOpt);
+}
+function completePrompt() {
+	closeGenericMenu();
+	const responseValues=[];
+	for(let i=0; i<questionsCount; i++) {
+		responseValues.push(document.getElementById('gnrc-answer-'+i).value);
+	}
+	if(variedCountPrompt)
+		promptFunc(responseValues,...promptArgs);
+	else
+		promptFunc(...responseValues,...promptArgs);
 }
 
 

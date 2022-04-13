@@ -110,7 +110,8 @@ CREATE TABLE IF NOT EXISTS `troops` (
   `customsprite` int NOT NULL,
   `xp` int NOT NULL DEFAULT 0,
   `bonuses` set('combat','defense','open','mobility','ranged','healing','fortify','nomanleft','lucky','helpful') NOT NULL DEFAULT '',
-  `aiding` varchar(64) NOT NULL,
+  `aiding` varchar(64) NOT NULL DEFAULT '',
+  `battle` int NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

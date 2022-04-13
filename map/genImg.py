@@ -14,7 +14,7 @@ shades=[180,220,255,135]
 while(len(palette)<64):
 	palette.append((255,255,255,0))
 
-exclusions=[390,517,81,455,456,77,64,265,869,1298,759,780,468,153,157,172,398,406,417,422,423,424,795,921,922,1410,2129,2164,1426,1425,1433,920,919,69,2264,19,13,620,2621,5,353,2400,33,878,2829,758,232,2690,3457,3325,1527,2113,2112,2105,2114,3195,3269,3264,3210,3212,3464,2104,3360]
+exclusions=[390,517,81,455,456,77,64,265,869,1298,759,780,468,153,157,172,398,406,417,422,423,424,795,921,922,1410,2129,2164,1426,1425,1433,920,919,69,2264,19,13,620,2621,5,353,2400,33,878,2829,758,232,2690,3457,3325,1527,2113,2112,2105,2114,3195,3269,3264,3210,3212,3464,2104,3360,3696,3698,3582]
 pictures=[1349]
 exclusions.extend(pictures)
 allNegatives=[]
@@ -91,7 +91,7 @@ def main():
 				j=0
 				for colId in nbt["data"]["colors"].value:
 					if colId<0 and colId not in negatives: negatives.append(colId)
-					if colId>4: completeness+=1
+					if colId>4 or colId<0: completeness+=1
 					color,shade=divmod(colId,4)
 					if color<0 and color not in allNegatives:
 						allNegatives.append(color)

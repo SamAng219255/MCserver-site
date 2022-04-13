@@ -42,6 +42,7 @@
 		$suffix="";
 	}
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 	<link rel="stylesheet" type="text/css" href="./theme.css">
@@ -92,22 +93,22 @@
 				<dd class="trp-owner"></dd>
 				<dt>Number of Units:</dt>
 				<dd class="trp-size"></dd>
-				<dt>Strength:</dt>
-				<dd class="trp-power"></dd>
+				<dt class="deprecated">Strength:</dt>
+				<dd class="deprecated" class="trp-power"></dd>
 				<dt>Health:</dt>
 				<dd class="trp-health"></dd>
-				<dt>Level:</dt>
-				<dd class="trp-lvl"></dd>
-				<dt>Type:</dt>
-				<dd class="trp-type"></dd>
+				<dt class="deprecated">Level:</dt>
+				<dd class="deprecated" class="trp-lvl"></dd>
+				<dt class="deprecated">Type:</dt>
+				<dd class="deprecated" class="trp-type"></dd>
 				<td>Position:</td>
 				<dd class="trp-position"></dd>
 				<td>Commander Bonuses:</td>
 				<dd class="trp-bonuses"></dd>
-				<dt>Movement:</dt>
-				<dd class="trp-move"></dd>
-				<dt>Remaining Movement:</dt>
-				<dd class="trp-moveleft"></dd>
+				<dt class="deprecated">Movement:</dt>
+				<dd class="deprecated" class="trp-move"></dd>
+				<dt class="deprecated">Remaining Movement:</dt>
+				<dd class="deprecated" class="trp-moveleft"></dd>
 				<dt>Sprite:</dt>
 				<dd><canvas height="64" width="64" id="trpvspritecnv"></canvas></dd>
 			</dl>
@@ -123,23 +124,23 @@
 				<dt>Nation:</dt>
 				<dd><input type="text" id="trpe-owner"></dd>
 				<dt>Number of Units:</dt>
-				<dd class="trp-size"></dd>
-				<dt>Strength:</dt>
-				<dd class="trp-power"></dd>
+				<dd><input type="number" id="trpe-size"></dd>
+				<dt class="deprecated">Strength:</dt>
+				<dd class="deprecated" class="trp-power"></dd>
 				<dt>Health:</dt>
-				<dd class="trp-health"></dd>
-				<dt>Level:</dt>
-				<dd class="trp-lvl"></dd>
-				<dt>Type:</dt>
-				<dd class="trp-type"></dd>
+				<dd><input type="number" id="trpe-health"></dd>
+				<dt class="deprecated">Level:</dt>
+				<dd class="deprecated" class="trp-lvl"></dd>
+				<dt class="deprecated">Type:</dt>
+				<dd class="deprecated" class="trp-type"></dd>
 				<td>Position:</td>
 				<dd class="trp-position"></dd>
 				<td>Commander Bonuses:</td>
 				<dd class="trp-bonuses"></dd>
-				<dt>Movement:</dt>
-				<dd class="trp-move"></dd>
-				<dt>Remaining Movement:</dt>
-				<dd class="trp-moveleft"></dd>
+				<dt class="deprecated">Movement:</dt>
+				<dd class="deprecated" class="trp-move"></dd>
+				<dt class="deprecated">Remaining Movement:</dt>
+				<dd class="deprecated" class="trp-moveleft"></dd>
 				<dt>Sprite:</dt>
 				<dd><canvas height="64" width="64" id="trpespritecnv"></canvas></dd>
 			</dl>
@@ -157,16 +158,16 @@
 				<dd><input type="text" id="trpn-owner"></dd>
 				<dt>Number of Units:</dt>
 				<dd><input type="number" class="trpn-calc" id="trpn-size"></dd>
-				<dt>Resources:</dt>
-				<dd><input type="number" class="trpn-calc" id="trpn-cost"></dd>
-				<dd title="Increases cost by 50% but doubles movement and allows a Hit &amp; Run attack. Used for units focused on maneuverability.">Mobility Unit: <input type="checkbox" class="trpn-calc" id="trpn-mobility"></dd>
-				<dt>Strength:</dt>
-				<dd id="trpn-power"></dd>
-				<dd title="Halves the strength of the unit but allows a long range attack.">Ranged Unit: <input type="checkbox" class="trpn-calc" id="trpn-ranged"></dd>
+				<dt class="deprecated">Resources:</dt>
+				<dd class="deprecated"><input type="number" class="trpn-calc" id="trpn-cost"></dd>
+				<dd class="deprecated" title="Increases cost by 50% but doubles movement and allows a Hit &amp; Run attack. Used for units focused on maneuverability.">Mobility Unit: <input type="checkbox" class="trpn-calc" id="trpn-mobility"></dd>
+				<dt class="deprecated">Strength:</dt>
+				<dd class="deprecated" id="trpn-power"></dd>
+				<dd class="deprecated" title="Halves the strength of the unit but allows a long range attack.">Ranged Unit: <input type="checkbox" class="trpn-calc" id="trpn-ranged"></dd>
 				<dt>Position:</dt>
 				<dd>X:<input type="number" id="trpn-x">, Z:<input type="number" id="trpn-z"></dd>
-				<dt>Movement:</dt>
-				<dd id="trpn-move"></dd>
+				<dt class="deprecated">Movement:</dt>
+				<dd class="deprecated" id="trpn-move"></dd>
 				<dt>Sprite:</dt>
 				<dd><div id="spritemenu"></div><canvas height="64" width="64" id="trpnspritecnv"></canvas></dd>
 				<dd>OR</dd>
@@ -204,15 +205,25 @@
 			</div>
 		</div>
 	</div>
+	<div id="genericMenu">
+		<div onclick="closeGenericMenu()"></div>
+		<div>
+			<div id="genericQuestions">
+				<label for="gnrc-answer" id="gnrc-question"></label>
+				<input type="text" name="gnrc-answer" id="gnrc-answer">
+			</div>
+			<input type="submit" value="Execute" onclick="completePrompt()" id="gnrc-submit">
+		</div>
+	</div>
 	<div id="instr" onclick="closeInstMenu()" class="hide">
 		<div>
 			<p>Controls:</p>
 			<ul>
-				<li>Use the <b>Arrow Keys</b> or the <b>WASD</b> Keys to move the map and the <b>Q</b> and <b>E</b> keys to switch dimension or press <b>Shift</b> to jump to a location.</li>
-				<li>Use the <b>Scroll Wheel</b> to zoom the map in or out.</li>
-				<li>Press <b>Enter</b> to toggle pin visibility.</li>
+				<li><b>Drag</b> or <b>Scroll</b> the map or use the <b>Arrow</b> or <b>WASD</b> Keys to move the map and the <b>Q</b> and <b>E</b> keys to switch dimension or press <b>J</b> to jump to a location.</li>
+				<li><b>Scroll</b> while holding either the <b>Ctrl</b> or <b>Alt</b> key or <b>Pinch and Zoom</b> on your trackpad to zoom the map in or out.</li>
+				<li>Press <b>P</b> to toggle pin visibility.</li>
 				<li><b>Click</b> on a pin or map square to show information about that location.</li>
-				<li>Press <b>Tab</b> to toggle this menu.</li>
+				<li>Press <b>I</b> to close or re-open this menu or you can click anywhere to close it.</li>
 			</ul>
 		</div>
 	</div>
@@ -257,13 +268,13 @@
 		</div>
 	</div>
 	<div id="sideMenu">
-		<button id="infobutton" title="Toggle a screen to show hotkeys."></button>
-		<button id="jumpbutton" title="Jump to a coordinate or pin."></button>
-		<button id="pinbutton" title="Toggle pin visibility."></button>
+		<button id="infoButton" title="Toggle a screen to show hotkeys."></button>
+		<button id="jumpButton" title="Jump to a coordinate or pin."></button>
+		<button id="pinButton" title="Toggle pin visibility."></button>
 		<?php
 			if($permissions>0) {
-				echo '<button id="addPinbutton" title="Create a new pin."></button>';
-				echo '<button id="addTroopbutton" title="Create a new Army."></button>';
+				echo '<button id="addPinButton" title="Create a new pin."></button>';
+				echo '<button id="addTroopButton" title="Create a new Army."></button>';
 				echo '<button id="commanderBtn" title="Manage Comanders."></button>';
 			}
 			else if(!isset($_SESSION['username'])) {
