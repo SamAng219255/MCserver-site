@@ -870,7 +870,7 @@ function jumpCoordFunc(e) {
 }
 function draw() {
 	mapCtx.clearRect(0,0,width,height);
-	tileDelta=[width/(2*tileSize)+0.5,height/(2*tileSize)+0.5];
+	tileDelta=[pos[0]-cornerPos[0],pos[1]-cornerPos[1]];
 	for(var i=-Math.ceil(tileDelta[0]); i<=Math.ceil(tileDelta[0])+1; i++) {
 		for(var j=-Math.ceil(tileDelta[1]); j<=Math.ceil(tileDelta[1])+1; j++) {
 			var x=(Math.floor(pos[0])+i);
