@@ -447,7 +447,7 @@ function setup() {
 			resetStuff();
 		}
 		pointsVis=!pointsVis;
-		$("#pinbutton").toggleClass("active");
+		$("#pinButton").toggleClass("active");
 	});
 	if(isAdmin) {
 		document.getElementById("addPinButton").addEventListener("click",function() {
@@ -556,7 +556,7 @@ function setupControls() {
 		$(e.target.parentElement).addClass("active");
 	});
 	//Setup mouse controls
-	document.addEventListener('click', event => event.preventDefault());
+	document.addEventListener('click', event => {if(event.button===2) event.preventDefault()});
 	document.addEventListener('contextmenu', event => event.preventDefault());
 	document.getElementById('mcmap').addEventListener('mousedown',function (e) {
 		const newX=e.x;
