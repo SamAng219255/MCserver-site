@@ -891,7 +891,7 @@ function draw() {
 					preventDefault();
 				};
 				tiles[key].onload=function () {
-					tileDelta=[width/(2*tileSize)+0.5,height/(2*tileSize)+0.5];
+					tileDelta=[pos[0]-cornerPos[0],pos[1]-cornerPos[1]];
 					const foo=this.src.split(".");
 					const x=parseInt(foo[foo.length-3]);
 					const y=parseInt(foo[foo.length-2]);
