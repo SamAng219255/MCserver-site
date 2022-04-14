@@ -1510,7 +1510,7 @@ function drawTroops() {
 					if(troops[selectedArmy].state==6) {
 						var trpBtns=RotaryButton.copyGroup(controlBattleBtns);
 						if(!troops[i].owned) {
-							for(var j=0; j<3; j++) {
+							for(var j=1; j<trpBtns.length; j++) {
 								trpBtns[j].active=1;
 								trpBtns[j].data.owned=false;
 							}
@@ -1520,7 +1520,7 @@ function drawTroops() {
 					else {
 						var trpBtns=RotaryButton.copyGroup(controlBtns);
 						if(!troops[i].owned) {
-							for(var j=0; j<3; j++) {
+							for(var j=1; j<trpBtns.length; j++) {
 								trpBtns[j].active=1;
 								trpBtns[j].data.owned=false;
 							}
@@ -1548,7 +1548,7 @@ function drawTroops() {
 					if(troops[selectedArmy].nation==troops[targetArmy].nation || (relations[troops[selectedArmy].nation][troops[targetArmy].nation]!=undefined && relations[troops[selectedArmy].nation][troops[targetArmy].nation]<4)) {
 						var trpBtns=RotaryButton.copyGroup(helpBtns);
 						if(!troops[selectedArmy].owned) {
-							for(var j=0; j<3; j++) {
+							for(var j=1; j<trpBtns.length; j++) {
 								trpBtns[j].active=1;
 								trpBtns[j].data.owned=false;
 							}
@@ -1573,7 +1573,7 @@ function drawTroops() {
 					else {
 						var trpBtns=RotaryButton.copyGroup(attackBtns);
 						if(!troops[selectedArmy].owned) {
-							for(var j=0; j<3; j++) {
+							for(var j=1; j<trpBtns.length; j++) {
 								trpBtns[j].active=1;
 								trpBtns[j].data.owned=false;
 							}
@@ -2056,7 +2056,7 @@ function createTrp() {
 	data.z=$("#trpn-z").val();
 	data.sprite=trpSprite;
 	data.customsprite=isSpriteCustom;
-	$.getJSON("createTrp.php",data,checkTrpResponse);
+	$.getJSON("createTrp.php",data,checkTrpResponse).fail(function(){console.log(data);});
 }
 function editTrp() {
 	var data={id:activeTrpId};
@@ -2064,15 +2064,16 @@ function editTrp() {
 	data.owner=$("#trpe-owner").val();
 	data.size=$("#trpe-size").val();
 	data.health=$("#trpe-health").val();
-	$.getJSON("editTrpStory.php",data,checkTrpResponse);
+	$.getJSON("editTrpStory.php",data,checkTrpResponse).fail(function(){console.log(data);});
 }
 function deleteTrp() {
 	var data={id:activeTrpId};
-	$.getJSON("deleteTrp.php",data,checkTrpResponse);
+	$.getJSON("deleteTrp.php",data,checkTrpResponse).fail(function(){console.log(data);});
 	resetStuff();
 }
 function moveTrp(x,z) {
-	$.getJSON("moveTrp.php",{id:activeTrpId,x:x,z:z},checkTrpResponse);
+	var data={id:activeTrpId,x:x,z:z};
+	$.getJSON("moveTrp.php",data,checkTrpResponse).fail(function(){console.log(data);});
 }
 function checkTrpResponse(data) {
 	console.log(data);
