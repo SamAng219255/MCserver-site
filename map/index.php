@@ -17,7 +17,7 @@
 		echo '<div class="banner">'.$bannerTxt.'</div>';
 	}
 	if(isset($_SESSION['username'])) {
-		$query="SELECT `username`,`uuid`,`permissions`,`forecolor`,`backcolor`,`nation`,`character`,`prefix`,`suffix`,`skin` FROM `mcstuff`.`users` WHERE `username`='".$_SESSION['username']."';";
+		$query="SELECT `username`,`uuid`,`permissions`,`forecolor`,`backcolor`,`nation`,`character`,`prefix`,`suffix`,`skin`,`scrollmode` FROM `mcstuff`.`users` WHERE `username`='".$_SESSION['username']."';";
 		if($queryresult=mysqli_query($conn,$query)) {
 			$row=mysqli_fetch_row($queryresult);
 			$uuid=$row[1];
@@ -28,6 +28,7 @@
 			$character=$row[6];
 			$prefix=$row[7];
 			$suffix=$row[8];
+			$_SESSION['scrollmode']=$scrollmode=$row[10]==='1';
 			$loggedin=true;
 		}
 	}
@@ -40,6 +41,10 @@
 		$character="";
 		$prefix="";
 		$suffix="";
+		if(isset($_SESSION['scrollmode']))
+			$scrollmode=$_SESSION['scrollmode'];
+		else
+			$_SESSION['scrollmode']=$scrollmode=false;
 	}
 ?>
 <!DOCTYPE html>
@@ -215,16 +220,28 @@
 			<input type="submit" value="Execute" onclick="completePrompt()" id="gnrc-submit">
 		</div>
 	</div>
-	<div id="instr" onclick="closeInstMenu()" class="hide">
+	<div id="instr" class="hide">
+		<div onclick="closeInstMenu()"></div>
 		<div>
 			<p>Controls:</p>
 			<ul>
-				<li><b>Drag</b> or <b>Scroll</b> the map or use the <b>Arrow</b> or <b>WASD</b> Keys to move the map and the <b>Q</b> and <b>E</b> keys to switch dimension or press <b>J</b> to jump to a location.</li>
-				<li><b>Scroll</b> while holding either the <b>Ctrl</b> or <b>Alt</b> key or <b>Pinch and Zoom</b> on your trackpad to zoom the map in or out.</li>
+				<li>In addition to the menu buttons on the right side of the screen you can:</li>
+				<li><b>Drag</b> or use the <b>Arrow</b> or <b>WASD</b> Keys to move the map and the <b>Q</b> and <b>E</b> keys to switch dimension or press <b>J</b> to jump to a location.</li>
+				<li><b>Pinch and Zoom</b> on your trackpad or use the <b>+</b> and <b>-</b> keys to zoom the map in or out.</li>
 				<li>Press <b>P</b> to toggle pin visibility.</li>
 				<li><b>Click</b> on a pin or map square to show information about that location.</li>
-				<li>Press <b>I</b> to close or re-open this menu or you can click anywhere to close it.</li>
+				<li>Press <b>I</b> to close or re-open this menu.</li>
+				<li>Clicking on the background texture on any menu will close it.</li>
 			</ul>
+			<div>
+				<label class="switch" id="scroll-mode-switch" for="scroll-mode">
+					<input type="checkbox" id="scroll-mode">
+					<span class="slider"></span>
+				</label>
+				<label for="scroll-mode" id="scroll-mode-label">Toggle scrolling mode</label><br>
+				<span id="scroll-mode-mode">Current: Scrolling will move the map.</span><br>
+				(Holding the Shift key will invert this setting. Holding Ctrl while scrolling will always zoom.)
+			</div>
 		</div>
 	</div>
 	<div id="pinMenu">

@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `suffix` varchar(32) NOT NULL DEFAULT '',
   `permissions` int NOT NULL DEFAULT '0',
   `skin` varchar(128) NOT NULL DEFAULT './img/steve.png',
+  `scrollmode` int NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

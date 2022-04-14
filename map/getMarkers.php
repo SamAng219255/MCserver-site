@@ -1,8 +1,14 @@
 <?php
 session_start();
 if ((isset($_SESSION['last_active']) && (time() - $_SESSION['last_active'] > 1800)) || (!isset($_SESSION['last_active']) && isset($_SESSION['loggedin']))) {
-	session_unset();
-	session_destroy();
+	unset($_SESSION['last_active']);
+	unset($_SESSION['loggedin']);
+	unset($_SESSION['username']);
+	unset($_SESSION['permissions']);
+	unset($_SESSION['nation']);
+	unset($_SESSION['topic']);
+	unset($_SESSION['tag']);
+	unset($_SESSION['poster']);
 }
 $_SESSION['last_active']=time();
 require 'db.php';

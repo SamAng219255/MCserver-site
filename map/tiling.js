@@ -94,6 +94,7 @@ commanders=[];
 shownCommanders={};
 pinSpritesAcquired=false;
 idsRetrieved=false;
+useAltCtrls=false;
 for(var i=0; i<3; i++) {
 	rotarySprites.push(document.createElement('img'));
 }
@@ -541,6 +542,28 @@ function setup() {
 	}});
 	setupControls();
 	$("#comm-ntn").val(nation);
+	$.getJSON('getPreferences.php',{},function(data){
+		if(data.status>1)
+			console.log(data);
+		scrollmode.checked=useAltCtrls=data.scrollmode;
+		if(scrollmode.checked)
+			document.getElementById('scroll-mode-mode').innerHTML='Current: Scrolling will zoom the map.';
+		else
+			document.getElementById('scroll-mode-mode').innerHTML='Current: Scrolling will move the map.';
+	});
+	scrollmode=document.getElementById('scroll-mode');
+	scrollmode.addEventListener('change',function(e){
+		useAltCtrls=scrollmode.checked;
+		if(scrollmode.checked)
+			document.getElementById('scroll-mode-mode').innerHTML='Current: Scrolling will zoom the map.';
+		else
+			document.getElementById('scroll-mode-mode').innerHTML='Current: Scrolling will move the map.';
+		$.getJSON('setPreferences.php',{scrollmode:useAltCtrls?'1':'0'},function(data){
+			console.log(data);
+			if(data.status>0)
+				addBanner(data.text);
+		});
+	});
 }
 
 panMouseDown=false;
@@ -585,6 +608,7 @@ function setupControls() {
 	document.getElementById('mcmap').addEventListener('mouseup',mouseupFunc, false);
 	document.getElementById('mcmap').addEventListener('mouseleave',mouseupFunc, false);
 	document.getElementById('mcmap').addEventListener('mousemove',function (e) {
+		curMousePos={x:e.x,y:e.y};
 		const newX=e.x;
 		const newY=e.y;
 		if(panMouseDown) {
@@ -601,7 +625,7 @@ function setupControls() {
 		return false;
 	}, false);
 	document.getElementById('mcmap').addEventListener('wheel',function (e) {
-		if(e.ctrlKey || e.shiftKey)
+		if(e.ctrlKey || useAltCtrls^e.shiftKey)
 			control_zoom(Math.pow(2,e.wheelDelta/256), e.x, e.y);
 		else {
 			control_pan(e.wheelDeltaX,e.wheelDeltaY);
@@ -973,6 +997,16 @@ function move(e) {
 				}
 				setHash();
 				draw();
+			}
+			else if(e.key=='-') {
+				boxCtx.clearRect(0,0,width,height);
+				resetStuff();
+				control_zoom(Math.SQRT1_2,width/2,height/2);
+			}
+			else if(e.key=='+' || e.key=='=') {
+				boxCtx.clearRect(0,0,width,height);
+				resetStuff();
+				control_zoom(Math.SQRT2,width/2,height/2);
 			}
 			else {
 				//console.log(e.key);
