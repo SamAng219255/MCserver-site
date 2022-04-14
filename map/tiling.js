@@ -215,6 +215,7 @@ tooltip.active=-1;
 document.addEventListener("keydown", move);
 $.getJSON("tileIds.json",function (data) {tileIds=data; idsRetrieved=true;});
 window.onresize = function(e) {
+	console.log('resize');
 	canvasResize();
 	moving();
 };
@@ -571,6 +572,8 @@ clickMouseDown=false;
 mouseLastPos={x:0,y:0};
 freshZoom=true;
 lastZoom=1;
+ignoreMouse=false;
+enableDrag=false;
 function setupControls() {
 	$(".trpn-calc").on("change",setTroopCalcs);
 	$(".trpn-calc").on("keyup",setTroopCalcs);
@@ -582,6 +585,8 @@ function setupControls() {
 	document.addEventListener('click', event => {if(event.button===2) event.preventDefault()});
 	document.addEventListener('contextmenu', event => event.preventDefault());
 	document.getElementById('mcmap').addEventListener('mousedown',function (e) {
+		if(ignoreMouse)
+			return;
 		const newX=e.x;
 		const newY=e.y;
 		if(e.button==2) {
@@ -641,6 +646,7 @@ function setupControls() {
 			[Hammer.Pinch, {enable: true}, ['pan']],
 			[Hammer.Tap],
 			[Hammer.Pan, {event: "drag", pointers: 1, threshold: 0, direction: Hammer.DIRECTION_ALL}, ['tap']],
+			[Hammer.Press, {event: "startdrag", pointers: 1, time: 0}, ['drag']],
 			[Hammer.Press, {event: "startpan", pointers: 2, time: 0}, ['pan']]
 		]
 	});
@@ -648,6 +654,7 @@ function setupControls() {
 		mouseLastPos={x:e.center.x,y:e.center.y};
 	});
 	hammertime.on('pan', function(e) {
+		enableDrag=false;
 		control_pan(e.center.x - mouseLastPos.x, e.center.y - mouseLastPos.y);
 		mouseLastPos={x:e.center.x,y:e.center.y};
 	});
@@ -655,12 +662,20 @@ function setupControls() {
 		control_setZoom(e.scale, e.center.x, e.center.y);
 		if(e.eventType==4)
 			freshZoom=true;
-		console.log('zoom', e.scale, e.center.x, e.center.y, e.eventType);
+		//console.log('zoom', e.scale, e.center.x, e.center.y, e.eventType);
 	});
-	hammertime.on('tap', function(e) {if(e.pointerType!='mouse') control_click(e.center.x, e.center.y);});
-	hammertime.on('drag', function(e) {if(e.pointerType!='mouse') control_drag(e.center.x, e.center.y);});
+	hammertime.on('tap', function(e) {
+		if(e.pointerType!='mouse') {
+			control_click(e.center.x, e.center.y);
+			ignoreMouse=true;
+			setTimeout(function(){ignoreMouse=false;},100);
+		}
+	});
+	hammertime.on('drag', function(e) {if(e.pointerType!='mouse' && enableDrag) control_drag(e.center.x, e.center.y);});
+	hammertime.on('startdrag', function(e) {mouseLastPos={x:e.center.x,y:e.center.y}; enableDrag=true;});
 }
 function control_pan(x,y) {// x: delta x, y: delta y
+	console.log(x,y);
 	var delta=[x,y];
 	var tempPos=[pos[0]+offsetPos[0],pos[1]+offsetPos[1]];
 	for(var i=0; i<2; i++) {
@@ -698,11 +713,12 @@ function control_setZoom(x, xPos, yPos) {
 		freshZoom=false;
 		lastZoom=1;
 	}
-	zoom(lastZoom/x, xPos, yPos);
+	control_zoom(x/lastZoom, xPos, yPos);
 	lastZoom=x;
 }
 function control_click(x,y) {// x: x position, y: y position
 	highlight(x,y);
+	mouseLastPos={x:x, y:y};
 }
 function control_drag(x,y) {// x: x position, y: y position
 	control_pan(x - mouseLastPos.x, y - mouseLastPos.y); 
@@ -886,7 +902,7 @@ function jumpPinFunc(e) {
 	}
 }
 function jumpCoordFunc(e) {
-	if(jumpMenuActive && e.srcElement.parentElement.id=="jumpCoordForm"+mobilePinCheck && e.keyCode==13) {
+	if(jumpMenuActive && e.srcElement.parentElement.id=="jumpCoordForm"+mobilePinCheck && e.key=='Enter') {
 		gotoPoint((parseFloat($("#jumpCoordX"+mobilePinCheck).val())/128),(parseFloat($("#jumpCoordZ"+mobilePinCheck).val())/128),(parseInt($("#jumpCoordD"+mobilePinCheck).val())));
 		setTimeout(function(){jumpMenuActive=false; menuActive=false;},1);
 		$("#jumpMenu"+mobilePinCheck).removeClass("shown");
@@ -2450,6 +2466,25 @@ function completePrompt() {
 		promptFunc(responseValues,...promptArgs);
 	else
 		promptFunc(...responseValues,...promptArgs);
+}
+
+function getWidth() {
+	return Math.max(
+		document.body.scrollWidth,
+		document.documentElement.scrollWidth,
+		document.body.offsetWidth,
+		document.documentElement.offsetWidth,
+		document.documentElement.clientWidth
+	);
+}
+function getHeight() {
+	return Math.max(
+		document.body.scrollHeight,
+		document.documentElement.scrollHeight,
+		document.body.offsetHeight,
+		document.documentElement.offsetHeight,
+		document.documentElement.clientHeight
+	);
 }
 
 

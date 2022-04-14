@@ -302,7 +302,7 @@
 	<div id="jumpMenuMobile">
 		<div onclick="closeJumpMenu()"></div>
 		<div>
-			<div onkeydown="jumpCoordFunc(event)" id="jumpCoordForm">
+			<div onkeydown="jumpCoordFunc(event)" id="jumpCoordFormMobile">
 				<small>Enter a coordinate to jump to that position on the map…</small><br>
 				<label for="jumpCoordXMobile">X: </label>
 				<input type="number" placeholder="x" id="jumpCoordXMobile" step="1">
