@@ -2,8 +2,9 @@
 		<title>Edit Post - AmospiaCraft</title>
 		<?php
 			if(isset($_SESSION['username']) && $permissions>0 && isset($_POST['editting'])) {
-				$postquery="SELECT `id`,`username` FROM `mcstuff`.`posts` WHERE `id`='".$_POST['id']."';";
-				if(mysqli_fetch_row(mysqli_query($conn,$postquery))[1]==$_SESSION['username']) {
+				$postquery=$pdo->prepare("SELECT `username` FROM `mcstuff`.`posts` WHERE `id`=?;");
+				$postquery->bindValue(1, $_POST['id'], PDO::PARAM_INT);
+				if($postquery->execute() && $postquery->fetch()[0]==$_SESSION['username']) {
 					$tags=',';
 					preg_match_all('/\B#[a-zA-Z0-9]+\b/', $_POST['content'], $matches);
 					$matchCount=count($matches[0]);
@@ -14,8 +15,12 @@
 							$tags.=$testtag.',';
 						}
 					}
-					$sql="UPDATE `mcstuff`.`posts` SET `topic`='".$_POST['topic']."',`tags`='".$tags."',`content`='".mysqli_real_escape_string($conn,$_POST['content'])."' WHERE `id`='".$_POST['id']."';";
-					mysqli_query($conn,$sql);
+					$sql=$pdo->prepare("UPDATE `mcstuff`.`posts` SET `topic`=:topic,`tags`=:tags,`content`=:content WHERE `id`=:id;");
+					$sql->bindValue('topic', $_POST['topic'], PDO::PARAM_STR);
+					$sql->bindValue('tags', $tags, PDO::PARAM_STR);
+					$sql->bindValue('content', $_POST['content'], PDO::PARAM_STR);
+					$sql->bindValue('id', $_POST['id'], PDO::PARAM_INT);
+					$sql->execute();
 				}
 				echo '<meta http-equiv="refresh" content="0; URL=./blog.php">';
 			}
@@ -61,9 +66,10 @@
 		</style>
 		<?php
 			if(is_numeric($_GET['id'])) {
-				$postquery="SELECT `id`,`username`,`topic`,`tags`,`content`,`time` FROM `mcstuff`.`posts` WHERE `id`='".$_GET['id']."';";
-				$postqueryresult=mysqli_query($conn,$postquery);
-				$row=mysqli_fetch_row($postqueryresult);
+				$postquery=$pdo->prepare("SELECT `id`,`username`,`topic`,`tags`,`content`,`time` FROM `mcstuff`.`posts` WHERE `id`=?;");
+				$postquery->bindValue(1, $_GET['id'], PDO::PARAM_INT);
+				$postquery->execute();
+				$row=$postquery->fetch(PDO::FETCH_BOTH);
 				$oldid=$row[0];
 				$oldusername=$row[1];
 				$oldtopic=$row[2];

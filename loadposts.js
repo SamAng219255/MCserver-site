@@ -30,10 +30,10 @@ function setupGeneral() {
 			profileIcon.style="background-image: url("+data.skin+"), url("+data.skin+");";
 		})
 	}
-	if(isAdmin) {
+	/*if(isAdmin) {
 		statusbutton=$("#serverstatus");
 		statusInter=setInterval(updateServerStatus,1000);
-	}
+	}*/
 	stellarInterval=setInterval(setStars,100);
 	wrapper=document.getElementById("wrapper");
 	wrapper.addEventListener("scroll",checkBottom,{passive:true})

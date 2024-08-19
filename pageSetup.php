@@ -12,9 +12,10 @@
 	$loggedin=false;
 	require 'db.php';
 	if(isset($_SESSION['username'])) {
-		$query="SELECT `username`,`uuid`,`permissions`,`forecolor`,`backcolor`,`nation`,`character`,`prefix`,`suffix`,`skin` FROM `mcstuff`.`users` WHERE `username`='".$_SESSION['username']."';";
-		if($queryresult=mysqli_query($conn,$query)) {
-			$row=mysqli_fetch_row($queryresult);
+		$query=$pdo->prepare("SELECT `username`,`uuid`,`permissions`,`forecolor`,`backcolor`,`nation`,`character`,`prefix`,`suffix`,`skin` FROM `mcstuff`.`users` WHERE `username`=?;");
+		$query->bindValue(1, $_SESSION['username'], PDO::PARAM_STR);
+		if($query->execute()) {
+			$row=$query->fetch(PDO::FETCH_BOTH);
 			$uuid=$row[1];
 			$permissions=intval($row[2]);
 			$forecolor=$row[3];

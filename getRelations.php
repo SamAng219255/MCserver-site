@@ -6,9 +6,7 @@ $data=array("index"=>array(), "relations"=>array(), "player"=>array());
 
 $nationlist=array();
 $nationsquery="SELECT `nation`,`nation` as `ruler` FROM `mcstuff`.`troops` UNION SELECT `nation2`,`nation2` FROM `mcstuff`.`relations` UNION SELECT `name`,`ruler` FROM `mcstuff`.`nations` ORDER BY `nation`;";
-$nationsqueryresult=mysqli_query($conn,$nationsquery);
-for($i=0; $i<$nationsqueryresult->num_rows; $i++) {
-	$row=mysqli_fetch_row($nationsqueryresult);
+foreach($pdo->query($nationsquery, PDO::FETCH_BOTH) as $row) {
 	if(!isset($data['relations'][$row[0]])) {
 		array_push($data['index'],$row[0]);
 		$data['relations'][$row[0]]=array(array(),array(),array(),array(),array(),array(),array());
@@ -18,9 +16,7 @@ for($i=0; $i<$nationsqueryresult->num_rows; $i++) {
 	}
 }
 $relationquery="SELECT `nation1`,`nation2`,`relation`-1 FROM `mcstuff`.`relations`;";
-$relationqueryresult=mysqli_query($conn,$relationquery);
-for($i=0; $i<$relationqueryresult->num_rows; $i++) {
-	$row=mysqli_fetch_row($relationqueryresult);
+foreach($pdo->query($relationquery, PDO::FETCH_BOTH) as $row) {
 	for($j=0; $j<2; $j++) {
 		if(!isset($data['relations'][$row[$j]])) {
 			array_push($data['index'],$row[$j]);

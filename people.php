@@ -4,9 +4,7 @@
 			<?php
 				$styles='';
 				$stylequery="SELECT `username`,`forecolor`,`backcolor`,`nation`,`character`,`prefix`,`suffix`,`permissions`,`skin` FROM `mcstuff`.`users` WHERE `permissions`>0;";
-				$stylequeryresult=mysqli_query($conn,$stylequery);
-				for($i=0; $i<$stylequeryresult->num_rows; $i++) {
-					$row=mysqli_fetch_row($stylequeryresult);
+				foreach($pdo->query($stylequery, PDO::FETCH_BOTH) as $row) {
 					echo '<div class="card" user="'.$row[0].'"><table><tr><td rowspan="2"><div class="image">';
 					addModel($row[0]);
 					echo '</div></td><td><div class="postmeta"><div class="h">'.$row[0].'</div></div></td></tr><tr><td><div class="stuffing">';

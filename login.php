@@ -25,43 +25,61 @@
 			echo '<div class="banner">'.$bannerTxt.'</div>';
 		}
 		require 'db.php';
-		if(isset($_POST['signup'])) {$url = "https://authserver.mojang.com/authenticate";
-			$data = array();
-			$data['agent'] = array("name" => "Minecraft", "version" => 1);
-			$data['username'] = $_POST['email'];
-			$data['password'] = $_POST['passwordm'];
+		$signupFailed=false;
+		if(isset($_POST['signup'])) {
+			$url = 'https://api.mojang.com/users/profiles/minecraft/'.$_POST['username'];
 			$options = array(
 				'http' => array(
 					'header' => "Content-type: application/json",
-					'method' => 'POST',
-					'content' => json_encode($data),
+					'method' => 'GET',
+					'content' => '',
 				),
 			);
 			$context = stream_context_create($options);
-			$result = json_decode(file_get_contents($url, false, $context));
-			$profile = $result->selectedProfile;
-			$query="SELECT `username` from `mcstuff`.`users` where username='".$profile->name."';";
+			$profile = false;
+			$now = time();
+			if(!isset($_SESSION['nextlogin'])) $_SESSION['nextlogin'] = time() - 1;
+			if($now >= $_SESSION['nextlogin']) {
+				$profile = json_decode(@file_get_contents($url, false, $context));
+				$_SESSION['nextlogin'] = time() + 1;
+			}
+			else {
+				addBanner('Request too soon. Wait 30 seconds before trying again.');
+				$_SESSION['nextlogin'] = time() + 30;
+			}
+			$query = $pdo->prepare("SELECT `username` FROM `mcstuff`.`users` WHERE username=?;");
+			if($profile!=false) {
+				$query->bindValue(1, $profile->name, PDO::PARAM_STR);
+				$query->execute();
+			}
 			$hashed=password_hash($_POST['password'],PASSWORD_DEFAULT);
-			if($result==false) {
-				addBanner('Invalid Minecraft Login');
+			$signupFailed=true;
+			if($profile==false) {
+				addBanner('Username not found.');
 			}
 			elseif($_POST['password']!==$_POST['password2']) {
 				addBanner('Passwords do not match.');
 			}
-			elseif(mysqli_query($conn,$query)->num_rows>0) {
-				addBanner('Username is taken.');
+			elseif($query->rowCount()>0) {
+				addBanner('Username is already in use.');
 			}
 			else {
-				$allowedUsers=["redstonetardis42","petrok9001","lhibscher349","list","kagetora0","luckyknight68","1999sam1999","enddragon9","lewisthekiller","gentleworks","153norc","sugargizmo","silverleafnight","pharaohcrab","enderninja7","drn21","d_hex","aquatailz","skinz123","thedragonslain","thetotorotacos","greenhouscreeper","thepartygod","smallsmelt300","antraveler","lightningpwr28","patientneutral","thebiganthony","EnglishMuffin1","chkinnuggetbutt"];
-				$admin='0';
-				if(in_array(strtolower($profile->name), $allowedUsers)) {
+				/*$allowedUsers=["redstonetardis42","petrok9001","lhibscher349","list","kagetora0","luckyknight68","1999sam1999","enddragon9","lewisthekiller","gentleworks","153norc","sugargizmo","silverleafnight","pharaohcrab","enderninja7","drn21","d_hex","aquatailz","skinz123","thedragonslain","thetotorotacos","greenhouscreeper","thepartygod","smallsmelt300","antraveler","lightningpwr28","patientneutral","thebiganthony","EnglishMuffin1","chkinnuggetbutt"];*/
+				$admin=0;
+				/*if(in_array(strtolower($profile->name), $allowedUsers)) {
 					$admin='1';
-				}
-				$sql="INSERT INTO `mcstuff`.`users` (`id`,`username`,`uuid`,`password`,`ip`,`permissions`) VALUES (0,'".$profile->name."','".$profile->id."','".$hashed."','".$_SERVER['REMOTE_ADDR']."','".$admin."');";
-				if(mysqli_query($conn,$sql)) {
+				}*/
+				$sql=$pdo->prepare("INSERT INTO `mcstuff`.`users` (`id`,`username`,`uuid`,`password`,`ip`,`permissions`) VALUES (0,:name,:id,:hashed,:ip,:admin);");
+				$sql->bindValue('name', $profile->name, PDO::PARAM_STR);
+				$sql->bindValue('id', $profile->id, PDO::PARAM_STR);
+				$sql->bindValue('hashed', $hashed, PDO::PARAM_STR);
+				$sql->bindValue('ip', $_SERVER['REMOTE_ADDR'], PDO::PARAM_STR);
+				$sql->bindValue('admin', $admin, PDO::PARAM_INT);
+				if($sql->execute()) {
 					$_SESSION['username']=$profile->name;
 					$_POST['username']=$_SESSION['username'];
 					$_POST['signin']=true;
+					$signupFailed=false;
 				}
 				else {
 					addBanner('Unknown Error.');
@@ -69,18 +87,21 @@
 			}
 		}
 		if(isset($_POST['signin'])) {
-			$query="SELECT `username`,`password` FROM `mcstuff`.`users` WHERE username='".addslashes($_POST['username'])."';";
-			$queryresult=mysqli_query($conn,$query);
+			$query=$pdo->prepare("SELECT `password` FROM `mcstuff`.`users` WHERE `username`=?;");
+			$query->bindValue(1, $_POST['username'], PDO::PARAM_STR);
+			$query->execute();
 			if(!($_POST['username']!='' && $_POST['password']!='')) {
 				addBanner('Username or Password missing.');
 			}
-			elseif($queryresult->num_rows<1) {
-				addBanner('Invalid Username. or Password.');
+			elseif($query->rowCount()<1) {
+				addBanner('Invalid Username or Password.');
 			}
-			elseif(password_verify($_POST['password'],mysqli_fetch_row($queryresult)[1])) {
-				$_SESSION['username']=addslashes($_POST['username']);
-				$ipsql="UPDATE `mcstuff`.`users` SET `ip`='".$_SERVER['REMOTE_ADDR']."' WHERE `username`='".$_SESSION['username']."';";
-				mysqli_query($conn,$ipsql);
+			elseif(password_verify($_POST['password'],$query->fetch(PDO::FETCH_BOTH)[0])) {
+				$_SESSION['username']=$_POST['username'];
+				$ipsql=$pdo->prepare("UPDATE `mcstuff`.`users` SET `ip`=:ip WHERE `username`=:username;");
+				$ipsql->bindValue('ip', $_SERVER['REMOTE_ADDR'], PDO::PARAM_STR);
+				$ipsql->bindValue('username', $_SESSION['username'], PDO::PARAM_STR);
+				$ipsql->execute();
 				echo  '<meta http-equiv="refresh" content="0; URL='.$referer.'">';
 			}
 			else {
@@ -90,7 +111,7 @@
 	?>
 	<div id="lcp" class="cp"><form class="loginform" method="post">
 		<span class="h">Log In</span><hr>
-		<small>To log in, use your username (not email) for minecraft and your password you created when you created your account here.</small><br>
+		<small>To log in, use your username for minecraft and your password you created when you created your account here.</small><br>
 		<label for="frminuser">Minecraft Username:</label><br>
 		<input type="text" id="frminuser" placeholder="Username" name="username" required maxlength=16 autocomplete="username"><br>
 		<label for="frminpass">Password:</label><br>
@@ -101,11 +122,14 @@
 	<div id="rcp" class="cp"><form class="loginform" method="post">
 		<span class="h">Create Account</span><hr>
 		<div class="col">
-			<label for="frmupmail">Minecraft Email:</label><br>
-			<input type="email" id="frmupmail" placeholder="someone@example.com" name="email" required autocomplete="email"><br>
-			<label for="frminmine">Minecraft Password:</label><br>
-			<input type="password" id="frminmine" placeholder="Password" name="passwordm" required maxlength=16 autocomplete="current-password"><br>
-			<small>This information will not be recorded. It will only be used to fetch your username and skin and to verify your account.</small><br>
+			<label for="frmupusr">Minecraft Username:</label><br>
+			<?php
+				if($signupFailed)
+					echo '<input type="text" id="frmupusr" placeholder="Username" name="username" required maxlength=16 autocomplete="new-username" value="'.$_POST['username'].'"><br>';
+				else
+					echo '<input type="text" id="frmupusr" placeholder="Username" name="username" required maxlength=16 autocomplete="new-username"><br>';
+			?>
+			<small>Enter your username for Minecraft as it appears in-game, not your Microsoft information you use to log-in to Minecraft. This will be used as your username for this website.</small><br>
 		</div>
 		<div class="col">
 			<label for="frmuppass">Password:</label><br>

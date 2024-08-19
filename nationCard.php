@@ -1,8 +1,9 @@
 <?php
 
-	$nationquery="SELECT `name`,`ruler`,`hasflag`,`population`,`parent`,`desc`,`showruler`,`showflag`,`showpopul`,`showparent` FROM `mcstuff`.`nations` WHERE `name`='".mysqli_real_escape_string($conn,$_GET['nation'])."';";
-	$nationqueryresult=mysqli_query($conn,$nationquery);
-	$nationrow=mysqli_fetch_row($nationqueryresult);
+	$nationquery=$pdo->prepare("SELECT `name`,`ruler`,`hasflag`,`population`,`parent`,`desc`,`showruler`,`showflag`,`showpopul`,`showparent` FROM `mcstuff`.`nations` WHERE `name`=?;");
+	$nationquery->bindValue(1, $_GET['nation'], PDO::PARAM_STR);
+	$nationquery->execute();
+	$nationrow=$nationquery->fetch(PDO::FETCH_BOTH);
 	$name=$nationrow[0];
 	$ruler=$nationrow[1];
 	$hasflag=$nationrow[2]=='1';
@@ -15,9 +16,10 @@
 	$showpopul=(($population!=0 || $nationrow[8]=='show') && $nationrow[8]!='hide');
 	$showparent=(($parentcountry!='none' || $nationrow[9]=='show') && $nationrow[9]!='hide');
 	$showany=$showruler || $showflag || $showpopul || $showparent;
-	$rulerquery="SELECT `username`,`forecolor`,`backcolor`,`character`,`prefix`,`suffix`,`skin` FROM `mcstuff`.`users` WHERE `username`='".$ruler."';";
-	$rulerqueryresult=mysqli_query($conn,$rulerquery);
-	$rulerrow=mysqli_fetch_row($rulerqueryresult);
+	$rulerquery=$pdo->prepare("SELECT `username`,`forecolor`,`backcolor`,`character`,`prefix`,`suffix`,`skin` FROM `mcstuff`.`users` WHERE `username`=?;");
+	$rulerquery->bindValue(1, $ruler, PDO::PARAM_STR);
+	$rulerquery->execute();
+	$rulerrow=$rulerquery->fetch(PDO::FETCH_BOTH);
 	$forecolor=$rulerrow[1];
 	$backcolor=$rulerrow[2];
 	$character=$rulerrow[3];
@@ -67,15 +69,17 @@
 			?>
 
 			<?php
-				$resourcequery="SELECT `nation`,`unit`,`type`,`ntnlwlth`,`ctznwlth`,`ntnlincome`,`ctznincome`,`tax`,`showwlth`,`showncm`,`showntnl`,`showctzn`,`showtax`,`desc`,`hide` FROM `mcstuff`.`resources` WHERE `nation`='".mysqli_real_escape_string($conn,$name)."' AND `hide`=0;";
-				if(isset($_SESSION['username']) && $_SESSION['username']==$ruler) {
-					$resourcequery="SELECT `nation`,`unit`,`type`,`ntnlwlth`,`ctznwlth`,`ntnlincome`,`ctznincome`,`tax`,`showwlth`,`showncm`,`showntnl`,`showctzn`,`showtax`,`desc`,`hide` FROM `mcstuff`.`resources` WHERE `nation`='".mysqli_real_escape_string($conn,$name)."';";
-				}
-				$resourcequeryresult=mysqli_query($conn,$resourcequery);
-				if($resourcequeryresult->num_rows>0) {
+				$resourcequery="SELECT `nation`,`unit`,`type`,`ntnlwlth`,`ctznwlth`,`ntnlincome`,`ctznincome`,`tax`,`showwlth`,`showncm`,`showntnl`,`showctzn`,`showtax`,`desc`,`hide` FROM `mcstuff`.`resources` WHERE `nation`=?";
+				if(isset($_SESSION['username']) && $_SESSION['username']==$ruler)
+					$resourcequery.=";";
+				else
+					$resourcequery.=" AND `hide`=0;";
+				$resourcequerypdo=$pdo->prepare($resourcequery);
+				$resourcequerypdo->bindValue(1, $name, PDO::PARAM_STR);
+				$resourcequerypdo->execute();
+				if($resourcequerypdo->rowCount()>0) {
 					echo '<div id="resources"><span id="h">Resources:</span>';
-					for($i=0; $i<$resourcequeryresult->num_rows; $i++) {
-						$row=mysqli_fetch_row($resourcequeryresult);
+					foreach($resourcequerypdo->fetchAll(PDO::FETCH_BOTH) as $row) {
 						$tablerow1="";
 						$tablerow2="";
 						$tablerow3="";

@@ -30,13 +30,55 @@
 	$_SESSION['last_active']=time();
 	$loggedin=false;
 	require 'db.php';
+	$queries = [
+		'get_perm' => $pdo->prepare('SELECT `permissions` FROM `mcstuff`.`users` WHERE `username` = ?;'),
+		'chg_perm' => $pdo->prepare('UPDATE `mcstuff`.`users` SET `permissions` = :newperm WHERE `username` = :user;'),
+		'chg_usrnm' => $pdo->prepare('UPDATE `mcstuff`.`users` SET `username` = :newusrnm WHERE `username` = :user;'),
+		'chg_pass' => $pdo->prepare('UPDATE `mcstuff`.`users` SET `password` = :newpass WHERE `username` = :user;'),
+		'get_usrs_perm' => $pdo->prepare('SELECT `username` FROM `mcstuff`.`users` WHERE `permissions` < ?;')
+	];
+	function dbq_get_perm($val) {
+		global $queries;
+		$queries['get_perm']->bindValue(1, $val, PDO::PARAM_STR);
+		$queries['get_perm']->execute();
+		$fetched = $queries['get_perm']->fetch(PDO::FETCH_BOTH);
+		return $fetched === false ? false : $fetched[0];
+	}
+	function dbq_chg_perm($user, $newperm) {
+		global $queries;
+		$queries['chg_perm']->bindValue(':user', $user, PDO::PARAM_STR);
+		$queries['chg_perm']->bindValue(':newperm', $newperm, PDO::PARAM_INT);
+		$queries['chg_perm']->execute();
+	}
+	function dbq_chg_usrnm($user, $newusrnm) {
+		global $queries;
+		$queries['chg_usrnm']->bindValue(':user', $user, PDO::PARAM_STR);
+		$queries['chg_usrnm']->bindValue(':newusrnm', $newusrnm, PDO::PARAM_STR);
+		$queries['chg_usrnm']->execute();
+	}
+	function dbq_chg_pass($user, $newpass) {
+		global $queries;
+		$queries['chg_pass']->bindValue(':user', $user, PDO::PARAM_STR);
+		$queries['chg_pass']->bindValue(':newpass', password_hash($newpass,PASSWORD_DEFAULT), PDO::PARAM_STR);
+		$queries['chg_pass']->execute();
+	}
+	function dbq_get_usrs_perm($perm, &$usrs) {
+		global $queries;
+		$queries['get_usrs_perm']->bindValue(1, $perm, PDO::PARAM_INT);
+		$queries['get_usrs_perm']->execute();
+		$fetched = $queries['get_usrs_perm']->fetchAll(PDO::FETCH_BOTH);
+		foreach ($fetched as $row) {
+			array_push($usrs, $row[0]);
+		}
+	}
 	function addBanner($bannerTxt) {
 		echo '<div class="banner">'.$bannerTxt.'</div>';
 	}
 	if(isset($_SESSION['username'])) {
-		$query="SELECT `username`,`uuid`,`permissions`,`forecolor`,`backcolor`,`nation`,`character`,`prefix`,`suffix`,`skin` FROM `mcstuff`.`users` WHERE `username`='".$_SESSION['username']."';";
-		if($queryresult=mysqli_query($conn,$query)) {
-			$row=mysqli_fetch_row($queryresult);
+		$query=$pdo->prepare("SELECT `username`,`uuid`,`permissions`,`forecolor`,`backcolor`,`nation`,`character`,`prefix`,`suffix`,`skin` FROM `mcstuff`.`users` WHERE `username`=?;");
+		$query->bindValue(1, $_SESSION['username'], PDO::PARAM_STR);
+		if($query->execute()) {
+			$row=$query->fetch(PDO::FETCH_BOTH);
 			$uuid=$row[1];
 			$_SESSION['permissions']=$permissions=intval($row[2]);
 			$forecolor=$row[3];
@@ -46,7 +88,13 @@
 			$prefix=$row[7];
 			$suffix=$row[8];
 			$loggedin=true;
+			$dbq_laston = $pdo->prepare('UPDATE `mcstuff`.`users` SET `laston` = current_timestamp WHERE `username` = ?');
+			$dbq_laston->bindValue(1, $_SESSION['username'], PDO::PARAM_STR);
+			$dbq_laston->execute();
 		}
+	}
+	else {
+		$_SESSION['permissions']=0;
 	}
 	require 'model.php';
 	$setupMethod='General';
@@ -127,7 +175,7 @@
 		windowMoving=false;
 		window.onresize = function(e) {
 			if(windowMoving) {
-				clearInterval(movingWindow);
+				clearTimeout(movingWindow);
 			}
 			else {
 				windowMoving=true;
@@ -146,6 +194,7 @@
 				}
 			},100);
 		};
+		menuButton={remove:function(){}};
 		smallScreen=$(innerWidth).toEm()<49.625;
 		wasSmall=smallScreen;
 		if(isNaN($(innerWidth).toEm())) screenCheck=setInterval(function(){if(!isNaN($(innerWidth).toEm())) {clearInterval(screenCheck); smallScreen=$(innerWidth).toEm()<49.625; wasSmall=smallScreen; if(smallScreen) {setupMobile()}}},0);
@@ -181,6 +230,10 @@
 				<a href="./nations.php">
 					<span>Nations</span>
 				</a>
+				<?php
+					if($loggedin && $permissions>=2)
+						echo '<a href="./admin.php"><span>Admin</span></a>';
+				?>
 			</div>
 			<div id="options">
 				<div id="profile">
@@ -201,7 +254,7 @@
 				<?php //if($loggedin && $permissions>0) {echo '<div id="postbutton"><a href="post.php"><div class="lighten"></div></a></div>';}?>
 			</div>
 		</div><?php
-		if($loggedin && $permissions>0) require 'statusBar.php';
+		//if($loggedin && $permissions>0) require 'statusBar.php';
 		if(in_array($currentPage,$hasSort)) require 'sortBar.php';
 		if(in_array($currentPage,$hasNations)) require 'nationBar.php';
 		?>

@@ -1,11 +1,18 @@
 <?php
 	session_start();
 	require 'db.php';
+	function getSkin() {
+		global $_SESSION, $pdo;
+		$skinquery=$pdo->prepare("SELECT `skin` FROM `mcstuff`.`users` WHERE `username`=?;");
+		$skinquery->bindValue(1, $_SESSION['username'], PDO::PARAM_STR);
+		$skinquery->execute();
+		echo '{"skin":"'.$skinquery->fetch(PDO::FETCH_BOTH)[0].'","updated":false}';
+	}
 	if(isset($_GET['new'])) {
-		$query="SELECT `username`,`uuid` FROM `mcstuff`.`users` WHERE `username`='".$_SESSION['username']."';";
-		$queryresult=mysqli_query($conn,$query);
-		$row=mysqli_fetch_row($queryresult);
-		$uuid=$row[1];
+		$query=$pdo->prepare("SELECT `uuid` FROM `mcstuff`.`users` WHERE `username`=?;");
+		$query->bindValue(1, $_SESSION['username'], PDO::PARAM_STR);
+		$query->execute();
+		$uuid=$query->fetch(PDO::FETCH_BOTH)[0];
 		$firstjson=@file_get_contents('https://sessionserver.mojang.com/session/minecraft/profile/'.$uuid);
 		for($i=0; $i<6; $i++) {
 			if($firstjson) {
@@ -28,22 +35,18 @@
 			$secondjson=base64_decode($base64);
 			$secondobj=json_decode($secondjson);
 			$skin=$secondobj->textures->SKIN->url;
-			$sql="UPDATE `mcstuff`.`users` SET `skin`='".mysqli_real_escape_string($conn,$skin)."' WHERE `username`='".$_SESSION['username']."';";
-			mysqli_query($conn,$sql);
+			$sql=$pdo->prepare("UPDATE `mcstuff`.`users` SET `skin`=:skin WHERE `username`=:username;");
+			$sql->bindValue('skin', $skin, PDO::PARAM_STR);
+			$sql->bindValue('username', $_SESSION['username'], PDO::PARAM_STR);
+			$sql->execute();
 			echo '{"skin":"'.$skin.'","updated":true}';
 		}
 		else {
-			$skinquery="SELECT `username`,`skin` FROM `mcstuff`.`users` WHERE `username`='".$_SESSION['username']."';";
-			$skinqueryresult=mysqli_query($conn,$skinquery);
-			$row=mysqli_fetch_row($skinqueryresult);
-			echo '{"skin":"'.$row[1].'","updated":false}';
+			getSkin();
 		}
 	}
 	else {
-		$skinquery="SELECT `username`,`skin` FROM `mcstuff`.`users` WHERE `username`='".$_SESSION['username']."';";
-		$skinqueryresult=mysqli_query($conn,$skinquery);
-		$row=mysqli_fetch_row($skinqueryresult);
-		echo '{"skin":"'.$row[1].'","updated":false}';
+		getSkin();
 	}
 	
 ?>

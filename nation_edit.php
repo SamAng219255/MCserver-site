@@ -64,9 +64,10 @@
 		<form method="POST" enctype="multipart/form-data"><div id="nations">
 			<?php
 
-				$nationquery="SELECT `name`,`ruler`,`hasflag`,`population`,`parent`,`desc`,`showruler`,`showflag`,`showpopul`,`showparent`,`troopresource` FROM `mcstuff`.`nations` WHERE `name`='".mysqli_real_escape_string($conn,$_GET['nation'])."';";
-				$nationqueryresult=mysqli_query($conn,$nationquery);
-				$nationrow=mysqli_fetch_row($nationqueryresult);
+				$nationquery=$pdo->prepare("SELECT `name`,`ruler`,`hasflag`,`population`,`parent`,`desc`,`showruler`,`showflag`,`showpopul`,`showparent`,`troopresource` FROM `mcstuff`.`nations` WHERE `name`=?;");
+				$nationquery->bindValue(1, $_GET['nation'], PDO::PARAM_STR);
+				$nationquery->execute();
+				$nationrow=$nationquery->fetch(PDO::FETCH_BOTH);
 				$name=$nationrow[0];
 				$ruler=$nationrow[1];
 				$hasflag=$nationrow[2]=='1';
@@ -80,9 +81,10 @@
 				$showparent=(($parentcountry!='none' || $nationrow[9]=='show') && $nationrow[9]!='hide');
 				$showany=$showruler || $showflag || $showpopul || $showparent;
 				$troopresource=$nationrow[10];
-				$rulerquery="SELECT `username`,`forecolor`,`backcolor`,`character`,`prefix`,`suffix`,`skin` FROM `mcstuff`.`users` WHERE `username`='".$ruler."';";
-				$rulerqueryresult=mysqli_query($conn,$rulerquery);
-				$rulerrow=mysqli_fetch_row($rulerqueryresult);
+				$rulerquery=$pdo->prepare("SELECT `username`,`forecolor`,`backcolor`,`character`,`prefix`,`suffix`,`skin` FROM `mcstuff`.`users` WHERE `username`=?;");
+				$rulerquery->bindValue(1, $ruler, PDO::PARAM_STR);
+				$rulerquery->execute();
+				$rulerrow=$rulerquery->fetch(PDO::FETCH_BOTH);
 				$forecolor=$rulerrow[1];
 				$backcolor=$rulerrow[2];
 				$character=$rulerrow[3];
@@ -162,21 +164,23 @@
 									else $checked='';
 									echo '<label><input type="radio" value="false" name="showpopul"'.$checked.'> Auto</label>';
 								?></dd>
-							<dt title="Name a resoucre for use in restricting troop production. This resource will have the National Wealth automatically incremented by the National Income on a daily basis and will be spent to produce troops.">Troop Restricting Resource:</dt>
+							<dt title="Name a resource for use in restricting troop production. This resource will have the National Wealth automatically incremented by the National Income on a daily basis and will be spent to produce troops.">Troop Restricting Resource:</dt>
 								<dd><?php echo '<input type="text" name="troopresource" value="'.$troopresource.'">'; ?></dd>
 								<dd>Hidden</dd>
 						</dl>
 
 						<?php
-							$resourcequery="SELECT `nation`,`unit`,`type`,`ntnlwlth`,`ctznwlth`,`ntnlincome`,`ctznincome`,`tax`,`showwlth`,`showncm`,`showntnl`,`showctzn`,`showtax`,`desc`,`hide` FROM `mcstuff`.`resources` WHERE `nation`='".mysqli_real_escape_string($conn,$name)."';";
-							$resourcequeryresult=mysqli_query($conn,$resourcequery);
+							$resourcequery=$pdo->prepare("SELECT `nation`,`unit`,`type`,`ntnlwlth`,`ctznwlth`,`ntnlincome`,`ctznincome`,`tax`,`showwlth`,`showncm`,`showntnl`,`showctzn`,`showtax`,`desc`,`hide` FROM `mcstuff`.`resources` WHERE `nation`=?;");
+							$resourcequery->bindValue(1, $name, PDO::PARAM_STR);
+							$resourcequery->execute();
 							echo '<div id="resources"><span id="h">Resources:</span><div id="resourceholder">';
 							require 'echo_resource_card.php';
-							for($i=0; $i<$resourcequeryresult->num_rows; $i++) {
-								$row=mysqli_fetch_row($resourcequeryresult);
+							$rowCount=$resourcequery->rowCount();
+							for ($i=0; $i < $rowCount; $i++) {
+								$row = $resourcequery->fetch(PDO::FETCH_BOTH);
 								echoResourceCard($row,$i);
 							}
-							echo '</div><script>newCardId='.$resourcequeryresult->num_rows.'; nation="'.$name.'"</script><input type="hidden" name="resourcecount" value="'.$resourcequeryresult->num_rows.'">';
+							echo '</div><script>newCardId='.$rowCount.'; nation="'.$name.'"</script><input type="hidden" name="resourcecount" value="'.$rowCount.'">';
 							echo '
 <span id="addresource" onclick="addresource()">Add Resource</span>';
 							echo '</div>';

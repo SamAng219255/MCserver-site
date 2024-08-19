@@ -2,16 +2,18 @@
 	session_start();
 	require "db.php";
 	if(is_numeric($_GET['target'])) {
-		$query="SELECT `username`,`id` FROM `mcstuff`.`posts` WHERE `id`='".$_GET['target']."';";
-		if($queryresult=mysqli_query($conn,$query)) {
-			$row=mysqli_fetch_row($queryresult);
+		$query=$pdo->prepare("SELECT `username`,`id` FROM `mcstuff`.`posts` WHERE `id`=?;");
+		$query->bindValue(1, $_GET['target'], PDO::PARAM_STR);
+		if($query->execute()) {
+			$row=$query->fetch(PDO::FETCH_BOTH);
 			if($row[0]==$_SESSION['username']) {
-				$sql="DELETE FROM `mcstuff`.`posts` WHERE `id`='".$_GET['target']."';";
-				if(mysqli_query($conn,$sql)) {
+				$sql=$pdo->prepare("DELETE FROM `mcstuff`.`posts` WHERE `id`=?;");
+				$sql->bindValue(1, $_GET['target'], PDO::PARAM_STR);
+				if($sql->execute()) {
 					echo 'true';
 				}
 				else {
-					echo 'SQL error during post delete. SQL: '.$sql;
+					echo 'SQL error during post delete. SQL: '.$sql->queryString;
 				}
 			}
 			else {
@@ -19,7 +21,7 @@
 			}
 		}
 		else {
-			echo 'SQL error during ownership check. SQL: '.$query;
+			echo 'SQL error during ownership check. SQL: '.$query->queryString;
 		}
 	}
 	else {

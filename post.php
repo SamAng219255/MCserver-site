@@ -12,8 +12,12 @@
 						$tags.=$testtag.',';
 					}
 				}
-				$sql="INSERT INTO `mcstuff`.`posts` (`id`,`username`,`topic`,`tags`,`content`) VALUES ('0','".$_SESSION['username']."','".$_POST['topic']."','".$tags."','".mysqli_real_escape_string($conn,$_POST['content'])."');";
-				if(mysqli_query($conn,$sql)) {
+				$sql=$pdo->prepare("INSERT INTO `mcstuff`.`posts` (`id`,`username`,`topic`,`tags`,`content`) VALUES ('0',:username,:topic,:tags,:content);");
+				$sql->bindValue('username', $_SESSION['username'], PDO::PARAM_STR);
+				$sql->bindValue('topic', $_POST['topic'], PDO::PARAM_STR);
+				$sql->bindValue('tags', $tags, PDO::PARAM_STR);
+				$sql->bindValue('content', $_POST['content'], PDO::PARAM_STR);
+				if($sql->execute()) {
 					echo '<meta http-equiv="refresh" content="0; URL=./blog.php">';
 				}
 				else {

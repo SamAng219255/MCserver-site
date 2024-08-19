@@ -8,9 +8,7 @@
 				else {
 					$styles='';
 					$nationquery="SELECT `name`,`ruler`,`hasflag` FROM `mcstuff`.`nations`;";
-					$nationqueryresult=mysqli_query($conn,$nationquery);
-					for($i=0; $i<$nationqueryresult->num_rows; $i++) {
-						$row=mysqli_fetch_row($nationqueryresult);
+					foreach($pdo->query($nationquery, PDO::FETCH_BOTH) as $row) {
 						$flag='default_flag.png';
 						if($row[2]=='1') {
 							$flag='flags/'.$row[0];
@@ -21,9 +19,7 @@
 						echo '</div></td></tr></table></div>';
 					}
 					$stylequery="SELECT `username`,`forecolor`,`backcolor`,`skin`,`permissions` FROM `mcstuff`.`users` WHERE `permissions`>0;";
-					$stylequeryresult=mysqli_query($conn,$stylequery);
-					for($i=0; $i<$stylequeryresult->num_rows; $i++) {
-						$row=mysqli_fetch_row($stylequeryresult);
+					foreach($pdo->query($stylequery, PDO::FETCH_BOTH) as $row) {
 						$styles.='
 .card[user='.$row[0].'] {
 	color: #'.$row[1].';
