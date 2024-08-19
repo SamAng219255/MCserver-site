@@ -40,7 +40,7 @@
 			$now = time();
 			if(!isset($_SESSION['nextlogin'])) $_SESSION['nextlogin'] = time() - 1;
 			if($now >= $_SESSION['nextlogin']) {
-				$profile = json_decode(@file_get_contents($url, false, $context));
+				$profile = json_decode(file_get_contents($url, false, $context));
 				$_SESSION['nextlogin'] = time() + 1;
 			}
 			else {

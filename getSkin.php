@@ -13,14 +13,14 @@
 		$query->bindValue(1, $_SESSION['username'], PDO::PARAM_STR);
 		$query->execute();
 		$uuid=$query->fetch(PDO::FETCH_BOTH)[0];
-		$firstjson=@file_get_contents('https://sessionserver.mojang.com/session/minecraft/profile/'.$uuid);
+		$firstjson=file_get_contents('https://sessionserver.mojang.com/session/minecraft/profile/'.$uuid);
 		for($i=0; $i<6; $i++) {
 			if($firstjson) {
 				break;
 			}
 			else {
 				sleep(10);
-				$firstjson=@file_get_contents('https://sessionserver.mojang.com/session/minecraft/profile/'.$uuid);
+				$firstjson=file_get_contents('https://sessionserver.mojang.com/session/minecraft/profile/'.$uuid);
 			}
 		}
 		if($firstjson) {
