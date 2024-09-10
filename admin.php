@@ -84,7 +84,7 @@
 					</div>
 					<div class="stuffing"><b>User Controls</b><form action="./admin.php" method="post"><input type="hidden" name="action-type" value="user"><?php
 						
-						echo 'Action: <select name="action">';
+						echo 'Action: <select name="action" id="action-select">';
 						foreach ($usr_actions as $action => $action_data) {
 							if($action_data['level'] <= $permissions) echo '<option value="'.$action.'">'.$action_data['display'].'</option>';
 						}
@@ -95,8 +95,18 @@
 						foreach ($queryresult as $usr) {
 							echo '<option value="'.$usr.'">'.$usr.'</option>';
 						}
-						echo '</select>, Additional Data: <input type="text" name="data">, <input type="submit" name="execute" value="Execute">';
+						echo '</select>, Additional Data: <input type="text" name="data" id="add-data">, <input type="submit" name="execute" value="Execute">';
 					?></form></div>
+					<script>
+						$("#action-select").on("change",function(){
+							if($("#action-select").val()=="chng_password") {
+								$("#add-data").attr("type", "password");
+							}
+							else {
+								$("#add-data").attr("type", "text");
+							}
+						});
+					</script>
 					<div class="footer">
 						
 					</div>
