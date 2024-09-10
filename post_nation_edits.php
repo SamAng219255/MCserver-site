@@ -1,19 +1,48 @@
 <?php
-	$sql="UPDATE `mcstuff`.`nations` SET `name`='".mysqli_real_escape_string($conn,$_POST['name'])."',`population`='".$_POST['population']."',`parent`='".mysqli_real_escape_string($conn,$_POST['parent'])."',`desc`='".mysqli_real_escape_string($conn,$_POST['desc'])."',`showruler`='".mysqli_real_escape_string($conn,$_POST['showruler'])."',`showflag`='".mysqli_real_escape_string($conn,$_POST['showflag'])."',`showpopul`='".mysqli_real_escape_string($conn,$_POST['showpopul'])."',`showparent`='".mysqli_real_escape_string($conn,$_POST['showparent'])."',`troopresource`='".mysqli_real_escape_string($conn,$_POST['troopresource'])."' WHERE `name`='".mysqli_real_escape_string($conn,$_GET['nation'])."';";
-	mysqli_query($conn,$sql);
+	$sql=$pdo->prepare('UPDATE `mcstuff`.`nations` SET `name`=:name,`population`=:population,`parent`=:parent,`desc`=:desc,`showruler`=:showruler,`showflag`=:showflag,`showpopul`=:showpopul,`showparent`=:showparent,`troopresource`=:troopresource WHERE `name`=:getname;');
+	$sql->bindValue('name', $_POST['name'], PDO::PARAM_STR);
+	$sql->bindValue('population', $_POST['population'], PDO::PARAM_INT);
+	$sql->bindValue('parent', $_POST['parent'], PDO::PARAM_STR);
+	$sql->bindValue('desc', $_POST['desc'], PDO::PARAM_STR);
+	$sql->bindValue('showruler', $_POST['showruler'], PDO::PARAM_STR);
+	$sql->bindValue('showflag', $_POST['showflag'], PDO::PARAM_STR);
+	$sql->bindValue('showpopul', $_POST['showpopul'], PDO::PARAM_STR);
+	$sql->bindValue('showparent', $_POST['showparent'], PDO::PARAM_STR);
+	$sql->bindValue('troopresource', $_POST['troopresource'], PDO::PARAM_STR);
+	$sql->bindValue('getname', $_GET['nation'], PDO::PARAM_STR);
+	$sql->execute();
 
 	
-	$nationsql="UPDATE `mcstuff`.`users` SET `nation`='".mysqli_real_escape_string($conn,$_POST['name'])."' WHERE `nation`='".mysqli_real_escape_string($conn,$_GET['nation'])."' OR `username`='".$_SESSION['username']."';";
-	mysqli_query($conn,$nationsql);
+	$nationsql=$pdo->prepare('UPDATE `mcstuff`.`users` SET `nation`=:name WHERE `nation`=:nation OR `username`=:username;');
+	$nationsql->bindValue('name', $_POST['name'], PDO::PARAM_STR);
+	$nationsql->bindValue('nation', $_GET['nation'], PDO::PARAM_STR);
+	$nationsql->bindValue('username', $_SESSION['username'], PDO::PARAM_STR);
+	$nationsql->execute();
 
-	$resetsql="DELETE FROM `mcstuff`.`resources` WHERE `nation`='".mysqli_real_escape_string($conn,$_GET['nation'])."';";
-	mysqli_query($conn,$resetsql);
+	$resetsql=$pdo->prepare("DELETE FROM `mcstuff`.`resources` WHERE `nation`=?;");
+	$resetsql->bindValue(1, $_GET['nation'], PDO::PARAM_STR);
+	$resetsql->execute();
 
 	for($i=0; $i<$_POST['resourcecount']; $i++) {
-		$hidden='0';
-		if(isset($_POST['hidden-'.$i])) $hidden='1';
-		$resourcesql="INSERT INTO `mcstuff`.`resources` (`id`,`nation`,`unit`,`type`,`ntnlwlth`,`ctznwlth`,`ntnlincome`,`ctznincome`,`tax`,`showwlth`,`showncm`,`showntnl`,`showctzn`,`showtax`,`desc`,`hide`) VALUES ('0','".mysqli_real_escape_string($conn,$_POST['name'])."','".mysqli_real_escape_string($conn,$_POST['unit-'.$i])."','".mysqli_real_escape_string($conn,$_POST['name-'.$i])."','".$_POST['ntnlwlth-'.$i]."','".$_POST['ctznwlth-'.$i]."','".$_POST['ntnlincome-'.$i]."','".$_POST['ctznincome-'.$i]."','".$_POST['tax-'.$i]."','".mysqli_real_escape_string($conn,$_POST['showwlth-'.$i])."','".mysqli_real_escape_string($conn,$_POST['showncm-'.$i])."','".mysqli_real_escape_string($conn,$_POST['showntnl-'.$i])."','".mysqli_real_escape_string($conn,$_POST['showctzn-'.$i])."','".mysqli_real_escape_string($conn,$_POST['showtax-'.$i])."','".mysqli_real_escape_string($conn,$_POST['desc-'.$i])."','".$hidden."');";
-		mysqli_query($conn,$resourcesql);
+		$hidden=0;
+		if(isset($_POST['hidden-'.$i])) $hidden=1;
+		$resourcesql=$pdo->prepare("INSERT INTO `mcstuff`.`resources` (`id`,`nation`,`unit`,`type`,`ntnlwlth`,`ctznwlth`,`ntnlincome`,`ctznincome`,`tax`,`showwlth`,`showncm`,`showntnl`,`showctzn`,`showtax`,`desc`,`hide`) VALUES ('0',:nation,:unit,:name,:ntnlwlth,:ctznwlth,:ntnlincome,:ctznincome,:tax,:showwlth,:showncm,:showntnl,:showctzn,:showtax,:desc,:hidden);");
+		$resourcesql->bindValue('nation', $_POST['name'], PDO::PARAM_STR);
+		$resourcesql->bindValue('unit', $_POST['unit-'.$i], PDO::PARAM_STR);
+		$resourcesql->bindValue('name', $_POST['name-'.$i], PDO::PARAM_STR);
+		$resourcesql->bindValue('ntnlwlth', $_POST['ntnlwlth-'.$i], PDO::PARAM_INT);
+		$resourcesql->bindValue('ctznwlth', $_POST['ctznwlth-'.$i], PDO::PARAM_INT);
+		$resourcesql->bindValue('ntnlincome', $_POST['ntnlincome-'.$i], PDO::PARAM_INT);
+		$resourcesql->bindValue('ctznincome', $_POST['ctznincome-'.$i], PDO::PARAM_INT);
+		$resourcesql->bindValue('tax', $_POST['tax-'.$i], PDO::PARAM_INT);
+		$resourcesql->bindValue('showwlth', $_POST['showwlth-'.$i], PDO::PARAM_STR);
+		$resourcesql->bindValue('showncm', $_POST['showncm-'.$i], PDO::PARAM_STR);
+		$resourcesql->bindValue('showntnl', $_POST['showntnl-'.$i], PDO::PARAM_STR);
+		$resourcesql->bindValue('showctzn', $_POST['showctzn-'.$i], PDO::PARAM_STR);
+		$resourcesql->bindValue('showtax', $_POST['showtax-'.$i], PDO::PARAM_STR);
+		$resourcesql->bindValue('desc', $_POST['desc-'.$i], PDO::PARAM_STR);
+		$resourcesql->bindValue('hidden', $hidden, PDO::PARAM_INT);
+		$resourcesql->execute();
 	}
 
 	if($_FILES['flag']["error"]==0) {
@@ -37,8 +66,9 @@
 				if(file_exists($target_file)) unlink($target_file);
 				if (move_uploaded_file($_FILES["flag"]["tmp_name"], $target_file)) {
 					addBanner("The file ". basename($_FILES["flag"]["name"]) . " has been uploaded.");
-					$flagsql="UPDATE `mcstuff`.`nations` SET `hasflag`='1' WHERE `name`='".mysqli_real_escape_string($conn,$_GET['nation'])."';";
-					mysqli_query($conn,$flagsql);
+					$flagsql=$pdo->prepare("UPDATE `mcstuff`.`nations` SET `hasflag`='1' WHERE `name`=?;");
+					$flagsql->bindValue(1, $_GET['nation'], PDO::PARAM_STR);
+					$flagsql->execute();
 				} else {
 					addBanner("Sorry, there was an error uploading your file.");
 				}

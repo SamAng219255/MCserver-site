@@ -104,6 +104,6 @@ function echoResourceCard($row,$i) {
 	echo '</div><div class="footer"><span class="delete" onclick="deleteresource('.$i.')">Delete</span></div></div>';
 }
 if(isset($_GET['argv'])) {
-	echoResourceCard([$_GET['nation'],$_GET['unit'],$_GET['type'],$_GET['ntnlwlth'],$_GET['ctznwlth'],$_GET['ntnlincome'],$_GET['ctznincome'],$_GET['tax'],$_GET['showwlth'],$_GET['showncm'],$_GET['showntnl'],$_GET['showctzn'],$_GET['showtax'],$_GET['desc']],$_GET['i']);
+	echoResourceCard([$_GET['nation'],$_GET['unit'],$_GET['type'],$_GET['ntnlwlth'],$_GET['ctznwlth'],$_GET['ntnlincome'],$_GET['ctznincome'],$_GET['tax'],$_GET['showwlth'],$_GET['showncm'],$_GET['showntnl'],$_GET['showctzn'],$_GET['showtax'],$_GET['desc'],$_GET['hide']],$_GET['i']);
 }
 ?>

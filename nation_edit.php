@@ -32,7 +32,7 @@
 		<script>
 			newCardId=0;
 			function addresource() {
-				$.get("./echo_resource_card.php",{"argv":true,"nation":nation,"unit":"gp","type":"Gold","ntnlwlth":"1000000","ctznwlth":"1000","ntnlincome":"10000","ctznincome":"10","tax":"2","showwlth":"false","showncm":"false","showntnl":"false","showctzn":"false","showtax":"false","desc":"","i":newCardId},addresourceTrue);
+				$.get("./echo_resource_card.php",{"argv":true,"nation":nation,"unit":"gp","type":"Gold","ntnlwlth":"1000000","ctznwlth":"1000","ntnlincome":"10000","ctznincome":"10","tax":"2","showwlth":"false","showncm":"false","showntnl":"false","showctzn":"false","showtax":"false","desc":"","hide":"0","i":newCardId},addresourceTrue);
 				newCardId++;
 				$("*[name=resourcecount]").val(newCardId);
 			}

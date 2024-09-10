@@ -55,6 +55,18 @@
 		$queries['chg_usrnm']->bindValue(':user', $user, PDO::PARAM_STR);
 		$queries['chg_usrnm']->bindValue(':newusrnm', $newusrnm, PDO::PARAM_STR);
 		$queries['chg_usrnm']->execute();
+		$places = [
+			$pdo->prepare('UPDATE `mcstuff`.`commanders` SET `owner` = :newusrnm WHERE `owner` = :user;'),
+			$pdo->prepare('UPDATE `mcstuff`.`mappoints` SET `user` = :newusrnm WHERE `user` = :user;'),
+			$pdo->prepare('UPDATE `mcstuff`.`nations` SET `ruler` = :newusrnm WHERE `ruler` = :user;'),
+			$pdo->prepare('UPDATE `mcstuff`.`posts` SET `username` = :newusrnm WHERE `username` = :user;'),
+			$pdo->prepare('UPDATE `mcstuff`.`troops` SET `owner` = :newusrnm WHERE `owner` = :user;')
+		];
+		foreach ($places as $place) {
+			$place->bindValue(':user', $user, PDO::PARAM_STR);
+			$place->bindValue(':newusrnm', $newusrnm, PDO::PARAM_STR);
+			$place->execute();
+		}
 	}
 	function dbq_chg_pass($user, $newpass) {
 		global $queries;
