@@ -8,6 +8,7 @@ img/flags
 img/flags/*
 map/img/uploads
 map/img/uploads/*
+map/img/tiles/*
 map/tileIds.json
 map/upload.sh
 dateupdated.txt

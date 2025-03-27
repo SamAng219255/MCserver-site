@@ -95,6 +95,7 @@ shownCommanders={};
 pinSpritesAcquired=false;
 idsRetrieved=false;
 useAltCtrls=false;
+baseTileSize=512;
 for(var i=0; i<3; i++) {
 	rotarySprites.push(document.createElement('img'));
 }
@@ -322,8 +323,8 @@ function setup() {
 	}
 	width=$(window).width();
 	height=$(window).height();
-	tileSize=128;
-	startingTileSize=128;
+	tileSize=baseTileSize;
+	startingTileSize=baseTileSize;
 	if(data["zoom"]!==undefined) {
 		tileSize*=parseFloat(data["zoom"]);
 	}
@@ -690,10 +691,10 @@ function control_pan(x,y) {// x: delta x, y: delta y
 	redrawHighlight();
 }
 function control_zoom(x, xPos, yPos) {// distance zoomed
-	const zoom=tileSize/128;
-	const newZoom=Math.max(zoom*x,0.3);
+	const zoom=tileSize/baseTileSize;
+	const newZoom=Math.max(zoom*x,0.15);
 	const zoomDiff=newZoom/zoom - 1;
-	tileSize=newZoom*128;
+	tileSize=newZoom*baseTileSize;
 	const tempPos=[pos[0]+offsetPos[0],pos[1]+offsetPos[1]];
 	tempPos[0]+=(xPos-width/2)*zoomDiff/tileSize;
 	tempPos[1]+=(yPos-height/2)*zoomDiff/tileSize;
@@ -725,35 +726,6 @@ function control_drag(x,y) {// x: x position, y: y position
 	mouseLastPos={x:x, y:y};
 }
 
-function setupControls_old() {
-	$(".trpn-calc").on("change",setTroopCalcs);
-	$(".trpn-calc").on("keyup",setTroopCalcs);
-	$(".tab-tab").on("click",function(e){
-		$(e.target.parentElement.parentElement.children).removeClass("active");
-		$(e.target.parentElement).addClass("active");
-	});
-	hammertime=new Hammer.Manager(document.getElementById('mcmap'))
-	hammertime.add(new Hammer.Pan());
-	hammertime.add(new Hammer.Pinch());
-	hammertime.on('pinchstart',function(e) {
-		pinchScale=tileSize;
-	});
-	hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-	hammertime.add( new Hammer.Tap({ event: 'singletap' }) );
-	hammertime.on('pinchmove',function(e) {
-		tileSize=e.scale*pinchScale;
-		offsetPix[0]=-1*offsetPos[0]*tileSize;
-		offsetPix[1]=-1*offsetPos[1]*tileSize;
-		setHash();
-		cornerPos=[pos[0]-width/(2*tileSize)+0.5,pos[1]-height/(2*tileSize)+0.5];
-		draw();
-		redrawHighlight();
-	});
-	hammertime.on("panstart", dragStart);
-	hammertime.on("panmove", drag);
-	hammertime.on("singletap", highlight_old);
-	document.getElementById('mcmap').addEventListener("mousemove",highlighttroops);
-}
 function dragStart(e) {
 	mousePos[0]=e.center.x;
 	mousePos[1]=e.center.y;
@@ -779,7 +751,6 @@ function drag(e) {
 }
 function canvasSetup() {
 	canvasResize();
-	//canvas.addEventListener('wheel', function(event) {zoom(event); return false;}, {passive:false});
 	mapCnv=document.createElement('canvas');
 	mapCnv.width=width;
 	mapCnv.height=height;
@@ -860,7 +831,7 @@ function gotoPin(pinName) {
 	if(pinsFound) {
 		for(var i=0; i<markers.length; i++) {
 			if(markers[i].name==pinName) {
-				const tempPos=[(markers[i].x+0.5)/128,(markers[i].z+0.5)/128]
+				const tempPos=[(markers[i].x+0.5)/baseTileSize,(markers[i].z+0.5)/baseTileSize]
 				pos[0]=Math.floor(tempPos[0]);
 				pos[1]=Math.floor(tempPos[1]);
 				offsetPos[0]=tempPos[0]-pos[0];
@@ -903,7 +874,7 @@ function jumpPinFunc(e) {
 }
 function jumpCoordFunc(e) {
 	if(jumpMenuActive && e.srcElement.parentElement.id=="jumpCoordForm"+mobilePinCheck && e.key=='Enter') {
-		gotoPoint((parseFloat($("#jumpCoordX"+mobilePinCheck).val())/128),(parseFloat($("#jumpCoordZ"+mobilePinCheck).val())/128),(parseInt($("#jumpCoordD"+mobilePinCheck).val())));
+		gotoPoint((parseFloat($("#jumpCoordX"+mobilePinCheck).val())/baseTileSize),(parseFloat($("#jumpCoordZ"+mobilePinCheck).val())/baseTileSize),(parseInt($("#jumpCoordD"+mobilePinCheck).val())));
 		setTimeout(function(){jumpMenuActive=false; menuActive=false;},1);
 		$("#jumpMenu"+mobilePinCheck).removeClass("shown");
 	}
@@ -911,14 +882,14 @@ function jumpCoordFunc(e) {
 function draw() {
 	mapCtx.clearRect(0,0,width,height);
 	tileDelta=[pos[0]-cornerPos[0],pos[1]-cornerPos[1]];
-	for(var i=-Math.ceil(tileDelta[0]); i<=Math.ceil(tileDelta[0])+1; i++) {
-		for(var j=-Math.ceil(tileDelta[1]); j<=Math.ceil(tileDelta[1])+1; j++) {
+	for(var i=-Math.ceil(tileDelta[0])-1; i<=Math.ceil(tileDelta[0])+1; i++) {
+		for(var j=-Math.ceil(tileDelta[1])-1; j<=Math.ceil(tileDelta[1])+1; j++) {
 			var x=(Math.floor(pos[0])+i);
 			var y=(Math.floor(pos[1])+j);
 			var key="d"+dimension+"x"+x+"y"+y;
 			if(!idsRetrieved || tileIds[dimension+"_"+x+"_"+y]==undefined) {
 				if(!showMissingTiles) {
-					mapCtx.drawImage(defaultTile,offsetPix[0]+(Math.floor(i)+tileDelta[0])*tileSize,offsetPix[1]+(Math.floor(j)+tileDelta[1])*tileSize,tileSize,tileSize);
+					mapCtx.drawImage(defaultTile,offsetPix[0]+(Math.floor(i)+tileDelta[0]+0.5)*tileSize,offsetPix[1]+(Math.floor(j)+tileDelta[1]+0.5)*tileSize,tileSize,tileSize);
 				}
 			}
 			else if(tiles[key]==undefined) {
@@ -932,17 +903,22 @@ function draw() {
 				};
 				tiles[key].onload=function () {
 					tileDelta=[pos[0]-cornerPos[0],pos[1]-cornerPos[1]];
-					const foo=this.src.split(".");
-					const x=parseInt(foo[foo.length-3]);
-					const y=parseInt(foo[foo.length-2]);
-					const key="d"+foo[foo.length-4]+"x"+x+"y"+y;
-					mapCtx.drawImage(this,offsetPix[0]+(x-pos[0]+tileDelta[0])*tileSize,offsetPix[1]+(y-pos[1]+tileDelta[1])*tileSize,tileSize,tileSize);
+					const regionData=this.src.split(".");
+					const x=parseInt(regionData[regionData.length-3]);
+					const y=parseInt(regionData[regionData.length-2]);
+					const key="d"+regionData[regionData.length-4]+"x"+x+"y"+y;
+					mapCtx.drawImage(defaultTile,offsetPix[0]+(x-pos[0]+tileDelta[0]+0.5)*tileSize,offsetPix[1]+(y-pos[1]+tileDelta[1]+0.5)*tileSize,tileSize,tileSize);
+					mapCtx.drawImage(this,offsetPix[0]+(x-pos[0]+tileDelta[0]+0.5)*tileSize,offsetPix[1]+(y-pos[1]+tileDelta[1]+0.5)*tileSize,tileSize,tileSize);
 					drawMain();
 				};
-				tiles[key].src="img/tile."+dimension+"."+x+"."+y+".png";
+				if(dimension==0 && true)
+					tiles[key].src="img/tiles/r."+dimension+"."+x+"."+y+".png";
+				else
+					tiles[key].src="img/tile."+dimension+"."+x+"."+y+".png";
 			}
 			else {
-				mapCtx.drawImage(tiles[key],offsetPix[0]+(i+tileDelta[0])*tileSize,offsetPix[1]+(j+tileDelta[1])*tileSize,tileSize,tileSize);
+				mapCtx.drawImage(defaultTile,offsetPix[0]+(i+tileDelta[0]+0.5)*tileSize,offsetPix[1]+(j+tileDelta[1]+0.5)*tileSize,tileSize,tileSize);
+				mapCtx.drawImage(tiles[key],offsetPix[0]+(i+tileDelta[0]+0.5)*tileSize,offsetPix[1]+(j+tileDelta[1]+0.5)*tileSize,tileSize,tileSize);
 			}
 		}
 	}
@@ -1085,16 +1061,16 @@ function closeGenericMenu() {
 function highlight(inX,inY) {
 	var rawX=inX-offsetPix[0];
 	var rawY=inY-offsetPix[1];
-	var xf = Math.floor((rawX-width/2)/tileSize+0.5)-cornerPos[0]+pos[0];
-	var yf = Math.floor((rawY-height/2)/tileSize+0.5)-cornerPos[1]+pos[1];
+	var xf = Math.floor((rawX-width/2)/tileSize)-cornerPos[0]+pos[0];
+	var yf = Math.floor((rawY-height/2)/tileSize)-cornerPos[1]+pos[1];
 	var x = Math.floor(xf);
 	var y = Math.floor(yf);
 	var xCor=Math.floor(xf+cornerPos[0]);
 	var yCor=Math.floor(yf+cornerPos[1]);
 	var xXct=rawX+(cornerPos[0]*tileSize);
 	var yXct=rawY+(cornerPos[1]*tileSize);
-	var newX=Math.floor(((rawX-width/2)/tileSize+pos[0])*128);
-	var newZ=Math.floor(((rawY-height/2)/tileSize+pos[1])*128);
+	var newX=Math.floor(((rawX-width/2)/tileSize+pos[0])*baseTileSize);
+	var newZ=Math.floor(((rawY-height/2)/tileSize+pos[1])*baseTileSize);
 	boxCtx.clearRect(0,0,width,height);
 	var clickedMark=false;
 	var whichMark=-1;
@@ -1107,7 +1083,7 @@ function highlight(inX,inY) {
 	var btnDist=Infinity;
 	if(pointsVis) {
 		for(var i=0; i<markers.length; i++) {
-			var dist=Math.sqrt(Math.pow(xXct-(markers[i].x+0.5)/128*tileSize-tileSize/2,2)+Math.pow(yXct-(markers[i].z+0.5)/128*tileSize-tileSize/2,2));
+			var dist=Math.sqrt(Math.pow(xXct-(markers[i].x+0.5)/baseTileSize*tileSize-tileSize/2,2)+Math.pow(yXct-(markers[i].z+0.5)/baseTileSize*tileSize-tileSize/2,2));
 			if(dist<markDist && (((dist<15 && selectedPoint==markers[i].id) || dist<10)) || (((dist<60 && selectedPoint==markers[i].id) || dist<40) && isMobile)) {
 				clickedMark=true;
 				whichMark=i;
@@ -1115,7 +1091,7 @@ function highlight(inX,inY) {
 			}
 		}
 		for(var i=0; i<troops.length; i++) {
-			var dist=Math.sqrt(Math.pow(xXct-(troops[i].x+0.5)/128*tileSize-tileSize/2,2)+Math.pow(yXct-(troops[i].z+0.5)/128*tileSize-tileSize/2,2));
+			var dist=Math.sqrt(Math.pow(xXct-(troops[i].x+0.5)/baseTileSize*tileSize-tileSize/2,2)+Math.pow(yXct-(troops[i].z+0.5)/baseTileSize*tileSize-tileSize/2,2));
 			if(dist<trpDist && (((dist<26 && (selectedArmy==troops[i].id || targetArmy==troops[i].id)) || (dist<22 && hoverArmy==troops[i].id) || dist<18)) || (((dist<102 && (selectedArmy==troops[i].id || targetArmy==troops[i].id)) || (dist<85 && hoverArmy==troops[i].id) || dist<72) && isMobile)) {
 				clickedTrp=true;
 				whichTrp=i;
@@ -1221,143 +1197,11 @@ function highlight(inX,inY) {
 		lastTar=[xCor,yCor];
 		boxCtx.strokeStyle="#000000";
 		boxCtx.lineWidth=8;
-		boxCtx.strokeRect(offsetPix[0]+xf*tileSize, offsetPix[1]+yf*tileSize, tileSize, tileSize);
+		boxCtx.strokeRect(offsetPix[0]+(xf+0.5)*tileSize, offsetPix[1]+(yf+0.5)*tileSize, tileSize, tileSize);
 		boxCtx.strokeStyle="#FFFFFF";
 		boxCtx.lineWidth=4;
-		boxCtx.strokeRect(offsetPix[0]+xf*tileSize, offsetPix[1]+yf*tileSize, tileSize, tileSize);
-		$("#infoTxt")[0].innerHTML="Highlighted tile ("+xCor+", "+yCor+"), centered on ("+(xCor*128)+", "+(yCor*128)+"), coordinates ("+((xCor*128)-64)+", "+((yCor*128)-64)+") to ("+((xCor*128)+63)+", "+((yCor*128)+63)+").<br>Map ID: "+mapIds(xCor,yCor);
-		$("#infoTxtBox").addClass("shown");
-		drawMain();
-	}
-	else {
-		resetStuff();
-	}
-}
-function highlight_old(e) {
-	var rawX=e.center.x-offsetPix[0];
-	var rawY=e.center.y-offsetPix[1];
-	var xf = Math.floor((rawX-width/2)/tileSize+0.5)-cornerPos[0]+pos[0];
-	var yf = Math.floor((rawY-height/2)/tileSize+0.5)-cornerPos[1]+pos[1];
-	var x = Math.floor(xf);
-	var y = Math.floor(yf);
-	var xCor=Math.floor(xf+cornerPos[0]);
-	var yCor=Math.floor(yf+cornerPos[1]);
-	var xXct=rawX+(cornerPos[0]*tileSize);
-	var yXct=rawY+(cornerPos[1]*tileSize);
-	var newX=Math.floor(((rawX-width/2)/tileSize+pos[0])*128);
-	var newZ=Math.floor(((rawY-height/2)/tileSize+pos[1])*128);
-	boxCtx.clearRect(0,0,width,height);
-	var clickedMark=false;
-	var whichMark=-1;
-	var markDist=Infinity;
-	var clickedTrp=false;
-	var whichTrp=-1;
-	var trpDist=Infinity;
-	var clickedBtn=false;
-	var whichBtn=-1;
-	var btnDist=Infinity;
-	if(pointsVis) {
-		for(var i=0; i<markers.length; i++) {
-			var dist=Math.sqrt(Math.pow(xXct-(markers[i].x+0.5)/128*tileSize-tileSize/2,2)+Math.pow(yXct-(markers[i].z+0.5)/128*tileSize-tileSize/2,2));
-			if(dist<markDist && (((dist<15 && selectedPoint==markers[i].id) || dist<10)) || (((dist<60 && selectedPoint==markers[i].id) || dist<40) && isMobile)) {
-				clickedMark=true;
-				whichMark=i;
-				markDist=dist;
-			}
-		}
-		for(var i=0; i<troops.length; i++) {
-			var dist=Math.sqrt(Math.pow(xXct-(troops[i].x+0.5)/128*tileSize-tileSize/2,2)+Math.pow(yXct-(troops[i].z+0.5)/128*tileSize-tileSize/2,2));
-			if(dist<trpDist && (((dist<26 && (selectedArmy==troops[i].id || targetArmy==troops[i].id)) || (dist<22 && hoverArmy==troops[i].id) || dist<18)) || (((dist<102 && (selectedArmy==troops[i].id || targetArmy==troops[i].id)) || (dist<85 && hoverArmy==troops[i].id) || dist<72) && isMobile)) {
-				clickedTrp=true;
-				whichTrp=i;
-				trpDist=dist;
-			}
-		}
-	}
-	for(var i=0; i<activeRotaryBtns.length; i++) {
-		//drawCircle(ctx,activeRotaryBtns[i].x,activeRotaryBtns[i].y,activeRotaryBtns[i].radius,"#ffff00");
-		var dist=Math.sqrt(Math.pow(e.center.x-activeRotaryBtns[i].x,2)+Math.pow(e.center.y-activeRotaryBtns[i].y,2));
-		if(dist<btnDist && dist<activeRotaryBtns[i].radius) {
-			clickedBtn=true;
-			whichBtn=i;
-			btnDist=dist;
-		}
-	}
-	//drawCircle(ctx,e.center.x,e.center.y,16,"#0000ff");
-	if(clickedBtn) {
-		activeRotaryBtns[whichBtn].action(activeRotaryBtns[whichBtn].data);
-	}
-	else if(clickedTrp && (actionState!="move" || selectedArmy==whichTrp)) {
-		if(selectedArmy!=whichTrp) {
-			if(selectedArmy!=-1) {
-				if(targetArmy!=whichTrp)
-					targetArmy=whichTrp;
-				else
-					targetArmy=-1;
-			}
-			else {
-				selectedPoint=0;
-				lastTar=[Infinity,Infinity];
-				selectedArmy=whichTrp;
-				$("#infoTxt")[0].innerHTML="<b>"+troops[whichTrp].name+"</b><br>Nation: "+troops[whichTrp].nation+", Size: "+troops[whichTrp].size+", Strength: "+troops[whichTrp].power+", Level: "+parseInt(Math.sqrt(0.25+2*troops[whichTrp].xp)-0.5)+"<br><span onclick=\"viewTrp()\">Details</span>";
-				$("#infoTxtBox").addClass("shown");
-			}
-		}
-		else {
-			if(actionState!="move") {
-				selectedArmy=-1;
-				resetStuff();
-			}
-			else {
-				actionState="default";
-				drawUI();
-			}
-		}
-		drawPoints();
-	}
-	else if(actionState=="move" && Math.pow(newX-troops[selectedArmy].x,2)+Math.pow(newZ-troops[selectedArmy].z,2)<=4096) {
-		console.log("Passed",newX,newZ,",",troops[selectedArmy].x,troops[selectedArmy].z);
-		sendTrpAction({id:troops[selectedArmy].id,x:newX,z:newZ,action:"move"});
-		troops[selectedArmy].x=newX;
-		troops[selectedArmy].z=newZ;
-		selectedArmy=-1;
-		actionState="default";
-		drawUI();
-		resetStuff();
-	}
-	else if(actionState=="move") {
-		console.log("Failed",newX,newZ,",",troops[selectedArmy].x,troops[selectedArmy].z);
-		addBanner("Too far away.");
-	}
-	else if(clickedMark) {
-		if(selectedPoint!=markers[whichMark].id) {
-			clickedPin=whichMark;
-			selectedArmy=-1;
-			actionState="default";
-			lastTar=[Infinity,Infinity];
-			selectedPoint=markers[whichMark].id;
-			editTxt="";
-			if(markers[whichMark].owned) $("#editpin").addClass("shown");
-			else $("#editpin").removeClass("shown");
-			$("#infoTxt")[0].innerHTML="<b>"+markers[whichMark].name+"</b>: "+markers[whichMark].desc;
-			$("#infoTxtBox").addClass("shown");
-		}
-		else {
-			selectedPoint=0;
-			resetStuff();
-		}
-		drawPoints();
-	}
-	else if(lastTar[0]!=xCor || lastTar[1]!=yCor) {
-		resetStuff();
-		lastTar=[xCor,yCor];
-		boxCtx.strokeStyle="#000000";
-		boxCtx.lineWidth=8;
-		boxCtx.strokeRect(offsetPix[0]+xf*tileSize, offsetPix[1]+yf*tileSize, tileSize, tileSize);
-		boxCtx.strokeStyle="#FFFFFF";
-		boxCtx.lineWidth=4;
-		boxCtx.strokeRect(offsetPix[0]+xf*tileSize, offsetPix[1]+yf*tileSize, tileSize, tileSize);
-		$("#infoTxt")[0].innerHTML="Highlighted tile ("+xCor+", "+yCor+"), centered on ("+(xCor*128)+", "+(yCor*128)+"), coordinates ("+((xCor*128)-64)+", "+((yCor*128)-64)+") to ("+((xCor*128)+63)+", "+((yCor*128)+63)+").<br>Map ID: "+mapIds(xCor,yCor);
+		boxCtx.strokeRect(offsetPix[0]+(xf+0.5)*tileSize, offsetPix[1]+(yf+0.5)*tileSize, tileSize, tileSize);
+		$("#infoTxt")[0].innerHTML="Highlighted region ("+xCor+", "+yCor+"), coordinates ("+((xCor*baseTileSize))+", "+((yCor*baseTileSize))+") to ("+(((xCor+1)*baseTileSize)-1)+", "+(((yCor+1)*baseTileSize)-1)+").";
 		$("#infoTxtBox").addClass("shown");
 		drawMain();
 	}
@@ -1382,7 +1226,7 @@ function highlighttroops(e) {
 	var btnDist=Infinity;
 	if(pointsVis && actionState!="move" && actionState!="move_story") {
 		for(var i=0; i<troops.length; i++) {
-			var dist=Math.sqrt(Math.pow(xXct-(troops[i].x+0.5)/128*tileSize-tileSize/2,2)+Math.pow(yXct-(troops[i].z+0.5)/128*tileSize-tileSize/2,2));
+			var dist=Math.sqrt(Math.pow(xXct-(troops[i].x+0.5)/baseTileSize*tileSize-tileSize/2,2)+Math.pow(yXct-(troops[i].z+0.5)/baseTileSize*tileSize-tileSize/2,2));
 			if(dist<trpDist && (((dist<26 && hoverArmy==troops[i].id) || dist<18)) || (((dist<102 && hoverArmy==troops[i].id) || dist<72) && isMobile)) {
 				clickedTrp=true;
 				whichTrp=i;
@@ -1400,8 +1244,8 @@ function highlighttroops(e) {
 	}
 	var trpPos;
 	if(selectedArmy>-1)
-		trpPos=[offsetPix[0]+(troops[selectedArmy].x+0.5)/128*tileSize-cornerPos[0]*tileSize+tileSize/2,offsetPix[1]+(troops[selectedArmy].z+0.5)/128*tileSize-cornerPos[1]*tileSize+tileSize/2];
-	if(clickedTrp || clickedBtn || (actionState=="move" && Math.sqrt(Math.pow(trpPos[0]-e.x,2)+Math.pow(trpPos[1]-e.y,2))<=64*tileSize/128) || actionState=="move_story")
+		trpPos=[offsetPix[0]+(troops[selectedArmy].x+0.5)/baseTileSize*tileSize-cornerPos[0]*tileSize+tileSize/2,offsetPix[1]+(troops[selectedArmy].z+0.5)/baseTileSize*tileSize-cornerPos[1]*tileSize+tileSize/2];
+	if(clickedTrp || clickedBtn || (actionState=="move" && Math.sqrt(Math.pow(trpPos[0]-e.x,2)+Math.pow(trpPos[1]-e.y,2))<=64*tileSize/baseTileSize) || actionState=="move_story")
 		$("#mcmap").addClass("pointer");
 	else
 		$("#mcmap").removeClass("pointer");
@@ -1427,25 +1271,13 @@ function redrawHighlight() {
 		var yCor=lastTar[1];;
 		boxCtx.strokeStyle="#000000";
 		boxCtx.lineWidth=8;
-		boxCtx.strokeRect(offsetPix[0]+xf*tileSize, offsetPix[1]+yf*tileSize, tileSize, tileSize);
+		boxCtx.strokeRect(offsetPix[0]+(xf+0.5)*tileSize, offsetPix[1]+(yf+0.5)*tileSize, tileSize, tileSize);
 		boxCtx.strokeStyle="#FFFFFF";
 		boxCtx.lineWidth=4;
-		boxCtx.strokeRect(offsetPix[0]+xf*tileSize, offsetPix[1]+yf*tileSize, tileSize, tileSize);
-		$("#infoTxt")[0].innerHTML="Highlighted tile ("+xCor+", "+yCor+"), centered on ("+(xCor*128)+", "+(yCor*128)+"), coordinates ("+((xCor*128)-64)+", "+((yCor*128)-64)+") to ("+((xCor*128)+63)+", "+((yCor*128)+63)+").<br>Map ID: "+mapIds(xCor,yCor);
+		boxCtx.strokeRect(offsetPix[0]+(xf+0.5)*tileSize, offsetPix[1]+(yf+0.5)*tileSize, tileSize, tileSize);
+		$("#infoTxt")[0].innerHTML="Highlighted region ("+xCor+", "+yCor+"), coordinates ("+((xCor*baseTileSize))+", "+((yCor*baseTileSize))+") to ("+(((xCor+1)*baseTileSize)-1)+", "+(((yCor+1)*baseTileSize)-1)+").";
 		$("#infoTxtBox").addClass("shown");
 		drawMain();
-	}
-}
-function zoom(e) {
-	if(Math.abs(e.deltaY)>Math.abs(e.deltaX)) {
-		tileSize*=Math.pow(2,-e.deltaY/100);
-		tileSize=Math.max(38.4,tileSize);
-		offsetPix[0]=-1*offsetPos[0]*tileSize;
-		offsetPix[1]=-1*offsetPos[1]*tileSize;
-		setHash();
-		cornerPos=[pos[0]-width/(2*tileSize)+0.5,pos[1]-height/(2*tileSize)+0.5];
-		draw();
-		redrawHighlight();
 	}
 }
 function mapIds(x,y) {
@@ -1460,10 +1292,10 @@ function drawCircle(CTX,xPos,yPos,radius,color) {
 }
 function checkMarkerVisibility() {//removed feature: buggy and unnecessary
 	markersVisible=[];
-	var posRel=[pos[0]*128,pos[1]*128];
-	var delta=[(pos[0]-cornerPos[0])*128,(pos[1]-cornerPos[1])*128];
+	var posRel=[pos[0]*baseTileSize,pos[1]*baseTileSize];
+	var delta=[(pos[0]-cornerPos[0])*baseTileSize,(pos[1]-cornerPos[1])*baseTileSize];
 	for(var i=0; i<markers.length; i++) {
-		if(markers[i].x>=cornerPos[0]-1 && markers[i].x<=cornerPos[0]+width/tileSize*128+1 && markers[i].z>=cornerPos[1]-1 && markers[i].z<=cornerPos[1]+height/tileSize*128+1) {
+		if(markers[i].x>=cornerPos[0]-1 && markers[i].x<=cornerPos[0]+width/tileSize*baseTileSize+1 && markers[i].z>=cornerPos[1]-1 && markers[i].z<=cornerPos[1]+height/tileSize*baseTileSize+1) {
 			markersVisible.push(markers[i].id);
 		}
 	}
@@ -1475,7 +1307,7 @@ function drawPoints() {
 		var posRel=[cornerPos[0]*tileSize,cornerPos[1]*tileSize];
 		for(var i=0; i<markers.length; i++) {
 			if(markers[i].dimension==dimension) {
-				var posAdj=[offsetPix[0]+(markers[i].x+0.5)/128*tileSize-posRel[0]+tileSize/2,offsetPix[1]+(markers[i].z+0.5)/128*tileSize-posRel[1]+tileSize/2];
+				var posAdj=[offsetPix[0]+(markers[i].x+0.5)/baseTileSize*tileSize-posRel[0]+tileSize/2,offsetPix[1]+(markers[i].z+0.5)/baseTileSize*tileSize-posRel[1]+tileSize/2];
 				var sizeMod=1;
 				if(markers[i].id==selectedPoint) {
 					sizeMod=Math.sqrt(2);
@@ -1516,7 +1348,7 @@ function resetStuff() {
 }
 function setHash() {
 	/*clearTimeout(setHashTimeout);
-	setHashTimeout=setTimeout(function(){history.replaceState(undefined, undefined, "#x="+(pos[0]+offsetPos[0])+"&z="+(pos[1]+offsetPos[1])+"&zoom="+tileSize/128+"&dimension="+dimension)},1000);*/
+	setHashTimeout=setTimeout(function(){history.replaceState(undefined, undefined, "#x="+(pos[0]+offsetPos[0])+"&z="+(pos[1]+offsetPos[1])+"&zoom="+tileSize/baseTileSize+"&dimension="+dimension)},1000);*/
 }
 function drawTroops() {
 	trpCtx.clearRect(0,0,width,height);
@@ -1524,7 +1356,7 @@ function drawTroops() {
 		var posRel=[cornerPos[0]*tileSize,cornerPos[1]*tileSize];
 		for(var i=0; i<troops.length; i++) {
 			if(troops[i].dimension==dimension) {
-				var posAdj=[offsetPix[0]+(troops[i].x+0.5)/128*tileSize-posRel[0]+tileSize/2,offsetPix[1]+(troops[i].z+0.5)/128*tileSize-posRel[1]+tileSize/2];
+				var posAdj=[offsetPix[0]+(troops[i].x+0.5)/baseTileSize*tileSize-posRel[0]+tileSize/2,offsetPix[1]+(troops[i].z+0.5)/baseTileSize*tileSize-posRel[1]+tileSize/2];
 				var sizeMod=1;
 				var mobMod=1;
 				if(i==hoverArmy) {
@@ -1755,12 +1587,12 @@ function drawUI() {
 	if(actionState=="move") {
 		boxCtx.clearRect(0,0,width,height);
 		var posRel=[cornerPos[0]*tileSize,cornerPos[1]*tileSize];
-		var posAdj=[offsetPix[0]+(troops[selectedArmy].x+0.5)/128*tileSize-posRel[0]+tileSize/2,offsetPix[1]+(troops[selectedArmy].z+0.5)/128*tileSize-posRel[1]+tileSize/2];
-		drawCircle(boxCtx,posAdj[0],posAdj[1],64*tileSize/128,"rgba("+parseInt(troops[selectedArmy].color.slice(0,2),16)+","+parseInt(troops[selectedArmy].color.slice(2,4),16)+","+parseInt(troops[selectedArmy].color.slice(4,6),16)+",0.5)");
+		var posAdj=[offsetPix[0]+(troops[selectedArmy].x+0.5)/baseTileSize*tileSize-posRel[0]+tileSize/2,offsetPix[1]+(troops[selectedArmy].z+0.5)/baseTileSize*tileSize-posRel[1]+tileSize/2];
+		drawCircle(boxCtx,posAdj[0],posAdj[1],64*tileSize/baseTileSize,"rgba("+parseInt(troops[selectedArmy].color.slice(0,2),16)+","+parseInt(troops[selectedArmy].color.slice(2,4),16)+","+parseInt(troops[selectedArmy].color.slice(4,6),16)+",0.5)");
 		boxCtx.beginPath();
 		boxCtx.strokeStyle="#"+troops[selectedArmy].color;
 		boxCtx.lineWidth=4;
-		boxCtx.arc(posAdj[0], posAdj[1], 64*tileSize/128, 0, 2*Math.PI, true);
+		boxCtx.arc(posAdj[0], posAdj[1], 64*tileSize/baseTileSize, 0, 2*Math.PI, true);
 		boxCtx.stroke();
 	}
 }
@@ -1777,8 +1609,8 @@ function drawRotary(x,y,iRadius,oRadius,btns) {
 		btns[i].x=x+radius*Math.cos(Math.TAU*i/btns.length);
 		btns[i].y=y-radius*Math.sin(Math.TAU*i/btns.length);
 		btns[i].radius=menuwidth/2;
-		//uiCtx.drawImage(rotarySprites[btns[i].active],(btns[i].icon%4)*128,parseInt(btns[i].icon/4)*128,128,128,btns[i].x-btnSize/2,btns[i].y-btnSize/2,btnSize,btnSize);
-		drawSpriteFromMap(uiCtx,btns[i].x-btnSize/2,btns[i].y-btnSize/2,rotarySprites[btns[i].active],btns[i].icon,128,btnSize);
+		//uiCtx.drawImage(rotarySprites[btns[i].active],(btns[i].icon%4)*baseTileSize,parseInt(btns[i].icon/4)*baseTileSize,baseTileSize,baseTileSize,btns[i].x-btnSize/2,btns[i].y-btnSize/2,btnSize,btnSize);
+		drawSpriteFromMap(uiCtx,btns[i].x-btnSize/2,btns[i].y-btnSize/2,rotarySprites[btns[i].active],btns[i].icon,baseTileSize,btnSize);
 		if(btns[i].buff>=0) {
 			//uiCtx.drawImage(buffSprites,(btns[i].buff%4)*64,parseInt(btns[i].buff/4)*64,64,64,btns[i].x,btns[i].y,btnSize/2,btnSize/2);
 			drawSpriteFromMap(uiCtx,btns[i].x,btns[i].y,buffSprites,btns[i].buff,64,btnSize/2);
@@ -1967,8 +1799,8 @@ function setTroopMenu(kind,id) {
 		$("#trpn-cost").val(0);
 		$("#trpn-mobility").prop("checked",false);
 		$("#trpn-ranged").prop("checked",false);
-		$("#trpn-x").val(parseInt((offsetPos[0]+pos[0])*128));
-		$("#trpn-z").val(parseInt((offsetPos[1]+pos[1])*128));
+		$("#trpn-x").val(parseInt((offsetPos[0]+pos[0])*baseTileSize));
+		$("#trpn-z").val(parseInt((offsetPos[1]+pos[1])*baseTileSize));
 		trpnCtx.clearRect(0,0,64,64);
 		//trpnCtx.drawImage(sprites,(0%8)*16,parseInt(0/8)*16,16,16,0,0,64,64);
 		drawSpriteFromMap(trpnCtx,0,0,sprites,0,16,64);
@@ -2295,8 +2127,8 @@ function resetPinMenu() {
 	$("#pinMenu").addClass("create");
 	$("#pinMenu").removeClass("change");
 	$("#pin-name").val("");
-	$("#pin-x").val(parseInt((offsetPos[0]+pos[0])*128));
-	$("#pin-z").val(parseInt((offsetPos[1]+pos[1])*128));
+	$("#pin-x").val(parseInt((offsetPos[0]+pos[0])*baseTileSize));
+	$("#pin-z").val(parseInt((offsetPos[1]+pos[1])*baseTileSize));
 	$("#pin-dimen").val(dimension);
 	$("#pin-desc").val("");
 	$(".pinicon").val("default");
