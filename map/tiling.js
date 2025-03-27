@@ -216,7 +216,6 @@ tooltip.active=-1;
 document.addEventListener("keydown", move);
 $.getJSON("tileIds.json",function (data) {tileIds=data; idsRetrieved=true;});
 window.onresize = function(e) {
-	console.log('resize');
 	canvasResize();
 	moving();
 };
@@ -663,7 +662,6 @@ function setupControls() {
 		control_setZoom(e.scale, e.center.x, e.center.y);
 		if(e.eventType==4)
 			freshZoom=true;
-		//console.log('zoom', e.scale, e.center.x, e.center.y, e.eventType);
 	});
 	hammertime.on('tap', function(e) {
 		if(e.pointerType!='mouse') {
@@ -676,7 +674,6 @@ function setupControls() {
 	hammertime.on('startdrag', function(e) {mouseLastPos={x:e.center.x,y:e.center.y}; enableDrag=true;});
 }
 function control_pan(x,y) {// x: delta x, y: delta y
-	console.log(x,y);
 	var delta=[x,y];
 	var tempPos=[pos[0]+offsetPos[0],pos[1]+offsetPos[1]];
 	for(var i=0; i<2; i++) {
